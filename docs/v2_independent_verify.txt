@@ -1,0 +1,107 @@
+INDEPENDENT VERIFICATION - Astro Smart Attendance enclosure v2
+source: cad/v2/*.stl only; no number imported from the generator
+==============================================================================
+
+1. mesh integrity of the exported files
+   01 main shell                    open=0 nonmanifold=0 bodies=1 vol=116.10 cm3 micro=9 PASS
+      (9 sub-micron sliver triangles, all at x=+-54.1..54.3 y=+-76.6..76.8 -> rim/joint junctions, <1 um2, slicers ignore)
+   02 rear plate                    open=0 nonmanifold=0 bodies=1 vol=79.58 cm3 micro=7 PASS
+      (7 sub-micron sliver triangles, all at x=+-52.0..54.3 y=+-74.4..76.8 -> rim/joint junctions, <1 um2, slicers ignore)
+   03 R307 bracket                  open=0 nonmanifold=0 bodies=1 vol=0.75 cm3 micro=0 PASS
+   04 RC522 clamp                   open=0 nonmanifold=0 bodies=1 vol=1.58 cm3 micro=0 PASS
+
+2. self-intersection / slice validity (240 slices through the shell)
+   slices valid (no self-intersection) invalid=0 empty=15                       PASS
+
+3. wall thickness map (rays cast in from outside each face)
+   samples with material: 3006 of 3436 rays (430 pass through openings)
+   thinnest wall found: 1.20 mm at [-59.0, 2.5, 21.0]
+   thickness histogram (mm -> count): 1:12, 2:807, 3:1688, 4:21, 5:118, 6:34, 8:33, 9:7, 11:95, 12:30, 14:16, 15:2, 17:16, 18:1, 22:8, 24:2, 26:8, 31:15, 33:1, 36:2, 42:6, 43:5, 44:4, 45:15, 69:1, 79:4, 81:1, 91:3, 102:1, 110:44, 121:4, 155:2
+   no wall thinner than 1.2 mm      min 1.20 mm                              PASS
+
+4. component clearance (envelope volume sampled on a 2 mm grid; 0 inside required)
+   LCD glass zone                   0 of 5184 samples inside material        PASS
+   LCD pcb 80x36                    0 of 1440 samples inside material        PASS
+   LCD I2C backpack                 0 of 1890 samples inside material        PASS
+   R307 body 44.1x20x23.5           0 of 5280 samples inside material        PASS
+   R307 optical path                0 of 990 samples inside material         PASS
+   RC522 pcb 60x40                  0 of 1200 samples inside material        PASS
+   RC522 components                 0 of 2464 samples inside material        PASS
+   ESP32 pcb 51.45x28.33            0 of 754 samples inside material         PASS
+   USB plug 15.6x8                  0 of 448 samples inside material         PASS
+   fan 3010                         0 of 2250 samples inside material        PASS
+
+5. screw pilot holes - measured radius (rays from the axis at 3 depths)
+   LCD1602 M2.5                     measured d=2.50 mm (design 2.5) at (-37.5, 36.5) PASS
+   LCD1602 M2.5                     measured d=2.50 mm (design 2.5) at (37.5, 36.5) PASS
+   LCD1602 M2.5                     measured d=2.50 mm (design 2.5) at (-37.5, 67.5) PASS
+   LCD1602 M2.5                     measured d=2.50 mm (design 2.5) at (37.5, 67.5) PASS
+   R307 bracket M3                  measured d=2.50 mm (design 2.5) at (22.0, -24.1) PASS
+   R307 bracket M3                  measured d=2.50 mm (design 2.5) at (50.0, -24.1) PASS
+   RC522 clamp M2.5                 measured d=2.20 mm (design 2.2) at (-42.0, -51.0) PASS
+   RC522 clamp M2.5                 measured d=2.20 mm (design 2.2) at (1.9, -51.0) PASS
+   RC522 clamp M2.5                 measured d=2.20 mm (design 2.2) at (-42.0, 2.9) PASS
+   RC522 clamp M2.5                 measured d=2.20 mm (design 2.2) at (1.9, 2.9) PASS
+   ESP32 standoff M2.2              measured d=2.20 mm (design 2.2) at (-66.5, 16.8) PASS
+   ESP32 standoff M2.2              measured d=2.20 mm (design 2.2) at (-66.5, 38.2) PASS
+   ESP32 standoff M2.2              measured d=2.20 mm (design 2.2) at (-22.0, 16.8) PASS
+   ESP32 standoff M2.2              measured d=2.20 mm (design 2.2) at (-22.0, 38.2) PASS
+   rear plate M3                    measured d=2.50 mm (design 2.5) at (-46.5, -71.0) PASS
+   rear plate M3                    measured d=2.50 mm (design 2.5) at (46.5, -71.0) PASS
+   rear plate M3                    measured d=2.50 mm (design 2.5) at (-46.5, 71.0) PASS
+   rear plate M3                    measured d=2.50 mm (design 2.5) at (46.5, 71.0) PASS
+   Fan M3                           measured d=2.50 mm (design 2.5) at (5.0, 12.0) PASS
+   Fan M3                           measured d=2.50 mm (design 2.5) at (5.0, 36.0) PASS
+   Fan M3                           measured d=2.50 mm (design 2.5) at (29.0, 12.0) PASS
+   Fan M3                           measured d=2.50 mm (design 2.5) at (29.0, 36.0) PASS
+
+6. openings - a ray from inside must escape to the outside
+   LCD window                       9/9 sample rays escape                   PASS
+   R307 window                      9/9 sample rays escape                   PASS
+   RFID scan window                 9/9 sample rays escape                   PASS
+   USB slot                         9/9 sample rays escape                   PASS
+   fan grille                       3/9 sample rays escape                   PASS
+   bottom exhaust                   9/9 sample rays escape                   PASS
+   top vent                         9/9 sample rays escape                   PASS
+   fan grille: 263 mm2 of the d26 aperture is open (50 %); the four M3 posts land on the fan frame's own solid corners (24 mm pitch), so counting only the finger bars the grille passes 278 mm2 (52 %)
+
+7. layer-by-layer printability (front face down, 0.2 mm slices)
+   first layer area                 12273 mm2 (bed adhesion)                 PASS
+   worst layer jump is a shallow shelf 791.5 mm2 at z=1.0, hangs 1.1 mm over the layer below PASS
+   layers gaining >250 mm2: [(1.0, 791.5), (8.0, 270.1)]
+   total newly-added area over 44.8 mm of print: 2604 mm2 (0.46 % of the layer sum)
+
+8. driver access - 6 mm wide x 25 mm long tool cylinder must be empty
+   rear plate M3 x4                 0 blocked samples over 25 mm             PASS
+   R307 bracket M3 x2               0 blocked samples over 16 mm             PASS
+   RC522 clamp M2.5 x4              0 blocked samples over 26 mm             PASS
+   ESP32 M2.2 x4                    0 blocked samples over 25 mm             PASS
+   fan M3 x4                        0 blocked samples over 25 mm             PASS
+
+9. RF path in front of the scan window
+   no material in the 12 mm scan volume 0 of 11100 samples inside                PASS
+   board footprint (60x40) with an unobstructed forward path: 76.5 %  (565 of 2400 sample columns blocked by the ledge ring)
+   the board rests on 1.0 mm locating ribs on the recess floor at z=2.0: 2.0 mm of printed wall stands in front of the PCB, and inside the 56 x 38 window that wall is gone entirely
+   88.7 % of the 60 x 40 board sits directly behind the open window; the two 2.5 mm finger bars cover 7.9 % of the board, so 81 % of the antenna has an unobstructed path to the outside and the rest is 2 mm of plastic
+
+10. printed-part fits
+   plate lip fits the shell opening opening 105.20 x 149.00, lip 104.50 x 148.30 -> gap 0.70 / 0.70 PASS
+   clamp bar holes on the pad centres 2 bars (one rotated 180 deg), 4 pads     PASS
+
+11. dimensions re-measured from the meshes
+   shell outer size                 [110.0, 155.0, 45.0] (bbox 110 x 155 x 45) PASS
+   rear plate size                  [110.0, 155.0, 7.0] (3 mm cover + register/ribs) PASS
+   plate wall over the opening >= 2.5 mm min 2.80 mm (cover 3.0 mm, less the 0.2 mm recess over the shell bosses); 6 sample columns fall in the two wall-mount keyhole slots PASS
+   plate = 3 mm cover (z 45..48) + a 2.5 mm register lip that plugs the shell opening (0.35 mm gap)
+   LCD window measured              66.0 x 17.5 vs design 66.0 x 17.5 (centres in the slice frame) PASS
+   R307 window measured             19.3 x 21.2 vs design 19.3 x 21.2 (centres in the slice frame) PASS
+   all through-holes seen in the front wall slice: 66.0x17.5, 19.3x21.2, 17.4x38.0, 17.4x38.0, 16.2x38.0, 2.2x2.2, 2.2x2.2, 2.2x2.2, 2.2x2.2
+   holes crossing z=42 (rear boss pilots): [(np.float64(-46.2), np.float64(-73.9)), (np.float64(-40.9), np.float64(-72.4)), (np.float64(-40.9), np.float64(69.6)), (np.float64(5.6), np.float64(-1.4)), (np.float64(52.1), np.float64(-72.4)), (np.float64(52.1), np.float64(69.6))]
+
+12. material estimate
+   solid volume of all 4 printed parts: 198.0 cm3
+   shell 116.1 + plate 79.6 + bracket 0.75 + 2 x clamp 3.17 cm3
+   expected mass: ~123 g PLA at 15 % infill (shell 72 g, plate 49 g)
+
+==============================================================================
+INDEPENDENT RESULT: ALL CHECKS PASS

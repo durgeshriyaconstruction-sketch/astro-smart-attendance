@@ -132,7 +132,8 @@ def project_points(pts, R, scale, ox, oy):
 
 
 def render(tri, out_png, view="iso", W=1000, H=750, bg=(24, 26, 32),
-           colors=((150, 200, 235),), wire=False, margins=0.06):
+           colors=((150, 200, 235),), wire=False, margins=0.06, tri_rgb=None,
+           label=None):
     """Painter's algorithm z-buffer-free triangle rasteriser with simple shading."""
     R = _rot_matrix(view)
     pts = tri.reshape(-1, 3) @ R.T
@@ -158,7 +159,10 @@ def render(tri, out_png, view="iso", W=1000, H=750, bg=(24, 26, 32),
     lam = 0.22 + 0.78 * lam
 
     order = np.argsort(((z[:, 0] + z[:, 1] + z[:, 2]) / 3.0))
-    if len(colors) == 1:
+    if tri_rgb is not None:
+        assert len(tri_rgb) == len(tri), "tri_rgb must have one RGB per triangle"
+        col_for = None
+    elif len(colors) == 1:
         col_for = np.zeros(len(tri), dtype=int)
     else:
         # colour by face normal cluster -> very rough material-part guess
@@ -195,7 +199,8 @@ def render(tri, out_png, view="iso", W=1000, H=750, bg=(24, 26, 32),
         if not upd.any():
             continue
         sub_z[upd] = depth[upd]
-        base = np.array(colors[col_for[i]], dtype=np.float64)
+        base = (np.asarray(tri_rgb[i], dtype=np.float64) if tri_rgb is not None
+                else np.array(colors[col_for[i]], dtype=np.float64))
         c = np.clip(base * lam[i], 0, 255).astype(np.uint8)
         sub_img = img[y0:y1 + 1, x0:x1 + 1]
         sub_img[upd] = c
@@ -205,9 +210,10 @@ def render(tri, out_png, view="iso", W=1000, H=750, bg=(24, 26, 32),
 
     im = Image.fromarray(img)
     d = ImageDraw.Draw(im)
-    label = f"{view}   bbox {hi[0]-lo[0]:.1f} x {hi[1]-lo[1]:.1f} x {hi[2]-lo[2]:.1f} mm"
+    lab = label if label is not None else (
+        f"{view}   bbox {hi[0]-lo[0]:.1f} x {hi[1]-lo[1]:.1f} x {hi[2]-lo[2]:.1f} mm")
     d.rectangle([0, 0, W, 22], fill=(12, 13, 17))
-    d.text((8, 6), label, fill=(200, 200, 210))
+    d.text((8, 6), lab, fill=(200, 200, 210))
     im.save(out_png)
     return im
 

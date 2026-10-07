@@ -75,10 +75,10 @@ def tile(view, title, tris=None, margins=0.10, marks=(), note=None):
 # ------------------------------------------------------------------ sheet
 sheet = Image.new("RGB", (TILE[0] * 2, TILE[1] * 2 + 46), (10, 11, 15))
 draw = ImageDraw.Draw(sheet)
-draw.text((10, 8), "ASTRO SMART ATTENDANCE  —  ENCLOSURE v2 (parametric rebuild)   units: mm   "
+draw.text((10, 8), "ASTRO SMART ATTENDANCE - ENCLOSURE v2 (parametric rebuild)   units: mm   "
                    "outer 110 x 155 x 48   wall 2.4-3.0   print fit 0.35", fill=WHT)
-draw.text((10, 26), "front face DOWN on the bed · rear opening UP · no supports required · every module "
-                    "screwed down (22 self-tapping screw holes, all verified) · 4 printed parts", fill=CYA)
+draw.text((10, 26), "front face DOWN on the bed | rear opening UP | no supports required | every module "
+                    "screwed down (22 self-tapping screw holes, all verified) | 4 printed parts", fill=CYA)
 draw.line([0, 44, TILE[0] * 2, 44], fill=(60, 64, 74))
 
 fy, fz = P["fan_centre_yz"]
@@ -110,7 +110,7 @@ sheet.paste(tile("iso", "2  ISO  (front face down on the bed)", marks=iso_marks)
 
 # tile 0,1 ---- -X side wall: fan, ESP32, vents
 side_marks = [
-    ((-P["W"] / 2, fy, fz), "3010 fan: grille d26, 3 bars, 4 M2.5 pilots at 24 mm", GRN, 90, -66),
+    ((-P["W"] / 2, fy, fz), "3010 fan: grille d26, 3 bars, 4 x M3 screws, pilots d2.5 at 24 mm", GRN, 90, -66),
     ((-P["W"] / 2, -44.0, P["esp32_z_centre"]), "ESP32 DevKit V1 bay - 10 mm standoff, USB slot", YEL, 130, 40),
     ((0.0, P["H"] / 2, P["top_vent_z"]), "top-wall vent 3 x (16 x 3)", CYA, 96, -96),
     ((0.0, -P["H"] / 2, P["vent_z"][0]), "bottom-wall exhaust 4 x (20 x 4)", MAG, 110, 86),
@@ -154,7 +154,7 @@ render(allp, OUT + "v2_exploded_iso.png", view="iso2", W=1200, H=840, bg=BG)
 im = Image.open(OUT + "v2_exploded_iso.png").convert("RGB")
 d = ImageDraw.Draw(im)
 d.rectangle([0, 0, 1200, 24], fill=(10, 11, 15))
-d.text((8, 6), "EXPLODED  —  Astro Smart Attendance enclosure v2  (4 printed parts, no supports)", fill=WHT)
+d.text((8, 6), "EXPLODED - Astro Smart Attendance enclosure v2 (4 printed parts, no supports)", fill=WHT)
 R, sc, ox, oy = projection(allp, "iso2", 1200, 840, margins=0.07)
 for name, t, _ in parts:
     c = t.reshape(-1, 3)

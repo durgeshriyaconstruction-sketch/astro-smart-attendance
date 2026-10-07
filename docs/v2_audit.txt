@@ -1,10 +1,10 @@
 ASTRO SMART ATTENDANCE - v2 enclosure audit
 ============================================================================
 axis frame: X width 110, Y height 155, Z depth 48 mm
-shell     : 10610 tris, watertight=True, winding_ok=True, bodies=1
+shell     : 10970 tris, watertight=True, winding_ok=True, bodies=1
 shell size: [110.0, 155.0, 45.0] (depth 45 + 3 mm plate = 48)
 assembly  : 110.0 x 155.0 x 48.0 mm
-volume    : 115.5 cm3  ~72 g PLA (15 % infill, estimate)
+volume    : 116.1 cm3  ~72 g PLA (15 % infill, estimate)
 
 A. printed-part interference
    shell <-> rear plate                    0.00 mm3   PASS
@@ -36,19 +36,20 @@ C. openings (must be open through the wall, wall must exist beside them)
    top vent             open=True  wall_ok=True  PASS
 
 D. other printed parts
-   rear plate   : size [110.0, 155.0, 7.0], watertight=True, 81.9 cm3
+   rear plate   : size [110.0, 155.0, 7.0], watertight=True, 79.6 cm3
    RC522 clamp  : size [62.0, 15.0, 2.5], watertight=True, 1.6 cm3  (print 2, second rotated 180 deg)
    R307 bracket : size [33.5, 12.0, 2.0], watertight=True
 
 E. wall / feature thickness probe (ray through the material)
    front wall, plain          measured  2.90 mm   design 2.90   PASS
-   front wall, RFID recess    measured  1.45 mm   design 1.45   PASS
-   RFID stiffener bar         measured  1.45 mm   design 1.45   PASS
+   RFID ledge ring            measured  1.95 mm   design 2.00   PASS
+   RFID stiffener bar         measured  1.90 mm   design 1.95   PASS
    side wall                  measured  2.35 mm   design 2.30   PASS
    top wall                   measured  2.90 mm   design 2.90   PASS
    bottom wall                measured  2.90 mm   design 2.90   PASS
    LCD boss above wall        measured 11.50 mm   design 11.50   PASS
    R307 post height           measured 23.50 mm   design 23.50   PASS
+   fan ring above grille      measured  1.35 mm   design 1.20   PASS
 
 F. dimensional audit against the supplied component references
    R307 body              model: (20.0, 44.1, 23.5)                     ref: 44.1 x 20 x 23.5    
@@ -65,7 +66,8 @@ F. dimensional audit against the supplied component references
 
 G. printability (orientation: front face down, rear opening up)
    >60 deg overhang area: 155 mm2 (0.18 % of surface) - SUPPORT_REQUIRED = NO
-   designed walls: front 3.0 mm (1.5 mm at the RFID recess), sides 2.4 mm, top/bottom 3.0 mm, plate 3.0 mm, fit clearance 0.35 mm
+   designed walls: front 3.0 mm (2.0 mm ledge ring at the RFID window), sides 2.4 mm, top/bottom 3.0 mm, plate 3.0 mm, fit clearance 0.35 mm
+   outer polish: vertical corners R3.0 mm, 1.0 mm x 45 deg front rim, plate rear rim chamfered, plate screws countersunk 6.6 mm / 90 deg (flush flat head)
 
 I. screw fixing map  (circular pilot holes - every hardware fixing, verified)
    part          screw  pilot    depth    hole empty  material
@@ -93,10 +95,24 @@ I. screw fixing map  (circular pilot holes - every hardware fixing, verified)
    rear plate    M3     2.5 x 9.0               True      True  PASS   at (46.5, 71.0)
    -> 22 screw holes in total: 4 x LCD1602, 2 x R307 bracket, 4 x RC522 clamp, 4 x ESP32 standoff, 4 x Fan 3010, 4 x rear plate  |  3 x cable-tie holes d4.0 (through)   ALL PASS
 
+J. outer polish / assembly features (probed)
+   corner rounded         PASS
+   corner material kept   PASS
+   front rim chamfered    PASS
+   rim material below     PASS
+   plate rear chamfer     PASS
+   plate corner round     PASS
+   plate csk open         PASS
+   plate csk wall kept    PASS
+   RC522 seat rib         PASS
+   RC522 ledge ring       PASS
+   R307 seat rib          PASS
+   strain-relief post     PASS
+
 H. STL file re-read verification (what the slicer will actually see)
-   shell        edges open=0 non-manifold=0 bodies=1 vol=115.5 cm3   PASS
-   rear plate   edges open=0 non-manifold=0 bodies=1 vol=81.9 cm3   PASS
-   R307 bracket edges open=0 non-manifold=0 bodies=1 vol=0.7 cm3   PASS
-   RC522 clamp  edges open=0 non-manifold=0 bodies=1 vol=1.6 cm3   PASS
+   shell        edges open=0 non-manifold=0 bodies=1 micro-faces=9 vol=116.1 cm3   PASS
+   rear plate   edges open=0 non-manifold=0 bodies=1 micro-faces=7 vol=79.6 cm3   PASS
+   R307 bracket edges open=0 non-manifold=0 bodies=1 micro-faces=0 vol=0.7 cm3   PASS
+   RC522 clamp  edges open=0 non-manifold=0 bodies=1 micro-faces=0 vol=1.6 cm3   PASS
 
 RESULT: ALL CHECKS PASS

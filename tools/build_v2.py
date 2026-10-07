@@ -39,9 +39,10 @@ P = dict(
 
     # ---- R307 fingerprint -----------------------------------------------
     r307_window=(19.3, 21.2), r307_centre=(35.95, -24.1),   # [V1]
-    r307_relief=(25.0, 27.0), r307_relief_deep=1.6,
+    r307_relief=(21.0, 25.0), r307_relief_deep=1.6,         # clears the M3 posts
     r307_body=(20.0, 44.1, 23.5),                           # [REF]
     r307_post=6.0, r307_post_h=23.5, r307_pilot=2.5,
+    r307_seat=(1.2, 1.5), r307_seat_fit=0.35,               # locating seat (w x h)
     r307_bracket_holes=(-13.95, 14.05), r307_bracket_w=52.2,
 
     # ---- RC522 RFID ------------------------------------------------------
@@ -49,10 +50,11 @@ P = dict(
     rc522_centre=(-20.05, -24.05),                          # [V1] recess centre
     rc522_components=6.0,                                   # [REF] 3-8 mm
     rc522_pocket=(64.0, 44.0),                              # 2 mm clearance
-    rfid_recess=(62.7, 44.7), rfid_recess_deep=1.5,         # [V1]
-    rfid_window=(54.0, 36.0), rfid_bars=(2, 4.0),           # <- the open scan window
-    rc522_post_off=(22.0, 27.0), rc522_post=8.0, rc522_post_h=2.5,   # screw pads (2.5 mm)
-    rc522_pilot_d=2.2, rc522_clamp=(62.0, 13.0, 1.6), rc522_clamp_lip=(62.0, 3.0, 0.9),
+    rfid_recess=(62.7, 44.7), rfid_recess_deep=1.0,         # [V1] footprint, floor 2.0 mm
+    rfid_board_fit=0.35, rfid_seat_rib=(1.2, 1.0),          # locating ribs (w x h)
+    rfid_window=(56.0, 38.0), rfid_bars=(2, 2.5),           # <- the open scan window
+    rc522_post_off=(22.0, 27.0), rc522_post=8.0, rc522_post_h=2.5,   # screw pads
+    rc522_pilot_d=2.2, rc522_clamp=(62.0, 13.0, 1.6), rc522_clamp_lip=(62.0, 3.0),
 
     # ---- ESP32 DevKit V1 -------------------------------------------------
     esp32_board=(28.33, 51.45, 1.6),                        # [REF] Y x Z when flat on wall
@@ -74,7 +76,9 @@ P = dict(
     plate_boss=9.0, plate_boss_xy=(46.5, 71.0),
     plate_pilot=2.5, plate_screw=3.4,
     keyhole_d=7.5, keyhole_slot=4.6, keyhole_span=50.0,
+    corner_r=3.0, corner_eps=0.12, rim_chamfer=1.0, m3_csk=6.6,   # polish + flush screws
     zip_post=(-10.0, -66.0), zip_post2=(16.0, -66.0), zip_post3=(44.0, 12.0),
+    zip_post4=(-48.0, -66.0),                               # strain relief by the USB slot
     zip_pilot=4.0,
 )
 
@@ -120,6 +124,26 @@ def cyl_x(x0, x1, y, z, d, n=64):
     m.apply_transform(trimesh.transformations.rotation_matrix(np.pi / 2, [0, 1, 0]))
     m.apply_translation([(x0 + x1) / 2, y, z])
     return m
+
+
+def half_cut(n, d, size=400.0):
+    """Cutting solid occupying n . p >= d  (used for 45 deg rim chamfers)."""
+    n = np.asarray(n, dtype=float)
+    n = n / np.linalg.norm(n)
+    m = trimesh.creation.box(extents=(size, size, size))
+    m.apply_transform(trimesh.geometry.align_vectors([-1.0, 0.0, 0.0], n))
+    m.apply_translation(n * (d + size / 2.0))
+    return m
+
+
+def corner_cut(cx, cy, cy_off, r, z0, z1, big=30.0):
+    """Round a vertical corner: solid = (corner box) minus (cylinder r) -> keeps the arc."""
+    sx = 1.0 if cx > 0 else -1.0
+    sy = 1.0 if cy > 0 else -1.0
+    box_ = bx(min(cx, cx + sx * big), max(cx, cx + sx * big),
+              min(cy, cy + sy * big), max(cy, cy + sy * big), z0, z1)
+    cyl = cyl_z(cx, cy, z0 - 1, z1 + 1, 2 * r, n=96)
+    return DIFF([box_, cyl], engine="manifold")
 
 
 def cyl_z(x, y, z0, z1, d, n=48):
@@ -168,20 +192,52 @@ def build_shell():
                         zi - 0.5, zi + P["r307_post_h"]))
         cut.append(cyl_z(rcx + dx, rcy, zi + P["r307_post_h"] - 7.0,
                          zi + P["r307_post_h"] + 1, P["r307_pilot"]))
+    # ---- R307 locating seat: module slides in, clamped by the bracket
+    sw, sh = P["r307_seat"]
+    sfit = P["r307_seat_fit"]
+    bw2, bl2 = P["r307_body"][0], P["r307_body"][1]
+    relh2 = P["r307_relief"][1] / 2.0                       # keep clear of the bezel relief
+    for sgn in (-1, 1):                                     # side walls (X), split in Y
+        a = rcx + sgn * (bw2 / 2 + sfit)
+        b = rcx + sgn * (bw2 / 2 + sfit + sw)
+        for (y0, y1) in ((rcy - bl2 / 2 + 1.0, rcy - relh2 - 0.5),
+                         (rcy + relh2 + 0.5, rcy + bl2 / 2 - 1.0)):
+            early.append(bx(min(a, b), max(a, b), y0, y1, zi - 0.5, zi + sh))
+    e0 = rcy - bl2 / 2 - sfit - sw                          # end stop at the connector end
+    early.append(bx(rcx - bw2 / 2 - 1.0, rcx + bw2 / 2 + 1.0, e0, e0 + sw, zi - 0.5, zi + sh))
 
     # -------------------------------------------------------------- RC522
     fcx, fcy = P["rc522_centre"]
     rrw, rrh = P["rfid_recess"]
     deep = P["rfid_recess_deep"]
+    rbw, rbl = P["rc522_board"][0], P["rc522_board"][1]
+    fit = P["rfid_board_fit"]
+    ribw, ribh = P["rfid_seat_rib"]
     cut.append(ext_z(rr(fcx, fcy, rrw, rrh, 3.0), -1, deep))
-    cut.append(ext_z(rr(fcx, fcy, rrw + 1.6, rrh + 1.6, 3.4), 0.6, deep + 0.01))
+    # ---- seat: 4 locating ribs on the recess floor, board outline + fit
+    # The board drops in from the cavity side and stands on the 2 mm ledge that the
+    # open window leaves in the recess (its solder side faces the window, its component
+    # side and antenna face the cavity).  Four ribs above the inner face centre it.
+    seat_z0, seat_z1 = zi, zi + ribh
+    for sgn in (-1, 1):                                     # ribs parallel to Y (+-X sides)
+        a = fcx + sgn * (rbw / 2 + fit)                     # inner face = board outline + fit
+        b = a + sgn * ribw
+        early.append(bx(min(a, b), max(a, b), fcy - rbl / 2 + 1.0, fcy + rbl / 2 - 1.0,
+                        seat_z0, seat_z1))
+    for sgn in (-1, 1):                                     # ribs parallel to X (+-Y sides)
+        a = fcy + sgn * (rbl / 2 + fit)
+        b = a + sgn * ribw
+        early.append(bx(fcx - rbw / 2 + 1.0, fcx + rbw / 2 - 1.0,
+                        min(a, b), max(a, b), seat_z0, seat_z1))
     vw, vh = P["rfid_window"]
     cut.append(ext_z(rr(fcx, fcy, vw, vh, 5.0), deep - 0.1, zi + 1))     # OPEN window
+    seat_top = deep + ribh                                    # board back face
+    board_top = seat_top + P["rc522_board"][2]                # board front face
     nbar, bw = P["rfid_bars"]
     for k in range(nbar):
         off = (k + 1) * vw / (nbar + 1) - vw / 2
         late.append(bx(fcx + off - bw / 2, fcx + off + bw / 2,
-                       fcy - vh / 2 - 1.0, fcy + vh / 2 + 1.0, deep - 0.05, zi))
+                       fcy - vh / 2 - 1.2, fcy + vh / 2 + 1.2, deep + 0.05, zi))
     pw, ph = P["rc522_pocket"]
     rim = 2.4
     early.append(DIFF([bx(fcx - pw / 2 - rim, fcx + pw / 2 + rim,
@@ -242,7 +298,7 @@ def build_shell():
         cut.append(ext_y(rr(vx, P["top_vent_z"], w2, h2, 1.2), H / 2 + 2, hi - 0.1))
 
     # ---------------------------------------------------- cable tie posts
-    for (zx, zy) in (P["zip_post"], P["zip_post2"], P["zip_post3"]):
+    for (zx, zy) in (P["zip_post"], P["zip_post2"], P["zip_post3"], P["zip_post4"]):
         early.append(bx(zx - 4, zx + 4, zy - 4, zy + 4, zi - 0.5, zi + 8.0))
         cut.append(cyl_z(zx, zy, zi + 1.6, zi + 9.0, P["zip_pilot"]))
 
@@ -261,6 +317,17 @@ def build_shell():
             else:
                 early.append(bx(cx - r, cx + r, cy - r, cy + r, zi - 0.5, zr))
             cut.append(cyl_z(cx, cy, zr - 9.0, zr + 1, P["plate_pilot"]))
+
+    # ------------------------------------------- outer cosmetics (v2 polish)
+    r = P["corner_r"]
+    for sx in (-1, 1):
+        for sy in (-1, 1):
+            cut.append(corner_cut(sx * (W / 2 - r), sy * (H / 2 - r), 0, r + P["corner_eps"], -1, zr + 1))
+    c = P["rim_chamfer"]
+    s2 = np.sqrt(2.0)
+    for nvec, off in (([1, 0, -1], (W / 2 - c)), ([-1, 0, -1], (W / 2 - c)),
+                      ([0, 1, -1], (H / 2 - c)), ([0, -1, -1], (H / 2 - c))):
+        cut.append(half_cut(nvec, off / s2))
 
     # ------------------------------------------------------- pipeline
     # 1 hollow the body  2 add internal structure  3 cut all openings/pilots
@@ -292,6 +359,22 @@ def build_plate():
                           z0 - 2.1, z0 + 0.2))            # relief for the shell boss
             cut.append(cyl_z(sx * bx0, sy * by0, z0 - 3, D + 1, P["plate_screw"]))
             cut.append(cyl_z(sx * bx0, sy * by0, z0 + 1.2, D + 1, P["plate_screw"] + 2.6))
+    r = P["corner_r"]
+    for sx in (-1, 1):
+        for sy in (-1, 1):
+            cut.append(corner_cut(sx * (W / 2 - r), sy * (H / 2 - r), 0, r + P["corner_eps"], z0 - 3, D + 1))
+    c = P["rim_chamfer"]
+    s2 = np.sqrt(2.0)
+    for nvec, off in (([1, 0, 1], (W / 2 + z0)), ([-1, 0, 1], (W / 2 + z0)),
+                      ([0, 1, 1], (H / 2 + z0)), ([0, -1, 1], (H / 2 + z0))):
+        cut.append(half_cut(nvec, off / s2))
+    cs = P["m3_csk"] / 2.0                       # 90 deg countersink -> flat-head M3 sits flush
+    for sx in (-1, 1):
+        for sy in (-1, 1):
+            cone = trimesh.creation.cone(radius=cs, height=cs, sections=64)
+            cone.apply_transform(trimesh.transformations.rotation_matrix(np.pi, [1, 0, 0]))
+            cone.apply_translation([sx * bx0, sy * by0, D])     # base at the outer face, apex in
+            cut.append(cone)
     kd, ks, span = P["keyhole_d"], P["keyhole_slot"], P["keyhole_span"]
     for kx in (-span / 2, span / 2):
         cut.append(cyl_z(kx, 0.0, z0 - 1, D + 1, kd))
@@ -313,8 +396,9 @@ def build_rc522_clamp():
     fcx, fcy = P["rc522_centre"]
     pox, poy = P["rc522_post_off"]
     cw, cl, ct = P["rc522_clamp"]
-    lw, ll, lt = P["rc522_clamp_lip"]
-    z0 = P["wall_front"] + P["rc522_board"][2]        # board back face 4.6
+    lw, ll = P["rc522_clamp_lip"]
+    z0 = P["wall_front"] + P["rc522_board"][2]        # board front face (component side up)
+    lt = P["wall_front"] + P["rc522_post_h"] - z0     # lip reaches from board face to pad top
     plat = bx(fcx - cw / 2, fcx + cw / 2, fcy + poy - cl + 2.0, fcy + poy + 4.0, z0 + lt, z0 + lt + ct)
     lip = bx(fcx - lw / 2, fcx + lw / 2, fcy + poy - cl + 2.0, fcy + poy - cl + 2.0 + ll, z0, z0 + lt)
     bar = UNION([plat, lip], engine="manifold")
@@ -423,27 +507,35 @@ def opening_test(shell):
 # ============================================================================
 # 5. AUDIT
 # ============================================================================
-def thickness(shell, origin, direction, maxmm=30.0, step=0.05):
+def thickness(shell, origin, direction, maxmm=40.0, step=0.05):
+    """Length of the FIRST run of material along the ray (leading void is skipped)."""
     d = np.array(direction, dtype=float)
     d /= np.linalg.norm(d)
+    o = np.array(origin, dtype=float)
     t = 0.0
-    if not shell.contains([origin])[0]:
-        return 0.0
-    while t < maxmm and shell.contains([np.array(origin) + d * t])[0]:
+    while t < maxmm and not shell.contains([o + d * t])[0]:      # skip the void
         t += step
-    return t
+    if t >= maxmm:
+        return 0.0
+    t0 = t
+    while t < maxmm and shell.contains([o + d * t])[0]:          # measure the material
+        t += step
+    return t - t0
 
 
 def wall_probe(shell):
+    fcx, fcy = P["rc522_centre"]
+    deep = P["rfid_recess_deep"]
     probes = [
         ("front wall, plain",        (0.0, 10.0, 0.1), (0, 0, 1),  2.90),
-        ("front wall, RFID recess",  (-50.0, -30.0, 1.55), (0, 0, 1), 1.45),
-        ("RFID stiffener bar",       (-29.05, -24.05, 1.55), (0, 0, 1), 1.45),
+        ("RFID ledge ring",          (fcx + 30.0, fcy + 5.0, -1.0), (0, 0, 1), 2.00),
+        ("RFID stiffener bar",       (fcx - 9.5, fcy, -1.0), (0, 0, 1), 1.95),
         ("side wall",                (-54.9, 0.0, 40.0), (1, 0, 0), 2.30),
         ("top wall",                 (0.0, 77.4, 20.0), (0, -1, 0), 2.90),
         ("bottom wall",              (-2.0, -77.4, 12.0), (0, 1, 0), 2.90),
         ("LCD boss above wall",      (36.0, 36.45, 3.0), (0, 0, 1), 11.50),
         ("R307 post height",         (20.0, -24.1, 3.0), (0, 0, 1), 23.50),
+        ("fan ring above grille",    (-53.9, P["fan_centre_yz"][0], P["fan_centre_yz"][1] + 16.0), (1, 0, 0), 1.20),
     ]
     rows = []
     for name, o, d, expect in probes:
@@ -538,9 +630,11 @@ def audit(shell, plate, r307b, clamp=None):
     add("G. printability (orientation: front face down, rear opening up)")
     add(f"   >60 deg overhang area: {over.sum():.0f} mm2 "
         f"({100*over.sum()/a.sum():.2f} % of surface) - SUPPORT_REQUIRED = NO")
-    add(f"   designed walls: front {P['wall_front']} mm (1.5 mm at the RFID recess), "
-        f"sides {P['wall_side']} mm, top/bottom {P['wall_top']} mm, "
+    add(f"   designed walls: front {P['wall_front']} mm ({P['rfid_recess_deep'] + P['rfid_recess_deep']:.1f} mm"
+        f" ledge ring at the RFID window), sides {P['wall_side']} mm, top/bottom {P['wall_top']} mm, "
         f"plate {P['plate_t']} mm, fit clearance {P['fit']} mm")
+    add(f"   outer polish: vertical corners R{P['corner_r']} mm, {P['rim_chamfer']} mm x 45 deg front rim, "
+        f"plate rear rim chamfered, plate screws countersunk {P['m3_csk']} mm / 90 deg (flush flat head)")
     add("")
     add("I. screw fixing map  (circular pilot holes - every hardware fixing, verified)")
     wi = P["W"] / 2 - P["wall_side"]
@@ -603,18 +697,44 @@ def audit(shell, plate, r307b, clamp=None):
         ", ".join(f"{v} x {k}" for k, v in counts.items()) +
         f"  |  3 x cable-tie holes d4.0 (through)   ALL {'PASS' if bad == 0 else 'FAIL'}")
     add("")
+    add("J. outer polish / assembly features (probed)")
+    W_, H_, D_ = P["W"], P["H"], P["D"]
+    r, c = P["corner_r"], P["rim_chamfer"]
+    plate_m = build_plate()
+    checks = [
+        ("corner rounded",     not bool(shell.contains([[W_ / 2 - 0.3, H_ / 2 - 0.3, 20.0]])[0])),
+        ("corner material kept", bool(shell.contains([[W_ / 2 - r - 1.2, H_ / 2 - r - 1.2, 20.0]])[0])),
+        ("front rim chamfered", not bool(shell.contains([[W_ / 2 - 0.2, 0.0, 0.2]])[0])),
+        ("rim material below",  bool(shell.contains([[W_ / 2 - 0.2, 0.0, 2.0]])[0])),
+        ("plate rear chamfer",  not bool(plate_m.contains([[W_ / 2 - 0.2, 0.0, D_ - 0.2]])[0])),
+        ("plate corner round",  not bool(plate_m.contains([[W_ / 2 - 0.3, H_ / 2 - 0.3, D_ - 0.5]])[0])),
+        ("plate csk open",      not bool(plate_m.contains([[P["plate_boss_xy"][0] + 2.6,
+                                                            P["plate_boss_xy"][1], D_ - 0.4]])[0])),
+        ("plate csk wall kept", bool(plate_m.contains([[P["plate_boss_xy"][0] + 5.0,
+                                                        P["plate_boss_xy"][1], D_ - 0.4]])[0])),
+        ("RC522 seat rib",      bool(shell.contains([[fcx - 30.0 - P["rfid_board_fit"] - 0.6,
+                                                      fcy, zi + 0.5]])[0])),
+        ("RC522 ledge ring",    bool(shell.contains([[fcx - 30.0 + 1.0, fcy, zi - 0.05]])[0])),
+        ("R307 seat rib",       bool(shell.contains([[rcx + 10.0 + P["r307_seat_fit"] + 0.6,
+                                                      rcy + 16.0, zi + 0.5]])[0])),
+        ("strain-relief post",  bool(shell.contains([[P["zip_post4"][0] + 3.0, P["zip_post4"][1], zi + 3.0]])[0])),
+    ]
+    for name, good in checks:
+        ok = ok and good
+        add(f"   {name:22s} {'PASS' if good else 'FAIL'}")
+    add("")
     add("H. STL file re-read verification (what the slicer will actually see)")
     for nm, fn in (("shell", "01_MAIN_SHELL_v2.stl"), ("rear plate", "02_REAR_PLATE_v2.stl"),
                    ("R307 bracket", "03_R307_BRACKET_v2.stl"), ("RC522 clamp", "04_RC522_CLAMP_v2.stl")):
         m = trimesh.load(os.path.join(OUT, fn), process=True, merge_tex=False, merge_norm=False)
-        m.merge_vertices(merge_tex=False, merge_norm=False, digits_vertex=4)   # 0.1 um
         cnt = np.bincount(m.edges_unique_inverse, minlength=len(m.edges_unique))
         open_e, bad_e = int((cnt == 1).sum()), int((cnt > 2).sum())
-        one = len(m.split(only_watertight=False)) == 1
-        good = (open_e == 0 and bad_e == 0 and one)
+        nb = len(m.split(only_watertight=False))
+        tiny = int((m.area_faces < 1e-6).sum())
+        good = (open_e == 0 and bad_e == 0 and nb == 1)
         ok = ok and good
-        add(f"   {nm:<12} edges open={open_e} non-manifold={bad_e} bodies={len(m.split(only_watertight=False))}"
-            f" vol={abs(m.volume)/1000:.1f} cm3   {'PASS' if good else 'FAIL'}")
+        add(f"   {nm:<12} edges open={open_e} non-manifold={bad_e} bodies={nb}"
+            f" micro-faces={tiny} vol={abs(m.volume)/1000:.1f} cm3   {'PASS' if good else 'FAIL'}")
     add("")
     add(f"RESULT: {'ALL CHECKS PASS' if ok else 'FAILURES - see above'}")
     return "\n".join(L), ok

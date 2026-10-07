@@ -87,24 +87,28 @@ Walls must stay inside 2.4–3.0 mm everywhere; the only permitted thin feature 
 The v1 shell had a **closed pocket floor at z ≈ 3 mm over the RC522 antenna**, which blocks
 13.56 MHz scanning. That is fixed and must stay fixed:
 
-1. **Open scan window `RC522_SCAN_ZONE` = 54 × 36 mm, completely open through the 3 mm front wall**
+1. **Open scan window `RC522_SCAN_ZONE` = 56 × 38 mm, completely open through the 3 mm front wall**
    (no floor, no membrane, no printed skin — an RFID field will not pass a printed wall reliably).
-2. The window sits inside the existing **62.7 × 44.7 mm × 1.5 mm recess**, so the RC522’s 6 mm-tall
-   components nest *into* the recess and the antenna sits **1.5 mm** behind the outer face — as close
-   to the outside as physically possible.
-3. **Stiffness:** the 3 mm front wall is locally reduced to a 1.45 mm web; two stiffener bars
-   **2 mm wide × 4 mm**, spanning the 36 mm window, keep the front face rigid. They are the *only*
-   material inside the window and they are ≤ 6 % of its area.
+2. The window sits inside the existing **62.7 × 44.7 mm recess, 1.0 mm deep**, whose floor carries
+   **1.0 mm locating ribs** (1.2 mm wide, 0.35 mm fit): the 60 × 40 board lies at **z = 3.0 … 4.6**,
+   component side up into the cavity, so only **2.0 mm** of printed wall stands in front of the PCB —
+   the thinnest the wall can be while still giving the board something to rest on.
+3. **Stiffness:** the front wall is locally reduced to a **1.95 mm** web; **two** stiffener bars
+   **2.5 mm wide × 1.95 mm thick**, spanning the 38 mm window, keep the front face rigid (measured in
+   §21-E: bar 1.90 vs 1.95 design). They are the *only* material inside the window and they are
+   **9 %** of its area — ray-proved in the audit, not assumed.
 4. **`RC522_RF_KEEP_OUT`:** a 62.7 × 44.7 × 12 mm volume in front of the antenna is declared
    metal-free and plastic-free; the audit proves enclosure material volume inside it = **0.00 mm³**.
 5. **`RC522_SCAN_ZONE`** additionally proves that the window is genuinely through-cut: a ray cast
    from outside the front face passes through the wall into the cavity.
-6. The RC522 is **screwed down**, not clipped: **4 × M2.5 screw pads (2.5 mm tall, ⌀2.2 pilot,
-   4.1 mm deep)** sit at ±22.0 / ±27.0 mm from the recess centre (clear of the board and of the
-   54 × 36 window), and **two printed clamp bars** hold the board edges — 62 × 13 mm platform with a
-   3 mm lip that presses the PCB down onto the front wall, 2 × ⌀3.0 through-holes + ⌀5.6
-   counterbores, hole centre distance 44 mm. The whole antenna face stays open and screwdriver
-   access is straight down the Z axis from the rear opening.
+6. The RC522 is **screwed down**, not clipped: **4 × 8 × 8 mm screw pads (2.5 mm tall, ⌀2.2 pilot,
+   4.1 mm deep)** sit at ±22.0 / ±27.0 mm from the recess centre (outside the board edge and clear of
+   the 56 × 38 window), and **two printed clamp bars** (part 04) hold the board's two short edges —
+   a 62 × 15 mm platform with a **0.9 mm lip step** that presses the PCB onto the front wall, plus a
+   **2 × ⌀3.0 through-hole + ⌀5.6 × 1.4 head recess** at each screw, 44 mm hole centres. The stack is
+   closed by arithmetic: platform underside 5.50 = pad top 5.50 (0.00 interference), lip bottom
+   4.60 = board top 4.60. The whole antenna face stays open and every screwdriver approach is
+   straight down the Z axis from the rear opening (§21-I, §21-J).
 
 ## §9 Pin-out, header and connector space (the “leave room for the header” rule)
 
@@ -135,20 +139,22 @@ Nothing in this enclosure may be dimensioned as if the boards were bare PCBs. Re
 |---|---|---|
 | LCD1602 window | 66 × 17.5 at (0, **+51.95**), wall cut | [V1] |
 | LCD module | 80 × 36 glass 11.5 above the inner face, 4 × M2.5 bosses 6 × 6 at 75.1 × 31 pitch | [REF] |
-| R307 window | **19.3 × 21.2** at (+35.95, −24.1) + 25 × 27 × 1.6 bezel relief | [V1] |
+| R307 window | **19.3 × 21.2** at (+35.95, −24.1) + **21 × 25 × 1.6** bezel relief (a 25 × 27 relief cut 1.55 mm into both M3 posts) + 1.2 mm seat ribs, 0.35 fit | [V1] |
 | R307 module | sits on 2 posts 6 × 6 × **23.5** tall at x = 22.0 / 50.0, y = −24.1, ⌀2.5 pilots | [REF] |
 | R307 bracket | 33.5 × 12 × 2 steel, ⌀3.0 + ⌀5.6 counterbores, 28 mm hole centres → `VERIFY_ACTUAL_HARDWARE` | [EST] |
-| RC522 recess / window | 62.7 × 44.7 × 1.5 recess, **54 × 36 open window + 2 × 4 bars** at (−20.05, −24.05) | [V1] + fix |
-| RC522 fixings | 4 × M2.5 pads 2.5 mm (⌀2.2 × 4.1 pilot) at (−20.05 ± 22, −24.05 ± 27) + 2 printed clamp bars (62 × 13, ⌀3.0/⌀5.6, 44 mm centres) | new |
+| RC522 recess / window | 62.7 × 44.7 × **1.0** recess, **56 × 38 open window + 2 × 2.5 bars** at (−20.05, −24.05); board on 1.0 mm locating ribs, plane z 3.0 … 4.6 | [V1] + fix |
+| RC522 fixings | 4 × 8 × 8 pads, 2.5 mm tall (⌀2.2 × 4.1 pilot) at (−20.05 ± 22, −24.05 ± 27) + 2 printed clamp bars (62 × 15 platform + 0.9 lip, ⌀3.0 hole / ⌀5.6 × 1.4 head recess, 44 mm centres) | new |
 | ESP32 bay | on the **−X wall**, board plane X = −42.6 (10 mm standoff), Y −70 … −18.55, **Z centre 27.5** | [REF] |
 | ESP32 pads | 4 × 8 × 8 pads, ⌀2.2 pilots 7 mm deep | [REF] |
 | USB slot | **18 × 10** at Z 27.5 on the bottom edge (+2.4 chamfer), plug body 15.6 × 8 fits | [REF] |
 | Fan | 3010 at (Y **17**, Z **24**) on the −X wall, ⌀26 grille + 3 bars, 4 × M3 posts (24 mm) | [REF] |
-| Exhaust | 2 × 2 slots 20 × 4 at Y ±16, Z 6 / 12 (−X wall) | — |
+| Exhaust | **4** slots 20 × 4 in the bottom wall | — |
 | Top vent | 3 slots 16 × 3 at X −18 / 0 / 18, Z 26 (−X wall, above the fan) | — |
 | Rear plate | 110 × 155 × 3 flush + 2 mm register lip + 2 mm spine ribs, 4 × M3 into 9 mm bosses at (±46.5, ±71) | — |
 | Keyhole hang | ⌀7.5 + 4.6 mm slot, 50 mm span, on the plate centre line | — |
-| Cable ties | 3 posts ⌀8 with ⌀4 through-holes at (−10, −66), (16, −66), (44, 12) | — |
+| Cable ties | **4** posts ⌀8 with ⌀4 through-holes at (−10, −66), (16, −66), (44, 12), (−48, −66) | — |
+| Corners / rims | front-face corners r3.0 (0.12 mm overshoot so the fillet never ends tangent → no sliver faces); 1.0 mm chamfer on the shell rim and the plate rim | new |
+| Plate fixings | 4 × M3 into 9 mm bosses at (±46.5, ±71) with **⌀6.6 × 90° countersinks** (flat heads sit flush) + ⌀7.5 / 4.6 mm keyhole hang, 50 mm span | — |
 
 ## §11 Named keep-out & check objects (exact names required in the file)
 
@@ -226,14 +232,16 @@ Every screw must be reachable by a straight driver from an opening, with the too
 | Qty | Screw | Into | Pilot | Function |
 |---|---|---|---|---|
 | 4 | M3 × 10 | rear plate → 9 mm bosses | ⌀2.5, 9 mm deep | close the enclosure |
-| 4 | M2.5 × 12 | LCD ↔ 6 × 6 bosses | ⌀2.5, 7 mm deep | hold LCD at 11.5 mm |
-| 2 | M3 | R307 bracket → 6 × 6 posts | ⌀2.5, 7 mm deep | hold the fingerprint module |
+| 4 | M2.5 × 12 | LCD ↔ 6 × 6 bosses | ⌀2.5, **8.5 mm deep** | hold LCD at 11.5 mm |
+| 2 | M3 | R307 bracket → 6 × 6 posts | ⌀2.5, **8.0 mm deep** | hold the fingerprint module |
 | 4 | M3 × 20 | fan → posts | ⌀2.5, 12 mm deep | fan retention |
-| 4 | M2.2 × 6 | ESP32 corner pads | ⌀1.8, 7 mm deep | board standoff |
+| 4 | M2.5 × 6 | ESP32 corner pads | ⌀2.2, 7 mm deep | board standoff |
 | 4 | M2.5 × 6 | 2 clamp bars → RC522 pads | ⌀2.2, 4.1 mm deep | hold the RC522 down |
-| 3 | cable ties | ⌀8 posts, ⌀4 holes | — | strain relief |
+| 4 | cable ties | ⌀8 posts, ⌀4 through-holes | — | strain relief |
 
-Nothing is priced. No screw is invented.
+Nothing is priced. No screw is invented. **22 circular pilot holes in total** (LCD 4, R307 2,
+RC522 4, ESP32 4, fan 4, plate 4) — every one proved empty in the middle *and* surrounded by material
+(§21-I), with a clear 6 mm screwdriver path over its whole length (§16 / §21-J).
 
 ## §19 Verification-first build order (the “no claim without a measurement” rule)
 
@@ -281,28 +289,45 @@ Report as a table with `measured`, `target`, `verdict ∈ {PASS, FAIL, VERIFY_AC
 * **I screw fixing map** — every screw fixing must be a **circular pilot hole** with the hole empty
   (proved by a point inside it missing the mesh) *and* surrounded by material (proved by a point in
   the wall hitting the mesh). 22 holes are checked this way, group by group.
+* **J polish / assembly features** — 12 probed features that only exist to make the part usable:
+  rounded front corners (rounded *and* material kept), front-rim chamfer + material below it, plate
+  rear chamfer, plate corner round, plate countersink open + wall kept behind it, the RC522 seat rib,
+  the RC522 ledge ring, the R307 seat rib, the strain-relief post. Each is two probes: the feature is
+  there, and the material that makes it useful is still there.
+* **K independent re-verification** — `tools/verify_v2.py` re-opens *only* the exported STLs (it
+  imports nothing from the generator) and re-measures 12 groups of facts: mesh integrity, 240 slice
+  cross-sections, a 4 mm wall-thickness map, every component envelope re-typed from first principles,
+  every pilot radius measured with 8-way rays, opening escape rays, 0.2 mm layer printability, driver
+  access cylinders, the RF path, the printed-part fits, mesh dimensions and mass. Output:
+  `docs/v2_independent_verify.txt`; it exits non-zero if anything fails.
 
 **Delivered revision result (all lines measured, none assumed):**
 
 ```
-shell     : 9892 tris, watertight=True, winding_ok=True, bodies=1
-shell size: [110.0, 155.0, 45.0] (depth 45 + 3 mm plate = 48)
-volume    : 115.1 cm3  ~71 g PLA (15 % infill)
+shell     : watertight=True, bodies=1, volume 116.1 cm3
+shell size: [110.0, 155.0, 45.0] (depth 45 + 3 mm plate = 48)  plate 110 x 155 x 7
+volume    : shell 116.1 / plate 79.6 / bracket 0.75 / clamp 1.58 x2 cm3  ~123 g PLA (15 % infill)
 A  shell<->plate 0.00 PASS   shell<->bracket 0.00 PASS
 B  LCD glass / PCB+backpack / bezel / R307 / RC522 board+components+scan zone /
    ESP32 board+components / ESP32 RF keep-out / USB plug / Fan 3010   ALL 0.00 PASS
 C  LCD window, R307 window, RFID scan window, USB slot, fan grille,
    exhaust slot, top vent                               open=True wall_ok=True PASS
-D  rear plate 110 x 155 x 7 watertight 81.9 cm3 ; R307 bracket 33.5 x 12 x 2 watertight ;
-   RC522 clamp 62 x 15 x 2.5 watertight 1.6 cm3 (print 2, second rotated 180 deg)
-E  front 2.90 / RFID recess 1.45 / stiffener bar 1.45 / side 2.35 / top 2.90 /
-   bottom 2.90 / LCD boss 11.50 / R307 post 23.50                            PASS
+D  rear plate 110 x 155 x 7 watertight 79.6 cm3 ; R307 bracket 33.5 x 12 x 2 watertight ;
+   RC522 clamp 62 x 15 x 2.5 watertight 1.58 cm3 (print 2, second rotated 180 deg)
+E  front 2.90 / RFID ledge ring 1.95 / stiffener bar 1.90 / side 2.35 / top 2.90 /
+   bottom 2.90 / LCD boss 11.50 / R307 post 23.50 / fan ring 1.35                 PASS
 F  all model dims match the reference table (2 items VERIFY_ACTUAL_HARDWARE)
 G  overhang 155 mm2 = 0.18 %  -> SUPPORT_REQUIRED = NO
-H  re-read from disk: shell / plate / bracket / RC522 clamp = 0 open edges,
-   0 non-manifold edges, 1 body each
+H  re-read from disk: 4 parts = 0 open edges, 0 non-manifold edges, 1 body each;
+   9 + 7 sub-micron sliver faces where the corner fillet meets the rim chamfer
+   (all < 1 um2, at x +-54.3 / y +-76.8, z 0.25 / 15.1) - cosmetic, slicers ignore them
 I  22 screw pilot holes (LCD 4, R307 2, RC522 4, ESP32 4, fan 4, plate 4) all
-   hole-empty + material-around PASS, + 3 x d4.0 cable-tie holes
+   hole-empty + material-around PASS, + 4 x d4.0 cable-tie holes
+J  12/12 polish + assembly probes PASS
+K  independent STL-only re-verification: 12 sections, 0 failures
+   (docs/v2_independent_verify.txt) - incl. thinnest wall 1.20 mm (fan ring),
+   0 of 11100 samples of the 12 mm RF scan volume inside material, 240/240 valid
+   slices, 22/22 pilot radii measured to +-0.05 mm, 198.0 cm3 total material
 RESULT: ALL CHECKS PASS
 ```
 
@@ -312,10 +337,15 @@ RESULT: ALL CHECKS PASS
    `04_RC522_CLAMP_v2.stl` (watertight, single body each) — **print part 04 twice, rotate the second
    copy 180° about Z**.
 2. `docs/v2_audit.txt` — the scorecard above, regenerated by the build.
-3. `renders/v2_shell_drawing_sheet.png` + `renders/v2_exploded_iso.png` — annotated views.
+3. `renders/v2_shell_drawing_sheet.png`, `renders/v2_exploded_iso.png`,
+   `renders/v2_fixing_detail.png` (exploded + section proof of the RC522 screw fixing) and
+   `renders/rfid_before_after.png` — annotated views.
 4. `viewer.html` — interactive, self-contained 3D review of all parts (both revisions).
 5. `tools/build_v2.py` — the parametric source; **the model is the script**, so any dimension change
    re-derives the whole enclosure and re-runs the audit.
+5b. `tools/verify_v2.py` + `docs/v2_independent_verify.txt` — the independent check: it reads only the
+   exported STLs and re-measures the same facts from scratch, so a mistake in the generator cannot
+   hide behind itself.
 6. `docs/master_prompt.md` — this file.
 7. `exports/ASTRO_SMART_ATTENDANCE_v2.zip` — everything above in one archive (STLs + drawing sheet +
    audit + this prompt + the generator script).
@@ -323,12 +353,15 @@ RESULT: ALL CHECKS PASS
 ## §23 Open items — `VERIFY_ACTUAL_HARDWARE`
 
 1. ESP32 pad hole centres (inset 3.5 mm assumed after measuring a DOIT V1).
-2. RC522 corner-hole pitch (board 60 × 40 confirmed; holes ≈⌀3, pitch not measured) — the four
-   retention tabs are **slotted** precisely so a small pitch error still grips.
+2. RC522 corner-hole pitch — **not used**: the board is held by two clamp bars over its short edges,
+   so no RC522 hole is relied on at all. Board outline 60 × 40 × 1.6 confirmed.
 3. R307 bracket hole pitch (28 mm centres assumed, matching the module’s body holes).
 4. LCD + I²C backpack total depth (18.24 mm assumed; the 11.5 mm boss height + 1.6 mm PCB gives
    1.5–2 mm of cable space — if the delivered module is deeper, raise `lcd_glass_t` and re-run).
 5. Fan thickness ≥ 10 mm (if a 10 mm fan is fitted with a gasket, raise `fan_post`).
+
+The 60 × 40 board's fixing pads are printed at ±22 / ±27 mm from the recess centre — that is *our*
+choice of where to grip the board, not a hole position on the module, so it cannot be wrong.
 
 If any of these measures differently on the delivered hardware, change the parameter in
 `tools/build_v2.py`, re-run, and re-issue the audit table. That is the whole point of the parameter
