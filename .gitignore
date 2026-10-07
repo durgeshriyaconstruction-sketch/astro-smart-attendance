@@ -2,3 +2,4 @@ __pycache__/
 *.pyc
 .DS_Store
 renders/_t.png
+renders/_c.png
