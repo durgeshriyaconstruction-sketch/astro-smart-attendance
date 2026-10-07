@@ -248,7 +248,7 @@ def build_shell():
 
     # ------------------------------------------------------------- ribs
     early.append(bx(46.0, 48.4, -60.0, 30.0, zi - 0.5, zi + 2.4))
-    early.append(bx(-wi, 46.0, 30.0, 32.4, zi - 0.5, zi + 2.4))
+    early.append(bx(-wi, 47.4, 29.0, 32.4, zi - 0.5, zi + 2.4))   # 1.4 x 1 mm overlap -> no edge contact
 
     # ------------------------------------- rear plate screw bosses
     bx0, by0 = P["plate_boss_xy"]
@@ -508,6 +508,19 @@ def audit(shell, plate, r307b):
     add(f"   designed walls: front {P['wall_front']} mm (1.5 mm at the RFID recess), "
         f"sides {P['wall_side']} mm, top/bottom {P['wall_top']} mm, "
         f"plate {P['plate_t']} mm, fit clearance {P['fit']} mm")
+    add("")
+    add("H. STL file re-read verification (what the slicer will actually see)")
+    for nm, fn in (("shell", "01_MAIN_SHELL_v2.stl"), ("rear plate", "02_REAR_PLATE_v2.stl"),
+                   ("R307 bracket", "03_R307_BRACKET_v2.stl")):
+        m = trimesh.load(os.path.join(OUT, fn), process=True, merge_tex=False, merge_norm=False)
+        m.merge_vertices(merge_tex=False, merge_norm=False, digits_vertex=4)   # 0.1 um
+        cnt = np.bincount(m.edges_unique_inverse, minlength=len(m.edges_unique))
+        open_e, bad_e = int((cnt == 1).sum()), int((cnt > 2).sum())
+        one = len(m.split(only_watertight=False)) == 1
+        good = (open_e == 0 and bad_e == 0 and one)
+        ok = ok and good
+        add(f"   {nm:<12} edges open={open_e} non-manifold={bad_e} bodies={len(m.split(only_watertight=False))}"
+            f" vol={abs(m.volume)/1000:.1f} cm3   {'PASS' if good else 'FAIL'}")
     add("")
     add(f"RESULT: {'ALL CHECKS PASS' if ok else 'FAILURES - see above'}")
     return "\n".join(L), ok

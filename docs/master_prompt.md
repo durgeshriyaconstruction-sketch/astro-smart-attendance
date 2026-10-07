@@ -7,7 +7,7 @@
 > Paste this whole file as the prompt. Nothing else is required.
 >
 > **Status of the model it describes:** implemented and audited. `tools/build_v2.py` regenerates
-> `cad/v2/01_MAIN_SHELL_v2.stl` (single watertight body, 9892 tris, 114.9 cm³),
+> `cad/v2/01_MAIN_SHELL_v2.stl` (single watertight body, 9892 tris, 115.1 cm³),
 > `cad/v2/02_REAR_PLATE_v2.stl`, `cad/v2/03_R307_BRACKET_v2.stl` and `docs/v2_audit.txt`
 > (**RESULT: ALL CHECKS PASS**). See §21 for the scorecard and §23 for the remaining
 > `VERIFY_ACTUAL_HARDWARE` items.
@@ -239,7 +239,7 @@ Build in this order and re-run the whole audit after every change:
    single watertight body.
 5. Prefer an **open-ended** pilot: it must break through exactly one surface (the screw entry) and
    stop 0.9–1.5 mm short of the other. A pilot that touches no surface becomes an enclosed void and
-   the STL splits into “extra bodies” (§25.3).
+   the STL splits into “extra bodies” (§25.4).
 6. Re-audit: `python3 tools/build_v2.py` → `docs/v2_audit.txt`. The STL must report
    **`watertight=True`, `bodies=1`** before any other number is quoted.
 
@@ -267,13 +267,16 @@ Report as a table with `measured`, `target`, `verdict ∈ {PASS, FAIL, VERIFY_AC
 * **E thickness probes** — ray-measured wall/feature thickness vs design (±0.15 mm).
 * **F dimensional audit** — model vs the §5 reference table, flagging `VERIFY_ACTUAL_HARDWARE`.
 * **G printability** — overhang area %, support requirement, wall summary.
+* **H STL file re-read** — reload every exported STL from disk and count open edges, non-manifold
+  edges and bodies (0 / 0 / 1 required). In-memory watertightness is not enough: the *file* is what
+  the slicer reads.
 
 **Delivered revision result (all lines measured, none assumed):**
 
 ```
 shell     : 9892 tris, watertight=True, winding_ok=True, bodies=1
 shell size: [110.0, 155.0, 45.0] (depth 45 + 3 mm plate = 48)
-volume    : 114.9 cm3  ~71 g PLA (15 % infill)
+volume    : 115.1 cm3  ~71 g PLA (15 % infill)
 A  shell<->plate 0.00 PASS   shell<->bracket 0.00 PASS
 B  LCD glass / PCB+backpack / bezel / R307 / RC522 board+components+scan zone /
    ESP32 board+components / ESP32 RF keep-out / USB plug / Fan 3010   ALL 0.00 PASS
@@ -284,6 +287,7 @@ E  front 2.90 / RFID recess 1.45 / stiffener bar 1.45 / side 2.35 / top 2.90 /
    bottom 2.90 / LCD boss 11.50 / R307 post 23.50                            PASS
 F  all model dims match the reference table (2 items VERIFY_ACTUAL_HARDWARE)
 G  overhang 155 mm2 = 0.18 %  -> SUPPORT_REQUIRED = NO
+H  re-read from disk: shell / plate / bracket = 0 open edges, 0 non-manifold edges, 1 body each
 RESULT: ALL CHECKS PASS
 ```
 
@@ -328,16 +332,20 @@ table: **no dimension is hard-coded twice.**
    whole RC522 recess: the reader could not scan. Any wall in front of an antenna is a defect.
 2. **Hollowing the cavity after the bosses were added** — the pocket cut deletes bosses, so thickness
    probes read 0. Order: hollow → union structure → cut openings → re-union in-cut features.
-3. **Pilots that open into nothing.** A blind hole that touches no surface becomes an internal void;
+3. **Edge-contact unions.** Two ribs that meet exactly on a shared edge (or two solids that touch
+   on a face) produce a non-manifold edge counting four faces: trimesh reports
+   `watertight=False` on the exported file even though nothing is open. Overlap every union by
+   ≥ 0.5 mm (here 1.0 mm) in **both** in-plane directions and re-check section H.
+4. **Pilots that open into nothing.** A blind hole that touches no surface becomes an internal void;
    the STL then reports several “bodies” with negative volume and slicers disagree. Every pilot must
    break through exactly one surface (screw entry) and stop short of the other (§19.5).
-4. **Reversed box coordinates** build a mirrored 12-face solid that reports “watertight” and then
+5. **Reversed box coordinates** build a mirrored 12-face solid that reports “watertight” and then
    fails every boolean. Sort coordinates in the box helper.
-5. **Oversized boolean cutters** that remove the wall they were meant to leave, and **coplanar cut
+6. **Oversized boolean cutters** that remove the wall they were meant to leave, and **coplanar cut
    faces** that leave zero-thickness skins — offset every cutter 0.1–2.0 mm past the face.
-6. **Retainer hooks over a board** — a hook that intrudes 0.5 mm into the board envelope is a fit
+7. **Retainer hooks over a board** — a hook that intrudes 0.5 mm into the board envelope is a fit
    failure even if it “looks right”; the envelope test is the judge.
-7. **Interference “fixed” by deleting the part** — shell↔plate clashes are relief/height problems:
+8. **Interference “fixed” by deleting the part** — shell↔plate clashes are relief/height problems:
    add the register-lip relief, shorten the boss, never remove the feature.
 
 ## §26 Acceptance checklist (done = every line ticked)

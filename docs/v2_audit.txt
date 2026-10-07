@@ -4,7 +4,7 @@ axis frame: X width 110, Y height 155, Z depth 48 mm
 shell     : 9892 tris, watertight=True, winding_ok=True, bodies=1
 shell size: [110.0, 155.0, 45.0] (depth 45 + 3 mm plate = 48)
 assembly  : 110.0 x 155.0 x 48.0 mm
-volume    : 114.9 cm3  ~71 g PLA (15 % infill, estimate)
+volume    : 115.1 cm3  ~71 g PLA (15 % infill, estimate)
 
 A. printed-part interference
    shell <-> rear plate                    0.00 mm3   PASS
@@ -63,5 +63,10 @@ F. dimensional audit against the supplied component references
 G. printability (orientation: front face down, rear opening up)
    >60 deg overhang area: 155 mm2 (0.18 % of surface) - SUPPORT_REQUIRED = NO
    designed walls: front 3.0 mm (1.5 mm at the RFID recess), sides 2.4 mm, top/bottom 3.0 mm, plate 3.0 mm, fit clearance 0.35 mm
+
+H. STL file re-read verification (what the slicer will actually see)
+   shell        edges open=0 non-manifold=0 bodies=1 vol=115.1 cm3   PASS
+   rear plate   edges open=0 non-manifold=0 bodies=1 vol=81.9 cm3   PASS
+   R307 bracket edges open=0 non-manifold=0 bodies=1 vol=0.7 cm3   PASS
 
 RESULT: ALL CHECKS PASS
