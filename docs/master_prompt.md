@@ -99,8 +99,12 @@ The v1 shell had a **closed pocket floor at z ≈ 3 mm over the RC522 antenna**,
    metal-free and plastic-free; the audit proves enclosure material volume inside it = **0.00 mm³**.
 5. **`RC522_SCAN_ZONE`** additionally proves that the window is genuinely through-cut: a ray cast
    from outside the front face passes through the wall into the cavity.
-6. The RC522 is retained by **4 slotted snap tabs** (1.4 mm thick, 1.2 mm overhang) that grip the
-   board’s 1.6 mm edge, plus a 64 × 44 mm pocket rim — no screw towers in front of the antenna.
+6. The RC522 is **screwed down**, not clipped: **4 × M2.5 screw pads (2.5 mm tall, ⌀2.2 pilot,
+   4.1 mm deep)** sit at ±22.0 / ±27.0 mm from the recess centre (clear of the board and of the
+   54 × 36 window), and **two printed clamp bars** hold the board edges — 62 × 13 mm platform with a
+   3 mm lip that presses the PCB down onto the front wall, 2 × ⌀3.0 through-holes + ⌀5.6
+   counterbores, hole centre distance 44 mm. The whole antenna face stays open and screwdriver
+   access is straight down the Z axis from the rear opening.
 
 ## §9 Pin-out, header and connector space (the “leave room for the header” rule)
 
@@ -120,7 +124,8 @@ Nothing in this enclosure may be dimensioned as if the boards were bare PCBs. Re
   boss in that corner starts at Z 33 instead of running to the wall.
 * **Access for the pin headers:** the rear opening is 105.2 × 148.3 mm; the ESP32’s header rows and
   the RC522’s pins are both within 90 mm of it, so a Dupont housing can be plugged and unplugged
-  without removing any printed part except the plate.
+  without removing any printed part except the plate. The RC522 clamp bars sit only over the two
+  short board edges (y = −51.1 and +2.9), i.e. 13 mm each, leaving the header edge free.
 * **Every header clearance is measured** in the audit (envelope overlap = 0.00 mm³) — a header that
   touches a boss is a FAIL, not a note.
 
@@ -134,15 +139,16 @@ Nothing in this enclosure may be dimensioned as if the boards were bare PCBs. Re
 | R307 module | sits on 2 posts 6 × 6 × **23.5** tall at x = 22.0 / 50.0, y = −24.1, ⌀2.5 pilots | [REF] |
 | R307 bracket | 33.5 × 12 × 2 steel, ⌀3.0 + ⌀5.6 counterbores, 28 mm hole centres → `VERIFY_ACTUAL_HARDWARE` | [EST] |
 | RC522 recess / window | 62.7 × 44.7 × 1.5 recess, **54 × 36 open window + 2 × 4 bars** at (−20.05, −24.05) | [V1] + fix |
+| RC522 fixings | 4 × M2.5 pads 2.5 mm (⌀2.2 × 4.1 pilot) at (−20.05 ± 22, −24.05 ± 27) + 2 printed clamp bars (62 × 13, ⌀3.0/⌀5.6, 44 mm centres) | new |
 | ESP32 bay | on the **−X wall**, board plane X = −42.6 (10 mm standoff), Y −70 … −18.55, **Z centre 27.5** | [REF] |
 | ESP32 pads | 4 × 8 × 8 pads, ⌀2.2 pilots 7 mm deep | [REF] |
 | USB slot | **18 × 10** at Z 27.5 on the bottom edge (+2.4 chamfer), plug body 15.6 × 8 fits | [REF] |
-| Fan | 3010 at (Y 14, Z 22) on the −X wall, ⌀26 grille + 3 bars, 4 × M2.5 posts (24 mm) | [REF] |
+| Fan | 3010 at (Y **17**, Z **24**) on the −X wall, ⌀26 grille + 3 bars, 4 × M3 posts (24 mm) | [REF] |
 | Exhaust | 2 × 2 slots 20 × 4 at Y ±16, Z 6 / 12 (−X wall) | — |
 | Top vent | 3 slots 16 × 3 at X −18 / 0 / 18, Z 26 (−X wall, above the fan) | — |
 | Rear plate | 110 × 155 × 3 flush + 2 mm register lip + 2 mm spine ribs, 4 × M3 into 9 mm bosses at (±46.5, ±71) | — |
 | Keyhole hang | ⌀7.5 + 4.6 mm slot, 50 mm span, on the plate centre line | — |
-| Cable ties | 3 posts ⌀8 with ⌀4 holes at (8, −55), (30, −55), (44, 12) | — |
+| Cable ties | 3 posts ⌀8 with ⌀4 through-holes at (−10, −66), (16, −66), (44, 12) | — |
 
 ## §11 Named keep-out & check objects (exact names required in the file)
 
@@ -171,9 +177,9 @@ window.
 
 ## §14 Airflow / thermal path
 
-Fresh air enters the **2 × 2 bottom slots**, crosses the ESP32 bay and the RC522 pocket, is pushed
-by the **3010 fan** through the ⌀26 grille, and leaves through the **3 top vents**.
-Measured areas: inlet 4 slots × (20 × 4) = **320 mm²**, outlet 3 slots × (16 × 3) = **144 mm²**,
+Fresh air enters the **4 bottom slots (2 rows × 2) in the bottom wall**, crosses the ESP32 bay and the RC522 pocket, is pushed
+by the **3010 fan** (Y 17, Z 24) through the ⌀26 grille, and leaves through the **3 top vents**.
+Measured areas: low intakes 4 × (20 × 4) = **320 mm²**, outlet 3 slots × (16 × 3) = **144 mm²**,
 grille free area = 531 mm² aperture − 231 mm² of bars = **300 mm²** (56 % of the aperture, 33 % of
 the fan’s 30 × 30 face). Inlet 1.07 : 1 and outlet 0.48 : 1 against the grille free area — more than
 enough for a build dissipating well under 1 W; the fan is a circulation aid, not a cooling
@@ -196,9 +202,10 @@ Every screw must be reachable by a straight driver from an opening, with the too
 | Screw set | Driver axis | Verified clearance |
 |---|---|---|
 | 4 × M3 plate → bosses at (±46.5, ±71) | along −Z through the plate | clear, boss counterbore ⌀2.5 |
-| 4 × M2.5 fan posts | from the rear opening, along −X | clear (cable-tie posts and RC522 rim are below Z 5.5, fan screws at Z 7–37) |
+| 4 × M3 fan posts | from the rear opening, along −X | clear (cable ties moved to (−10, −66)/(16, −66), RC522 rim below Z 5.5, fan screws Z 12–36) |
 | 4 × M2.2 ESP32 pads | from the rear opening, ±20° of the wall normal | clear, 10 mm standoff |
 | 2 × M3 R307 bracket | from the rear of the LCD pocket, along −Z | clear, bracket sits on the 23.5 mm posts |
+| 4 × M2.5 RC522 clamps | from the rear opening, along −Z | clear, pads sit in the 44 mm band between the clamp bars’ lips |
 
 ## §17 Printability & `PRINT_BED_ENVELOPE`
 
@@ -221,8 +228,9 @@ Every screw must be reachable by a straight driver from an opening, with the too
 | 4 | M3 × 10 | rear plate → 9 mm bosses | ⌀2.5, 9 mm deep | close the enclosure |
 | 4 | M2.5 × 12 | LCD ↔ 6 × 6 bosses | ⌀2.5, 7 mm deep | hold LCD at 11.5 mm |
 | 2 | M3 | R307 bracket → 6 × 6 posts | ⌀2.5, 7 mm deep | hold the fingerprint module |
-| 4 | M2.5 × 20/25 | fan → posts | ⌀2.5, 11 mm deep | fan retention |
+| 4 | M3 × 20 | fan → posts | ⌀2.5, 12 mm deep | fan retention |
 | 4 | M2.2 × 6 | ESP32 corner pads | ⌀1.8, 7 mm deep | board standoff |
+| 4 | M2.5 × 6 | 2 clamp bars → RC522 pads | ⌀2.2, 4.1 mm deep | hold the RC522 down |
 | 3 | cable ties | ⌀8 posts, ⌀4 holes | — | strain relief |
 
 Nothing is priced. No screw is invented.
@@ -270,6 +278,9 @@ Report as a table with `measured`, `target`, `verdict ∈ {PASS, FAIL, VERIFY_AC
 * **H STL file re-read** — reload every exported STL from disk and count open edges, non-manifold
   edges and bodies (0 / 0 / 1 required). In-memory watertightness is not enough: the *file* is what
   the slicer reads.
+* **I screw fixing map** — every screw fixing must be a **circular pilot hole** with the hole empty
+  (proved by a point inside it missing the mesh) *and* surrounded by material (proved by a point in
+  the wall hitting the mesh). 22 holes are checked this way, group by group.
 
 **Delivered revision result (all lines measured, none assumed):**
 
@@ -282,25 +293,32 @@ B  LCD glass / PCB+backpack / bezel / R307 / RC522 board+components+scan zone /
    ESP32 board+components / ESP32 RF keep-out / USB plug / Fan 3010   ALL 0.00 PASS
 C  LCD window, R307 window, RFID scan window, USB slot, fan grille,
    exhaust slot, top vent                               open=True wall_ok=True PASS
-D  rear plate 110 x 155 x 7 watertight 81.9 cm3 ; R307 bracket 33.5 x 12 x 2 watertight
+D  rear plate 110 x 155 x 7 watertight 81.9 cm3 ; R307 bracket 33.5 x 12 x 2 watertight ;
+   RC522 clamp 62 x 15 x 2.5 watertight 1.6 cm3 (print 2, second rotated 180 deg)
 E  front 2.90 / RFID recess 1.45 / stiffener bar 1.45 / side 2.35 / top 2.90 /
    bottom 2.90 / LCD boss 11.50 / R307 post 23.50                            PASS
 F  all model dims match the reference table (2 items VERIFY_ACTUAL_HARDWARE)
 G  overhang 155 mm2 = 0.18 %  -> SUPPORT_REQUIRED = NO
-H  re-read from disk: shell / plate / bracket = 0 open edges, 0 non-manifold edges, 1 body each
+H  re-read from disk: shell / plate / bracket / RC522 clamp = 0 open edges,
+   0 non-manifold edges, 1 body each
+I  22 screw pilot holes (LCD 4, R307 2, RC522 4, ESP32 4, fan 4, plate 4) all
+   hole-empty + material-around PASS, + 3 x d4.0 cable-tie holes
 RESULT: ALL CHECKS PASS
 ```
 
 ## §22 Deliverables
 
-1. `cad/v2/01_MAIN_SHELL_v2.stl`, `02_REAR_PLATE_v2.stl`, `03_R307_BRACKET_v2.stl` (watertight,
-   single body each).
+1. `cad/v2/01_MAIN_SHELL_v2.stl`, `02_REAR_PLATE_v2.stl`, `03_R307_BRACKET_v2.stl`,
+   `04_RC522_CLAMP_v2.stl` (watertight, single body each) — **print part 04 twice, rotate the second
+   copy 180° about Z**.
 2. `docs/v2_audit.txt` — the scorecard above, regenerated by the build.
 3. `renders/v2_shell_drawing_sheet.png` + `renders/v2_exploded_iso.png` — annotated views.
 4. `viewer.html` — interactive, self-contained 3D review of all parts (both revisions).
 5. `tools/build_v2.py` — the parametric source; **the model is the script**, so any dimension change
    re-derives the whole enclosure and re-runs the audit.
 6. `docs/master_prompt.md` — this file.
+7. `exports/ASTRO_SMART_ATTENDANCE_v2.zip` — everything above in one archive (STLs + drawing sheet +
+   audit + this prompt + the generator script).
 
 ## §23 Open items — `VERIFY_ACTUAL_HARDWARE`
 
@@ -358,4 +376,5 @@ table: **no dimension is hard-coded twice.**
 - [x] Enclosure derived from the layout; walls 2.4–3.0 mm; fit 0.35 mm; clearance 1–2 mm.
 - [x] Single watertight body, no supports, front-face-down print.
 - [x] Every part a separately named object; no card, no card holder, no prices, no fictional parts.
+- [x] Every module fixed by **circular pilot holes** (22 holes, hole-empty + material-around proved).
 - [x] Scorecard delivered with measured values; unresolved items marked `VERIFY_ACTUAL_HARDWARE`.

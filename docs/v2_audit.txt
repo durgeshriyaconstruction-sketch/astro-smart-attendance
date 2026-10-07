@@ -1,14 +1,16 @@
 ASTRO SMART ATTENDANCE - v2 enclosure audit
 ============================================================================
 axis frame: X width 110, Y height 155, Z depth 48 mm
-shell     : 9892 tris, watertight=True, winding_ok=True, bodies=1
+shell     : 10610 tris, watertight=True, winding_ok=True, bodies=1
 shell size: [110.0, 155.0, 45.0] (depth 45 + 3 mm plate = 48)
 assembly  : 110.0 x 155.0 x 48.0 mm
-volume    : 115.1 cm3  ~71 g PLA (15 % infill, estimate)
+volume    : 115.5 cm3  ~72 g PLA (15 % infill, estimate)
 
 A. printed-part interference
    shell <-> rear plate                    0.00 mm3   PASS
    shell <-> R307 bracket                  0.00 mm3   PASS
+   shell <-> RC522 clamp 1                 0.00 mm3   PASS
+   shell <-> RC522 clamp 2                 0.00 mm3   PASS
 
 B. component fit  (envelope overlap with shell material = 0 required)
    envelope                      overlap  verdict
@@ -35,6 +37,7 @@ C. openings (must be open through the wall, wall must exist beside them)
 
 D. other printed parts
    rear plate   : size [110.0, 155.0, 7.0], watertight=True, 81.9 cm3
+   RC522 clamp  : size [62.0, 15.0, 2.5], watertight=True, 1.6 cm3  (print 2, second rotated 180 deg)
    R307 bracket : size [33.5, 12.0, 2.0], watertight=True
 
 E. wall / feature thickness probe (ray through the material)
@@ -57,16 +60,43 @@ F. dimensional audit against the supplied component references
    Fan                    model: (30.0, 30.0, 10.0)                     ref: 30 x 30 x 10        
    Fan hole pitch         model: 24.0                                   ref: ~24                 
    ESP32 PCB hole inset   model: 3.5                                    ref: unverified            VERIFY_ACTUAL_HARDWARE
-   RC522 hole positions   model: slotted retainer pads                  ref: unverified            VERIFY_ACTUAL_HARDWARE
+   RC522 board holes      model: unused - 2 clamp bars + 4 pads         ref: unverified            VERIFY_ACTUAL_HARDWARE
 
 
 G. printability (orientation: front face down, rear opening up)
    >60 deg overhang area: 155 mm2 (0.18 % of surface) - SUPPORT_REQUIRED = NO
    designed walls: front 3.0 mm (1.5 mm at the RFID recess), sides 2.4 mm, top/bottom 3.0 mm, plate 3.0 mm, fit clearance 0.35 mm
 
+I. screw fixing map  (circular pilot holes - every hardware fixing, verified)
+   part          screw  pilot    depth    hole empty  material
+   LCD1602       M2.5   2.5 x 8.5               True      True  PASS   at (-37.5, 36.5)
+   LCD1602       M2.5   2.5 x 8.5               True      True  PASS   at (-37.5, 67.5)
+   LCD1602       M2.5   2.5 x 8.5               True      True  PASS   at (37.5, 36.5)
+   LCD1602       M2.5   2.5 x 8.5               True      True  PASS   at (37.5, 67.5)
+   R307 bracket  M3     2.5 x 8.0               True      True  PASS   at (22.0, -24.1)
+   R307 bracket  M3     2.5 x 8.0               True      True  PASS   at (50.0, -24.1)
+   RC522 clamp   M2.5   2.2 x 4.1               True      True  PASS   at (-42.0, -51.0)
+   RC522 clamp   M2.5   2.2 x 4.1               True      True  PASS   at (-42.0, 2.9)
+   RC522 clamp   M2.5   2.2 x 4.1               True      True  PASS   at (1.9, -51.0)
+   RC522 clamp   M2.5   2.2 x 4.1               True      True  PASS   at (1.9, 2.9)
+   ESP32 standoffM2.2   2.2 x 7.0               True      True  PASS   at (-66.5, 16.8)
+   ESP32 standoffM2.2   2.2 x 7.0               True      True  PASS   at (-66.5, 38.2)
+   ESP32 standoffM2.2   2.2 x 7.0               True      True  PASS   at (-22.0, 16.8)
+   ESP32 standoffM2.2   2.2 x 7.0               True      True  PASS   at (-22.0, 38.2)
+   Fan 3010      M3     2.5 x 12.0               True      True  PASS   at (5.0, 12.0)
+   Fan 3010      M3     2.5 x 12.0               True      True  PASS   at (5.0, 36.0)
+   Fan 3010      M3     2.5 x 12.0               True      True  PASS   at (29.0, 12.0)
+   Fan 3010      M3     2.5 x 12.0               True      True  PASS   at (29.0, 36.0)
+   rear plate    M3     2.5 x 9.0               True      True  PASS   at (-46.5, -71.0)
+   rear plate    M3     2.5 x 9.0               True      True  PASS   at (-46.5, 71.0)
+   rear plate    M3     2.5 x 9.0               True      True  PASS   at (46.5, -71.0)
+   rear plate    M3     2.5 x 9.0               True      True  PASS   at (46.5, 71.0)
+   -> 22 screw holes in total: 4 x LCD1602, 2 x R307 bracket, 4 x RC522 clamp, 4 x ESP32 standoff, 4 x Fan 3010, 4 x rear plate  |  3 x cable-tie holes d4.0 (through)   ALL PASS
+
 H. STL file re-read verification (what the slicer will actually see)
-   shell        edges open=0 non-manifold=0 bodies=1 vol=115.1 cm3   PASS
+   shell        edges open=0 non-manifold=0 bodies=1 vol=115.5 cm3   PASS
    rear plate   edges open=0 non-manifold=0 bodies=1 vol=81.9 cm3   PASS
    R307 bracket edges open=0 non-manifold=0 bodies=1 vol=0.7 cm3   PASS
+   RC522 clamp  edges open=0 non-manifold=0 bodies=1 vol=1.6 cm3   PASS
 
 RESULT: ALL CHECKS PASS

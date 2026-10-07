@@ -3,3 +3,4 @@ __pycache__/
 .DS_Store
 renders/_t.png
 renders/_c.png
+exports/ZIP_CONTENTS/

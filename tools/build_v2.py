@@ -51,7 +51,8 @@ P = dict(
     rc522_pocket=(64.0, 44.0),                              # 2 mm clearance
     rfid_recess=(62.7, 44.7), rfid_recess_deep=1.5,         # [V1]
     rfid_window=(54.0, 36.0), rfid_bars=(2, 4.0),           # <- the open scan window
-    rc522_tab_over=1.2, rc522_tab_t=1.4,
+    rc522_post_off=(22.0, 27.0), rc522_post=8.0, rc522_post_h=2.5,   # screw pads (2.5 mm)
+    rc522_pilot_d=2.2, rc522_clamp=(62.0, 13.0, 1.6), rc522_clamp_lip=(62.0, 3.0, 0.9),
 
     # ---- ESP32 DevKit V1 -------------------------------------------------
     esp32_board=(28.33, 51.45, 1.6),                        # [REF] Y x Z when flat on wall
@@ -63,7 +64,7 @@ P = dict(
 
     # ---- 3010 fan --------------------------------------------------------
     fan=(30.0, 30.0, 10.0), fan_pitch=24.0, fan_open_d=26.0,  # [REF]
-    fan_centre_yz=(14.0, 22.0), fan_post=8.0, fan_pilot=2.5,
+    fan_centre_yz=(17.0, 24.0), fan_post=8.0, fan_pilot=2.5,
 
     # ---- ventilation -----------------------------------------------------
     vent_slot=(20.0, 4.0), vent_rows=(-16.0, 16.0), vent_z=(6.0, 12.0),
@@ -73,7 +74,7 @@ P = dict(
     plate_boss=9.0, plate_boss_xy=(46.5, 71.0),
     plate_pilot=2.5, plate_screw=3.4,
     keyhole_d=7.5, keyhole_slot=4.6, keyhole_span=50.0,
-    zip_post=(8.0, -55.0), zip_post2=(30.0, -55.0), zip_post3=(44.0, 12.0),
+    zip_post=(-10.0, -66.0), zip_post2=(16.0, -66.0), zip_post3=(44.0, 12.0),
     zip_pilot=4.0,
 )
 
@@ -187,15 +188,14 @@ def build_shell():
                           fcy - ph / 2 - rim, fcy + ph / 2 + rim, zi - 0.5, zi + 2.4),
                        bx(fcx - pw / 2, fcx + pw / 2, fcy - ph / 2, fcy + ph / 2,
                           zi - 1, zi + 3)], engine="manifold"))
-    zt0 = zi + P["rc522_board"][2]
-    zt1 = zt0 + P["rc522_tab_t"]
-    over = P["rc522_tab_over"]
-    for tx, ty, inward in ((-40.0, fcy + ph / 2, -1), (0.0, fcy + ph / 2, -1),
-                           (-40.0, fcy - ph / 2, +1), (0.0, fcy - ph / 2, +1)):
-        y_in = ty + inward * (over + 1.0)
-        y_host = ty - inward * 1.0
-        early.append(bx(tx - 3, tx + 3, y_in, y_host, zt0, zt1))
-        early.append(bx(tx - 3, tx + 3, y_in, y_in + inward * 0.9, zt0, zt0 + 0.4))
+    # 4 screw pads for the RC522 clamp bars - circular M2.5 pilot holes
+    pox, poy = P["rc522_post_off"]
+    for sx in (-1, 1):
+        for sy in (-1, 1):
+            px, py = fcx + sx * pox, fcy + sy * poy
+            h = P["rc522_post"] / 2
+            early.append(bx(px - h, px + h, py - h, py + h, zi - 0.5, zi + P["rc522_post_h"]))
+            cut.append(cyl_z(px, py, 1.4, zi + P["rc522_post_h"] + 0.6, P["rc522_pilot_d"]))
 
     # ---------------------------------------------------------------- fan
     fy, fz = P["fan_centre_yz"]
@@ -302,6 +302,27 @@ def build_plate():
     for kx in (-span / 2, span / 2):
         ribs.append(bx(kx - 1.5, kx + 1.5, -H / 2 + 8, span / 2, z0 - 4.0, z0 - 2.0))
     return UNION([plate] + ribs, engine="manifold")
+
+
+def build_rc522_clamp():
+    """One RC522 clamp bar (print 2 - rotate the second by 180 deg about Z).
+
+    Sits on the two M2.5 pads at y = rc522_centre +/- post_off[1], its lip presses the
+    board's edge down onto the front wall while the whole antenna area stays open.
+    """
+    fcx, fcy = P["rc522_centre"]
+    pox, poy = P["rc522_post_off"]
+    cw, cl, ct = P["rc522_clamp"]
+    lw, ll, lt = P["rc522_clamp_lip"]
+    z0 = P["wall_front"] + P["rc522_board"][2]        # board back face 4.6
+    plat = bx(fcx - cw / 2, fcx + cw / 2, fcy + poy - cl + 2.0, fcy + poy + 4.0, z0 + lt, z0 + lt + ct)
+    lip = bx(fcx - lw / 2, fcx + lw / 2, fcy + poy - cl + 2.0, fcy + poy - cl + 2.0 + ll, z0, z0 + lt)
+    bar = UNION([plat, lip], engine="manifold")
+    cut = []
+    for sx in (-1, 1):
+        cut.append(cyl_z(fcx + sx * pox, fcy + poy, z0 - 1, z0 + lt + ct + 1, 3.0))
+        cut.append(cyl_z(fcx + sx * pox, fcy + poy, z0 + lt + 0.2, z0 + lt + ct + 1, 5.6))
+    return DIFF([bar, UNION(cut, engine="manifold")], engine="manifold")
 
 
 def build_r307_bracket():
@@ -435,7 +456,7 @@ def fcx_bar():
     return -20.05 - 9.0
 
 
-def audit(shell, plate, r307b):
+def audit(shell, plate, r307b, clamp=None):
     L = []
     add = L.append
     vol = abs(shell.volume) / 1000.0
@@ -449,13 +470,21 @@ def audit(shell, plate, r307b):
     add(f"volume    : {vol:.1f} cm3  ~{vol*0.62:.0f} g PLA (15 % infill, estimate)")
     add("")
     add("A. printed-part interference")
-    for nm, m in (("shell <-> rear plate", plate), ("shell <-> R307 bracket", r307b)):
+    clamps = ([clamp, clamp.copy().apply_transform(
+        trimesh.transformations.rotation_matrix(np.pi, [0, 0, 1], [P["rc522_centre"][0], P["rc522_centre"][1], 0]))]
+        if clamp is not None else [])
+    ok = True
+    checks = [("shell <-> rear plate", plate), ("shell <-> R307 bracket", r307b)]
+    for i, cm in enumerate(clamps):
+        checks.append((f"shell <-> RC522 clamp {i+1}", cm))
+    for nm, m in checks:
         v = abs(INTER([shell, m], engine="manifold").volume)
-        add(f"   {nm:34s} {v:9.2f} mm3   {'PASS' if v < 1.0 else 'FAIL'}")
+        good = v < 1.0
+        ok = ok and good
+        add(f"   {nm:34s} {v:9.2f} mm3   {'PASS' if good else 'FAIL'}")
     add("")
     add("B. component fit  (envelope overlap with shell material = 0 required)")
     add(f"   {'envelope':26s} {'overlap':>10s}  verdict")
-    ok = True
     for k, m in envelopes().items():
         v = abs(INTER([shell, m], engine="manifold").volume)
         good = v < 1.5
@@ -472,6 +501,10 @@ def audit(shell, plate, r307b):
     add("D. other printed parts")
     add(f"   rear plate   : size {np.round(plate.extents,1).tolist()}, "
         f"watertight={plate.is_watertight}, {abs(plate.volume)/1000:.1f} cm3")
+    if clamp is not None:
+        add(f"   RC522 clamp  : size {np.round(clamp.extents,1).tolist()}, "
+            f"watertight={clamp.is_watertight}, {abs(clamp.volume)/1000:.1f} cm3  (print 2, "
+            f"second rotated 180 deg)")
     add(f"   R307 bracket : size {np.round(r307b.extents,1).tolist()}, "
         f"watertight={r307b.is_watertight}")
     add("")
@@ -492,7 +525,7 @@ def audit(shell, plate, r307b):
         ("Fan", f"{P['fan']}", "30 x 30 x 10", True),
         ("Fan hole pitch", f"{P['fan_pitch']}", "~24", True),
         ("ESP32 PCB hole inset", f"{P['esp32_inset']}", "unverified", False),
-        ("RC522 hole positions", "slotted retainer pads", "unverified", False),
+        ("RC522 board holes", "unused - 2 clamp bars + 4 pads", "unverified", False),
     ]
     for what, got, exp, ver in ref:
         add(f"   {what:22s} model: {str(got):38s} ref: {exp:20s}"
@@ -509,9 +542,70 @@ def audit(shell, plate, r307b):
         f"sides {P['wall_side']} mm, top/bottom {P['wall_top']} mm, "
         f"plate {P['plate_t']} mm, fit clearance {P['fit']} mm")
     add("")
+    add("I. screw fixing map  (circular pilot holes - every hardware fixing, verified)")
+    wi = P["W"] / 2 - P["wall_side"]
+    hi = P["H"] / 2 - P["wall_top"]
+    zi = P["wall_front"]
+    zr = P["D"] - P["plate_t"]
+    lcx, lcy = P["lcd_centre"]
+    rcx, rcy = P["r307_centre"]
+    fcx, fcy = P["rc522_centre"]
+    ex_face = -wi + P["esp32_post_len"]
+    ebw, ebl = P["esp32_board"][0], P["esp32_board"][1]
+    ey0, ezc = P["esp32_usb_edge"], P["esp32_z_centre"]
+    ez0, ez1 = ezc - ebw / 2, ezc + ebw / 2
+    fy, fz = P["fan_centre_yz"]
+    pox, poy = P["rc522_post_off"]
+    holes = []
+    for sx in (-1, 1):                                        # LCD 1602 : 4 x M2.5
+        for sy in (-1, 1):
+            holes.append(("LCD1602", "M2.5", 2.5, 8.5,
+                          (lcx + sx * P["lcd_hole_pitch"][0] / 2, lcy + sy * P["lcd_hole_pitch"][1] / 2),
+                          "z", zi + 4.5, zi + P["lcd_glass_t"] + 1.5))
+    for dx in P["r307_bracket_holes"]:                        # R307 : 2 x M3
+        holes.append(("R307 bracket", "M3", 2.5, 8.0, (rcx + dx, rcy), "z",
+                      zi + P["r307_post_h"] - 7.0, zi + P["r307_post_h"] + 1))
+    for sx in (-1, 1):                                        # RC522 : 4 x M2.5
+        for sy in (-1, 1):
+            holes.append(("RC522 clamp", "M2.5", 2.2, 4.1,
+                          (fcx + sx * pox, fcy + sy * poy), "z", 1.4, zi + P["rc522_post_h"] + 0.6))
+    for py in (ey0 + P["esp32_inset"], ey0 + ebl - P["esp32_inset"]):      # ESP32 : 4 x M2.2
+        for pz in (ez0 + P["esp32_inset"], ez1 - P["esp32_inset"]):
+            holes.append(("ESP32 standoff", "M2.2", 2.2, 7.0, (py, pz), "x",
+                          ex_face - 7.0, ex_face + 0.6))
+    for dy in (-P["fan_pitch"] / 2, P["fan_pitch"] / 2):       # fan : 4 x M3
+        for dz in (-P["fan_pitch"] / 2, P["fan_pitch"] / 2):
+            holes.append(("Fan 3010", "M3", 2.5, 12.0, (fy + dy, fz + dz), "x",
+                          -wi - 1.0, -wi + 11.0))
+    bx0, by0 = P["plate_boss_xy"]                              # rear plate : 4 x M3
+    for sx in (-1, 1):
+        for sy in (-1, 1):
+            holes.append(("rear plate", "M3", 2.5, 9.0, (sx * bx0, sy * by0), "z", zr - 9.0, zr + 1))
+    add(f"   {'part':14s}{'screw':7s}{'pilot':9s}{'depth':8s}{'hole empty':>11s}{'material':>10s}")
+    bad = 0
+    counts = {}
+    for name, sc, d, depth, pos, axis, a0, a1 in holes:
+        mid = (a0 + a1) / 2
+        p_on = {"z": (pos[0], pos[1], mid), "x": (mid, pos[0], pos[1]), "y": (pos[0], mid, pos[1])}[axis]
+        off = {"z": (pos[0] + d * 0.5 + 1.2, pos[1], mid),
+               "x": (mid, pos[0] + d * 0.5 + 1.2, pos[1]),
+               "y": (pos[0], mid, pos[1] + d * 0.5 + 1.2)}[axis]
+        empty = not bool(shell.contains([p_on])[0])
+        solid = bool(shell.contains([off])[0])
+        good = empty and solid
+        bad += 0 if good else 1
+        counts[name] = counts.get(name, 0) + 1
+        pstr = f"{d:.1f} x {depth:.1f}"
+        add(f"   {name:14s}{sc:7s}{pstr:9s}{'':8s}{str(empty):>11s}{str(solid):>10s}  "
+            f"{'PASS' if good else 'FAIL'}   at ({pos[0]:.1f}, {pos[1]:.1f})")
+    ok = ok and bad == 0
+    add(f"   -> {len(holes)} screw holes in total: " +
+        ", ".join(f"{v} x {k}" for k, v in counts.items()) +
+        f"  |  3 x cable-tie holes d4.0 (through)   ALL {'PASS' if bad == 0 else 'FAIL'}")
+    add("")
     add("H. STL file re-read verification (what the slicer will actually see)")
     for nm, fn in (("shell", "01_MAIN_SHELL_v2.stl"), ("rear plate", "02_REAR_PLATE_v2.stl"),
-                   ("R307 bracket", "03_R307_BRACKET_v2.stl")):
+                   ("R307 bracket", "03_R307_BRACKET_v2.stl"), ("RC522 clamp", "04_RC522_CLAMP_v2.stl")):
         m = trimesh.load(os.path.join(OUT, fn), process=True, merge_tex=False, merge_norm=False)
         m.merge_vertices(merge_tex=False, merge_norm=False, digits_vertex=4)   # 0.1 um
         cnt = np.bincount(m.edges_unique_inverse, minlength=len(m.edges_unique))
@@ -530,10 +624,12 @@ def main():
     shell = build_shell()
     plate = build_plate()
     bracket = build_r307_bracket()
+    clamp = build_rc522_clamp()
     shell.export(os.path.join(OUT, "01_MAIN_SHELL_v2.stl"))
     plate.export(os.path.join(OUT, "02_REAR_PLATE_v2.stl"))
     bracket.export(os.path.join(OUT, "03_R307_BRACKET_v2.stl"))
-    txt, ok = audit(shell, plate, bracket)
+    clamp.export(os.path.join(OUT, "04_RC522_CLAMP_v2.stl"))
+    txt, ok = audit(shell, plate, bracket, clamp)
     with open(os.path.join(ROOT, "docs", "v2_audit.txt"), "w") as fh:
         fh.write(txt + "\n")
     print(txt)
