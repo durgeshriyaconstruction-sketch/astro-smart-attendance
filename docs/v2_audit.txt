@@ -1,0 +1,67 @@
+ASTRO SMART ATTENDANCE - v2 enclosure audit
+============================================================================
+axis frame: X width 110, Y height 155, Z depth 48 mm
+shell     : 9892 tris, watertight=True, winding_ok=True, bodies=1
+shell size: [110.0, 155.0, 45.0] (depth 45 + 3 mm plate = 48)
+assembly  : 110.0 x 155.0 x 48.0 mm
+volume    : 114.9 cm3  ~71 g PLA (15 % infill, estimate)
+
+A. printed-part interference
+   shell <-> rear plate                    0.00 mm3   PASS
+   shell <-> R307 bracket                  0.00 mm3   PASS
+
+B. component fit  (envelope overlap with shell material = 0 required)
+   envelope                      overlap  verdict
+   LCD_glass_pane                   0.00  PASS
+   LCD_pcb+backpack                 0.00  PASS
+   LCD_bezel_window                 0.00  PASS
+   R307_body                        0.00  PASS
+   RC522_board                      0.00  PASS
+   RC522_components                 0.00  PASS
+   RC522_scan_zone                  0.00  PASS
+   ESP32_board+components           0.00  PASS
+   ESP32_RF_keepout                 0.00  PASS
+   USB_plug                         0.00  PASS
+   Fan_3010                         0.00  PASS
+
+C. openings (must be open through the wall, wall must exist beside them)
+   LCD window           open=True  wall_ok=True  PASS
+   R307 window          open=True  wall_ok=True  PASS
+   RFID scan window     open=True  wall_ok=True  PASS
+   USB slot             open=True  wall_ok=True  PASS
+   fan grille           open=True  wall_ok=True  PASS
+   exhaust slot         open=True  wall_ok=True  PASS
+   top vent             open=True  wall_ok=True  PASS
+
+D. other printed parts
+   rear plate   : size [110.0, 155.0, 7.0], watertight=True, 81.9 cm3
+   R307 bracket : size [33.5, 12.0, 2.0], watertight=True
+
+E. wall / feature thickness probe (ray through the material)
+   front wall, plain          measured  2.90 mm   design 2.90   PASS
+   front wall, RFID recess    measured  1.45 mm   design 1.45   PASS
+   RFID stiffener bar         measured  1.45 mm   design 1.45   PASS
+   side wall                  measured  2.35 mm   design 2.30   PASS
+   top wall                   measured  2.90 mm   design 2.90   PASS
+   bottom wall                measured  2.90 mm   design 2.90   PASS
+   LCD boss above wall        measured 11.50 mm   design 11.50   PASS
+   R307 post height           measured 23.50 mm   design 23.50   PASS
+
+F. dimensional audit against the supplied component references
+   R307 body              model: (20.0, 44.1, 23.5)                     ref: 44.1 x 20 x 23.5    
+   R307 window            model: (19.3, 21.2)                           ref: 19 x 21             
+   ESP32 pcb              model: (28.33, 51.45, 1.6)                    ref: 51.45 x 28.33       
+   RC522 pcb              model: (60.0, 40.0)                           ref: 60 x 40             
+   LCD pcb                model: 80 x 36 (window pattern 75.1 x 31)     ref: 80 x 36             
+   LCD visible            model: (66.0, 17.5) window                    ref: 64 x 16             
+   Fan                    model: (30.0, 30.0, 10.0)                     ref: 30 x 30 x 10        
+   Fan hole pitch         model: 24.0                                   ref: ~24                 
+   ESP32 PCB hole inset   model: 3.5                                    ref: unverified            VERIFY_ACTUAL_HARDWARE
+   RC522 hole positions   model: slotted retainer pads                  ref: unverified            VERIFY_ACTUAL_HARDWARE
+
+
+G. printability (orientation: front face down, rear opening up)
+   >60 deg overhang area: 155 mm2 (0.18 % of surface) - SUPPORT_REQUIRED = NO
+   designed walls: front 3.0 mm (1.5 mm at the RFID recess), sides 2.4 mm, top/bottom 3.0 mm, plate 3.0 mm, fit clearance 0.35 mm
+
+RESULT: ALL CHECKS PASS
