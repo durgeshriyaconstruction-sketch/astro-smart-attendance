@@ -133,5 +133,7 @@ FILES IN THIS PACK
   verify_v3_INDEPENDENT.py         run it against any future export to catch a bad STL
   audit_v3_PHYSICS.py              the physics auditor (slow: it slices at 0.01 mm and models the
                                    slicer's density layer by layer - 14 min, worth it after edits)
+  check_v3_GROOVES.py              the groove / printed-fit walker (47 s) - run it on any future
+                                   export to see the rebate, recess, lip and hole sizes it really has
   orient_v3.py                     the one table that puts every part in its printing attitude
   viewer_offline.html              open by double-click: v3, v2 and v1 side by side, no server
