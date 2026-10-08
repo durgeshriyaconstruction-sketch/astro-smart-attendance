@@ -46,9 +46,9 @@ DOCS = {
     "v3_design_notes.md": os.path.join("docs", "v3_design_notes.md"),
     "master_prompt.md": os.path.join("docs", "master_prompt.md"),
 }
+# 7 figures: the fit-gauge card's own figure went out of the pack with the card (v3.5).
 FIGS = [f"v3_{n}.png" for n in ["drawing_sheet", "exploded_iso", "fixing_detail",
-                                "fixing_section", "all_views", "vs_v2", "grille_map",
-                                "fit_gauge"]]
+                                "fixing_section", "all_views", "vs_v2", "grille_map"]]
 SRC = {
     "build_v3_PARAMETRIC_generator.py": os.path.join("tools", "build_v3.py"),
     "verify_v3_INDEPENDENT.py": os.path.join("tools", "verify_v3.py"),
