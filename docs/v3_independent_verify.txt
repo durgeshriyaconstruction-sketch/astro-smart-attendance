@@ -126,7 +126,7 @@ source: cad/v3/*.stl only; no number imported from the generator
    solid volume of all 4 printed parts: 167.9 cm3
    shell 110.9 + plate 53.8 + bracket 1.01 + ring 2.19 cm3
    printed PLA (0.45 nozzle, 3 walls, 3 skins, 15 % infill, no supports): shell 109 g / plate 41 g / bracket 1 g / ring 3 g  = TOTAL 154 g
-   filament 100 cm3 of 1.75 mm (1 kg spool = 6.5 sets); the blanket 0.62 factor above understates the shell by 23 g because a 2.6 mm wall prints solid
+   extruded 124 cm3 = 51.6 m of 1.75 mm filament, so a 1 kg spool makes 6.5 sets; the blanket 0.62 factor understates the shell by 23 g because a 2.6 mm wall prints solid (3 perimeters x 0.45 mm)
 
 ==============================================================================
 INDEPENDENT RESULT: ALL CHECKS PASS

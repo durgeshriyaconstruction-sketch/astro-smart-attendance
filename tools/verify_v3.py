@@ -612,7 +612,7 @@ add(f"   printed PLA (0.45 nozzle, 3 walls, 3 skins, 15 % infill, no supports): 
     + " / ".join(f"{k} {G[k]:.0f} g" for k in ["shell", "plate", "bracket", "ring"])
     + f"  = TOTAL {sum(G.values()):.0f} g")
 fid_mm2 = 3.14159 * 0.875 ** 2
-add(f"   extruded {sum(G.values()) / 1.24:.0f} cm3 = {sum(G.values()) / 1.24 * 1000 / fid_mm2 / 100:.1f} m "
+add(f"   extruded {sum(G.values()) / 1.24:.0f} cm3 = {sum(G.values()) / 1.24 * 1000 / fid_mm2 / 1000:.1f} m "
     f"of 1.75 mm filament, so a 1 kg spool makes {1000 / sum(G.values()):.1f} sets; the blanket 0.62 "
     f"factor understates the shell by {abs(shell.volume) / 1000 * (0.79 - 0.62) * 1.24:.0f} g because "
     f"a 2.6 mm wall prints solid (3 perimeters x 0.45 mm)")

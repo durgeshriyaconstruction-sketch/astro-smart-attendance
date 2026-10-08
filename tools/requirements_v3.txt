@@ -1,0 +1,24 @@
+# The exact environment every v3 number in this repo was produced with.
+# Reproducing the geometry on a fresh machine:
+#   python3 -m venv .venv && .venv/bin/pip install -r tools/requirements_v3.txt
+#   .venv/bin/python tools/build_v3.py && .venv/bin/python tools/verify_v3.py
+#   .venv/bin/python tools/audit_physics_v3.py
+# numpy / trimesh are pinned because the checkers quote trimesh's own volume, watertightness and
+# boolean output; the three pinned libs below are what trimesh 5.1.1 needs for booleans,
+# triangulation and 2-D booleans (shapely) - without them build_v3.py raises
+# "No available triangulation engine!".  matplotlib only for the figures, scipy only for the
+# audit's blob analysis.  Verified: a from-scratch rebuild with these pins reproduces 3 of the 4
+# STLs byte-for-byte and the shell as the same solid (identical volume/area, 355 flat-quad
+# triangulation diagonals flipped by manifold3d 3.5.4 vs the pinned build).
+numpy==2.4.6
+trimesh==5.1.1
+manifold3d==3.5.4
+mapbox-earcut==2.1.0
+shapely==2.2.0
+rtree==1.4.1
+networkx==3.6.1
+scipy==1.17.1
+matplotlib==3.11.2
+lxml==6.1.3
+pillow==12.3.0
+svg.path==7.1

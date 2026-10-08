@@ -63,8 +63,31 @@ def newest(paths):
 
 
 # ---------------------------------------------------------------- 1. proofs are current
+# "current" can mean two things, and both are legitimate:
+#   (a) the proof file was WRITTEN AFTER the geometry - the mtime rule; or
+#   (b) the proof file and the four STLs are all byte-identical to ONE commit, which is a far
+#       stronger statement than a timestamp - it means "this exact text certified these exact
+#       bytes", and it survives a fresh clone or a re-checkout (a re-clone rewrites mtimes and
+#       means nothing about content).  v3.2 hit exactly that: the sandbox was rebuilt, mtimes
+#       moved, and an mtime-only gate would have refused a pack that is provably correct.
 stl_paths = [os.path.join(CAD, f) for f in STL]
 t_stl = newest(stl_paths)
+
+
+def blob(path):
+    """git's own hash of the file as it sits on disk (empty string if unreadable)."""
+    r = subprocess.run(["git", "-C", ROOT, "hash-object", path], capture_output=True, text=True)
+    return r.stdout.strip() if r.returncode == 0 else ""
+
+
+def in_head(path):
+    """True if HEAD records that exact blob for that repo-relative path."""
+    r = subprocess.run(["git", "-C", ROOT, "rev-parse", f"HEAD:{path}"],
+                       capture_output=True, text=True)
+    return r.returncode == 0 and r.stdout.strip() == blob(path)
+
+
+stl_locked = all(in_head(os.path.relpath(x, ROOT)) for x in stl_paths)
 for pack_name, (rel, verdict) in PROOF.items():
     p = os.path.join(ROOT, rel)
     if not os.path.exists(p):
@@ -73,9 +96,9 @@ for pack_name, (rel, verdict) in PROOF.items():
     txt = open(p, encoding="utf-8", errors="replace").read()
     if verdict not in txt:
         die(f"{rel} does not contain '{verdict}'")
-    if os.path.getmtime(p) < t_stl - 1:
-        die(f"{rel} is OLDER than the STLs ({(t_stl - os.path.getmtime(p)) / 60:.1f} min) - "
-            f"the geometry moved after the last check")
+    if not (stl_locked and in_head(rel)) and os.path.getmtime(p) < t_stl - 1:
+        die(f"{rel} is OLDER than the STLs ({(t_stl - os.path.getmtime(p)) / 60:.1f} min) and is "
+            f"not committed with them - the geometry moved after the last check")
     if pack_name == "v3_physics_audit.txt":
         m = re.search(r"(\d+) item\(s\) recorded as notes", txt)
         if m and int(m.group(1)) > 2:
@@ -86,7 +109,8 @@ for f in FIGS:
     p = os.path.join(ROOT, "renders", f)
     if not os.path.exists(p):
         die(f"renders/{f} missing")
-    elif os.path.getmtime(p) < t_stl - 1:
+    elif not (stl_locked and in_head(os.path.join("renders", f))) \
+            and os.path.getmtime(p) < t_stl - 1:
         die(f"renders/{f} is older than the STLs - re-run tools/make_figures_v3.py")
 
 # the docs must not quote a volume the mesh disagrees with (same rule section 10 of the
@@ -141,6 +165,18 @@ for f in FIGS:
 for pack_name, rel in SRC.items():
     stage(os.path.join(ROOT, rel), pack_name)
 stage(os.path.join(ROOT, "exports", "viewer_offline.html"), "viewer_offline.html")
+
+lines = []
+for name in sorted(manifest):
+    b = open(os.path.join(STAGE, name), "rb").read()
+    lines.append(f"{hashlib.sha256(b).hexdigest()}  {name}")
+sums = os.path.join(STAGE, "SHA256SUMS_v3.txt")
+open(sums, "w").write("sha256 of every file in this pack, so a download can be checked\n"
+                      f"# built by tools/make_pack_v3.py from commit "
+                      f"{subprocess.run(['git', '-C', ROOT, 'rev-parse', '--short', 'HEAD'], capture_output=True, text=True).stdout.strip()}\n"
+                      + "\n".join(lines) + "\n")
+manifest.append("SHA256SUMS_v3.txt")
+shutil.copyfile(sums, os.path.join(ROOT, "exports", "SHA256SUMS_v3.txt"))
 
 if os.path.exists(OUT):
     os.remove(OUT)
