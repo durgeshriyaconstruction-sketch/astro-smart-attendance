@@ -12,7 +12,9 @@ ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 SRC = os.path.join(ROOT, "viewer.html")
 OUT = os.path.join(ROOT, "exports", "viewer_offline.html")
 
-FILES = ["cad/v2/01_MAIN_SHELL_v2.stl", "cad/v2/02_REAR_PLATE_v2.stl",
+FILES = ["cad/v3/01_MAIN_SHELL_v3.stl", "cad/v3/02_REAR_PLATE_v3.stl",
+         "cad/v3/03_R307_BRACKET_v3.stl", "cad/v3/04_RC522_RING_v3.stl",
+         "cad/v2/01_MAIN_SHELL_v2.stl", "cad/v2/02_REAR_PLATE_v2.stl",
          "cad/v2/03_R307_BRACKET_v2.stl", "cad/v2/04_RC522_CLAMP_v2.stl",
          "cad/01_MAIN_SHELL.stl", "cad/02_DETACHABLE_WALL_PLATE.stl",
          "cad/03_R307_RETENTION.stl", "cad/04_RC522_RETENTION.stl",

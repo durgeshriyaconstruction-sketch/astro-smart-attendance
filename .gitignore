@@ -4,3 +4,4 @@ __pycache__/
 renders/_*.png
 exports/ZIP_CONTENTS/
 pylibs/
+exports/ZIP_CONTENTS*/

@@ -39,8 +39,8 @@
 <body>
 <div id="app">
   <aside id="side">
-    <h1>Astro Smart Attendance</h1>
-    <div class="sub">ESP32 RFID attendance terminal — enclosure <b>v2</b><br/>110 × 155 × 48 mm · RFID window open<br/>all modules screwed down · 4 printed parts<br/>v1 parts kept for comparison</div>
+    <h1>Astro Smart Attendance &mdash; v3 re-design</h1>
+    <div class="sub">ESP32 RFID attendance terminal — enclosure <b>v3</b> (complete re-design)<br/>110 × 155 × 46 mm · RFID aperture 56 × 38, 100 % open<br/>all 6 modules screwed down through 22 printed pilots · 4 printed parts, no supports<br/>v2 and v1 kept for comparison</div>
 
     <div class="sec">Parts</div>
     <div id="parts"></div>
@@ -72,7 +72,11 @@
 
 <script>
 const PART_DEFS = [
-  { file: "cad/v2/01_MAIN_SHELL_v2.stl",      name: "v2  Main shell (open RFID window)", color: "#8fb6d6", group: "v2" },
+  { file: "cad/v3/01_MAIN_SHELL_v3.stl",      name: "v3  Main shell (rebuilt front face)", color: "#9fd0f0", group: "v3" },
+  { file: "cad/v3/02_REAR_PLATE_v3.stl",      name: "v3  Rear plate (register frame, no plug)", color: "#8fe0a8", group: "v3" },
+  { file: "cad/v3/03_R307_BRACKET_v3.stl",    name: "v3  R307 dog-bone bracket",          color: "#f0d08a", group: "v3" },
+  { file: "cad/v3/04_RC522_RING_v3.stl",      name: "v3  RC522 hold-down ring (print x1)", color: "#f0a8d8", group: "v3" },
+  { file: "cad/v2/01_MAIN_SHELL_v2.stl",      name: "v2  Main shell (previous, open RFID window)", color: "#8fb6d6", on: false, group: "v2" },
   { file: "cad/v2/02_REAR_PLATE_v2.stl",      name: "v2  Rear plate",            color: "#c2a06a", on: false, group: "v2" },
   { file: "cad/v2/03_R307_BRACKET_v2.stl",    name: "v2  R307 bracket",          color: "#7fd3a0", on: false, group: "v2" },
   { file: "cad/v2/04_RC522_CLAMP_v2.stl",     name: "v2  RC522 clamp bars (x2)", color: "#d98fb0", on: false, group: "v2" },

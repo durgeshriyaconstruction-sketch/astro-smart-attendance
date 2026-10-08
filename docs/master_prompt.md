@@ -415,3 +415,68 @@ table: **no dimension is hard-coded twice.**
 - [x] Every part a separately named object; no card, no card holder, no prices, no fictional parts.
 - [x] Every module fixed by **circular pilot holes** (22 holes, hole-empty + material-around proved).
 - [x] Scorecard delivered with measured values; unresolved items marked `VERIFY_ACTUAL_HARDWARE`.
+
+---
+
+## §27 v3 APPENDIX - the complete re-design (and what a v4 must not lose)
+
+v2 kept failing the human test: after every repair the box still looked like the box. v3 is
+therefore **not** a re-tune. `tools/build_v3.py` is a fork of the v2 generator whose *decisions*
+were replaced, and it re-derives the same keep-outs, envelopes and proof figures. If you rebuild
+again, these are the eight decisions that make v3 what it is - keep them or beat them with a
+measurement, never silently revert them:
+
+1. **Depth is an output, not a choice.** 46 mm = 3.0 front wall + the RC522 stack (1.6 board +
+   2.6 ring + heads) + the ESP32 bay + 3.0 cover. v2's 48 mm was 2 mm of solid rear plug.
+2. **Side walls 2.6 mm** (v2: 2.4) and a flat 3.0 mm fan wall; the thinnest *sheet* in the print
+   is the 2.2 mm band the RC522 lies on.
+3. **The scan aperture is one opening**: 56 x 38, R5 corners, no bars, no floor, no recess
+   material inside it. Proof: `K1` ray-scans 8269 points masked to the same rounded rectangle
+   the geometry uses - 0 blocked. A rectangular grid over a rounded opening reports a false
+   failure at its own corners; a rectangular metric over a rounded feature reports a false pass.
+4. **The RC522 is held by one flat ring**, printed once: its inner lip stands 0.5 mm inside the
+   aperture, its 4 corner tabs land on 4 pads whose tops are coplanar with the board's front
+   face (z = 4.6), and 4 x M2.5 pull it down into blind d2.2 x 3.8 pilots with 1.4 mm of wall
+   left under them. No clamp bar crosses the antenna, no reliance on the module's own hole pitch.
+5. **Rebate rings, not flush cuts**: 0.45 x 3.0 mm sunk around the LCD and fingerprint openings,
+   so each module's bezel registers on the rebate floor (2.55 mm of wall remains under the ring).
+   The fingerprint opening is the *bezel relief* footprint (21 x 25) with the 19.3 x 21.2 optical
+   window inside it - the ledge that v2 left between the internal pocket and the rebate was
+   1.15 mm and is deleted.
+6. **Rear plate = register frame** (2 mm proud, 0.25 mm per side, 8-sided) with the whole ESP32
+   zone cut out by ONE clearance box. Per-boss notches and rib-splitting both failed: the ESP32
+   has 4 bosses *and* 2 locating tabs, and the -Y rib's end collided too. Build the frame
+   continuous, then subtract one generous box; 90 of 148 mm of register remains, plenty for
+   4 screws. 52.8 cm3 instead of 79.6 cm3.
+7. **Air path**: 6 x d5.0 intake holes at two heights on the wall opposite the fan, staggered so
+   no hole breaks a boss; d28 fan bore with no grille and no seat lip; 4 x (20 x 4) exhaust slots
+   and 3 x (16 x 3) top vents. v2's 3 grille bars left 50 % of the bore closed.
+8. **Everything is measured twice.** `build_v3.py` sections A-K (interference, envelopes,
+   openings, other parts, probes, printability, STL re-read, the 22-hole pilot census, the
+   bed envelope, the measured v2->v3 deltas) and `verify_v3.py`, which imports nothing from the
+   generator - re-types the reference dimensions, re-cuts the meshes, re-measures every pilot
+   diameter with 8 rays at 3 depths, slices every 0.2 mm, and re-derives the outer dimensions.
+
+### New checks worth keeping in any future verifier
+* `K1`/`K2` aperture and bore ray-scans (masked to the real shape) - catches "opening" claims
+  that a bar or a lip quietly invalidates.
+* `K3` pad-top flatness probes + the bearing-face probes - the ring only works if the surface it
+  sits on is one plane; probe the *feature*, not a point 30 mm away that lands on a side wall.
+* `K4` plate volume vs the plug it replaced - a fit relief that adds plastic back is a design
+  regression even when every hole passes.
+* "the register is a frame, not a plug": count material inside the opening at z = shell top
+  (v3: 19.3 % of the opening area, all of it the frame).
+* driver access as a 6 mm x 25 mm cylinder swept from outside to each head; the R307 bracket
+  needed 13 mm of *lateral* corridor, so measure access along the actual approach direction.
+* hole-position checks must go through the section's world transform. `Path2D` frames are offset
+  (here by (+6.45, +9.05) mm), so a hole centre read straight out of `to_2D()` will not match a
+  design coordinate and a filter on "is this the RFID opening" will find nothing.
+* envelope boxes must be built from absolute min/max coordinates. A helper that centres a box on
+  the origin turns a whole clearance section into a false PASS (it happened, and the fix was to
+  re-run the section, not to re-state the numbers).
+
+### Figures a rebuild must regenerate (additions to §22)
+`v3_drawing_sheet.png`, `v3_exploded_iso.png`, `v3_fixing_detail.png`, `v3_fixing_section.png`,
+`v3_all_views.png`, `v3_vs_v2.png`. The two fixing panels are cut from the shipped STLs with
+`mesh.section()`, so they cannot drift; `v3_vs_v2.png` renders both versions with the same
+`projection()` call, which is what makes "it looks unchanged" impossible to argue with.

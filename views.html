@@ -2,45 +2,98 @@
 <html lang="en">
 <head>
 <meta charset="utf-8">
-<title>Astro Smart Attendance - v2 views</title>
+<title>Astro Smart Attendance - enclosure v3 (re-design) + v2, all views</title>
 <style>
  body{background:#12151c;color:#e9ecf2;font:15px/1.5 ui-sans-serif,system-ui,Segoe UI,Roboto,sans-serif;margin:0;padding:26px 30px 60px}
  h1{font-size:21px;margin:0 0 4px}
+ h2{font-size:17px;margin:38px 0 10px;color:#f6e05e}
  .sub{color:#93a0b5;margin:0 0 18px}
- a.big{display:inline-block;background:#2b6cb0;color:#fff;text-decoration:none;padding:9px 14px;border-radius:6px;margin:0 10px 18px 0;font-weight:600}
+ a.big{display:inline-block;background:#2b6cb0;color:#fff;text-decoration:none;padding:9px 14px;border-radius:6px;margin:0 10px 14px 0;font-weight:600}
  a.big.alt{background:#2f855a}
- figure{margin:0 0 26px;background:#0b0d12;border:1px solid #262c38;border-radius:8px;padding:10px}
+ a.big.zip{background:#744210}
+ figure{margin:0 0 22px;background:#0b0d12;border:1px solid #262c38;border-radius:8px;padding:10px}
  figcaption{color:#9fb0c6;font-size:13px;margin:0 0 8px}
  img{display:block;width:100%;height:auto;border-radius:4px}
  .row{display:flex;gap:22px;flex-wrap:wrap}
  .row figure{flex:1 1 460px}
+ .grid{display:flex;gap:18px;flex-wrap:wrap}
+ .grid figure{flex:1 1 320px;min-width:300px}
+ .old{filter:saturate(.72)}
+ .v2{background:#0d1015;border:1px solid #212736;border-radius:8px;padding:18px 20px 6px}
+ ul.facts{margin:0 0 14px;padding-left:20px;color:#c3cee0;font-size:14px}
+ ul.facts b{color:#f6e05e}
+ pre{white-space:pre-wrap;background:#0b0d12;border:1px solid #262c38;border-radius:8px;padding:14px;font:13px/1.55 ui-monospace,Menlo,Consolas,monospace}
 </style>
 </head>
 <body>
-<h1>Astro Smart Attendance &mdash; enclosure v2, all views</h1>
-<p class="sub">110 &times; 155 &times; 48 mm &middot; 4 printed parts &middot; no supports &middot; every module screwed down through circular hollow pilots &middot; 22 pilots verified empty with material around them</p>
-<a class="big" href="/viewer.html">Open the interactive 3D viewer (v2 + v1 compare)</a>
-<a class="big alt" href="/exports/viewer_offline.html">Open the self-contained 3D viewer (same file as in the ZIP)</a>
-<a class="big" style="background:#744210" href="/exports/ASTRO_SMART_ATTENDANCE_v2.zip">Download the ZIP (16 files)</a>
+<h1>Astro Smart Attendance &mdash; enclosure <span style="color:#68d391">v3, the complete re-design</span></h1>
+<p class="sub">110 &times; 155 &times; <b>46</b> mm &middot; 4 printed parts (the RFID hold-down is now <b>one</b>
+ring instead of two clamp bars) &middot; no supports &middot; 22 circular self-tapping pilots &middot;
+169.2 cm<sup>3</sup> of plastic (~105 g PLA at 15&nbsp;%) &middot; both checkers say ALL CHECKS PASS,
+and the second one reads only the STL triangles.</p>
 
+<ul class="facts">
+  <li><b>100&nbsp;% open</b> RFID scan aperture &mdash; 56 &times; 38 mm, R5 corners, 0 of 8269 probe rays blocked (v2 lost 190 mm<sup>2</sup> to stiffener bars)</li>
+  <li><b>d28 fan bore with nothing across it</b> &mdash; no grille, and the 1.4 mm seat lip v2 left standing around the bore is gone; the thinnest sheet anywhere in the print is now the 2.2 mm band the RC522 lies on</li>
+  <li><b>0.45 &times; 3.0 mm rebate rings</b> sunk around the LCD and fingerprint openings &mdash; each module's own bezel registers in them, so the openings read as a shadow line instead of a cut edge</li>
+  <li><b>rear plate: register frame, not a plug</b> &mdash; 52.8 cm<sup>3</sup> instead of 79.6 cm<sup>3</sup>, with the whole ESP32 zone cut clear so its bosses and locating tabs have room</li>
+  <li><b>fresh intake wall</b> &mdash; 6 &times; d5.0 holes at two heights on the side opposite the fan, staggered so no hole breaks an ESP32 boss</li>
+  <li><b>every module screwed down</b>, RC522 included: 4 &times; M2.5 into blind pilots, heads sunk in the ring, no glue, no clips, no snap-fits</li>
+</ul>
+
+<a class="big" href="/viewer.html">Interactive 3D viewer &mdash; v3 / v2 / v1 in one canvas</a>
+<a class="big alt" href="/exports/viewer_offline.html">Self-contained viewer (the same file that ships in the ZIP)</a>
+<a class="big zip" href="/exports/ASTRO_SMART_ATTENDANCE_v3.zip">Download v3 ZIP &mdash; 4 STLs + 6 figures + both reports + both scripts</a>
+<a class="big zip" style="background:#4a5568" href="/exports/ASTRO_SMART_ATTENDANCE_v2.zip">v2 ZIP (previous, still verified)</a>
+
+<h2>1 &mdash; the whole re-design on one page</h2>
 <figure>
- <figcaption>1 &mdash; everything at a glance (drawing sheet + exploded + fixing detail + RFID before/after on one page)</figcaption>
- <img src="/renders/v2_all_views.png" alt="overview">
+ <figcaption>v3 assembly: front / rear / fan wall / intake wall / top / bottom, every part coloured, drawn from the four shipped STLs</figcaption>
+ <img src="/renders/v3_all_views.png" alt="overview">
 </figure>
+
+<h2>2 &mdash; v2 &rarr; v3, same views, same projection, both columns rendered from shipped STLs</h2>
+<figure>
+ <figcaption>this is the answer to "it looks the same": front wall, rear plate, iso and fan wall, v2 on the left in cyan, v3 on the right in green</figcaption>
+ <img src="/renders/v3_vs_v2.png" alt="v2 vs v3">
+</figure>
+
 <div class="row">
- <figure><figcaption>2 &mdash; drawing sheet: front / iso / side / rear plate, dimensions in mm</figcaption><img src="/renders/v2_shell_drawing_sheet.png" alt="sheet"></figure>
- <figure><figcaption>3 &mdash; exploded: the 4 printed parts you put in the slicer</figcaption><img src="/renders/v2_exploded_iso.png" alt="exploded"></figure>
-</div>
-<div class="row">
- <figure><figcaption>4 &mdash; RC522 screw fixing: exploded stack + dimensioned section (bright = cut by the plane, dim = behind it)</figcaption><img src="/renders/v2_fixing_detail.png" alt="fixing"></figure>
- <figure><figcaption>5 &mdash; RFID scan area: v1 closed pocket vs v2 open 56 &times; 38 window</figcaption><img src="/renders/rfid_before_after.png" alt="rfid"></figure>
+ <figure><figcaption>3 &mdash; dimensioned drawing sheet: front face, assembled iso, fan wall, rear plate</figcaption><img src="/renders/v3_drawing_sheet.png" alt="sheet"></figure>
+ <figure><figcaption>4 &mdash; exploded: the 4 printed parts, in the order they go together</figcaption><img src="/renders/v3_exploded_iso.png" alt="exploded"></figure>
 </div>
 
-<h1 style="margin-top:34px">Print order</h1>
-<pre style="white-space:pre-wrap;background:#0b0d12;border:1px solid #262c38;border-radius:8px;padding:14px;font:13px/1.55 ui-monospace,Menlo,Consolas,monospace">
-loading...</pre>
+<h2>5 &mdash; how the RC522 is held now (the fixing v2 did not have)</h2>
+<figure>
+ <figcaption>exploded stack + two real cut sections: the printed material in every section below is the polygon trimesh gets when it slices the exported .stl &mdash; so a hole you can see is a hole you can print</figcaption>
+ <img src="/renders/v3_fixing_detail.png" alt="fixing">
+</figure>
+<div class="grid">
+ <figure><figcaption>6 &mdash; the two sections enlarged (aperture band, then screw axis)</figcaption><img src="/renders/v3_fixing_section.png" alt="sections"></figure>
+ <figure><figcaption>7 &mdash; the RFID window change on its own: v1 closed pocket, v2 window with bars, v3 fully open</figcaption><img class="old" src="/renders/rfid_before_after.png" alt="rfid"></figure>
+</div>
+
+<h2>Print order (the file that ships at the top level of the ZIP)</h2>
+<pre id="ro">loading...</pre>
+
+<div class="v2">
+<h1 style="margin-top:6px">Previous version &mdash; enclosure v2 (kept intact as the fallback)</h1>
+<p class="sub">110 &times; 155 &times; 48 mm &middot; 4 printed parts (two of them the clamp bars, printed twice) &middot;
+thinnest wall 1.20 mm &middot; 90.4&nbsp;% open RFID window &middot; a solid 2 mm rear plug &middot;
+also ALL CHECKS PASS on both checkers &mdash; if you would rather print the version you already know,
+<code>cad/v2/</code> is unchanged.</p>
+<div class="row">
+ <figure><figcaption>v2 overview</figcaption><img class="old" src="/renders/v2_all_views.png" alt="v2 overview"></figure>
+ <figure><figcaption>v2 drawing sheet</figcaption><img class="old" src="/renders/v2_shell_drawing_sheet.png" alt="v2 sheet"></figure>
+</div>
+<div class="row">
+ <figure><figcaption>v2 exploded</figcaption><img class="old" src="/renders/v2_exploded_iso.png" alt="v2 exploded"></figure>
+ <figure><figcaption>v2 fixing detail (clamp bars + lip)</figcaption><img class="old" src="/renders/v2_fixing_detail.png" alt="v2 fixing"></figure>
+</div>
+</div>
+
 <script>
- fetch('/exports/README_PRINT_ORDER.txt').then(r=>r.text()).then(t=>{document.querySelector('pre').textContent=t});
+ fetch('/exports/README_PRINT_ORDER_v3.txt').then(r=>r.text()).then(t=>{document.getElementById('ro').textContent=t});
 </script>
 </body>
 </html>
