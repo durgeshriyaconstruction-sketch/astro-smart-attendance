@@ -6,9 +6,13 @@ WHAT THIS IS
   v3 is not a re-tuned v2. The depth came out of the RFID stack instead of being picked, the
   front face was re-drawn around the three modules with a sunk rebate ring, the RFID hold-down
   was replaced by one flat ring, the rear closure was replaced by a register frame, the fan
-  grille and its 1.4 mm seat lip were deleted.  v3.3 then removed the eight slots that had been
+    grille and its 1.4 mm seat lip were deleted.  v3.3 then removed the eight slots that had been
   cut into the right-hand wall: the fan moves the air, so its own bore is the inlet (mounted
-  blowing IN) and the bottom + top grilles are the outlet.  See
+  blowing IN).  v3.4 finished the job - **the grilles are gone**, all twelve bottom and top slots
+  filled in, and the d28 fan bore is the box's **only air opening**; only the USB opening is left
+  in the bottom wall for the cable.  What cooling that costs is measured, not assumed: 2.7 K above
+    ambient on the skin alone, 1.8 K with the fan's through-flow added, against a 12 K ceiling.
+  See
   docs/v3_design_notes.md for the measured before/after (19 table rows, all measured off the
   shipped STLs). Both checkers have to say PASS before this file is regenerated:
     python3 tools/build_v3.py     ->  RESULT: ALL CHECKS PASS        (docs/v3_audit.txt)
@@ -50,16 +54,17 @@ PRINT  (PLA or PETG, 0.2 mm layers, 3 perimeters, 15-20 % infill, NO supports)
   2. 02_REAR_PLATE_v3.stl      x1   flat, register frame UP (the frame is 2 mm proud)
   3. 04_RC522_RING_v3.stl      x1   flat  (this replaces v2's two clamp bars: one part now)
   4. 03_R307_BRACKET_v3.stl    x1   flat
-  material (the four box parts - the gauge card above is separate): 169.0 cm3 of solid model
-  -> **155 g printed PLA** at 15 % infill, 0.45 nozzle, 3
-  walls (shell 112.0 cm3 / 110 g, plate 53.8 / 41 g, ring 2.2 / 3 g, bracket 1.0 / 1 g).
+    material (the four box parts - the gauge card above is separate): 172.2 cm3 of solid model
+    -> **159 g printed PLA** at 15 % infill, 0.45 nozzle, 3
+  walls (shell 115.2 cm3 / 114 g, plate 53.8 / 42 g, ring 2.2 / 3 g, bracket 1.0 / 1 g; the
+  independent verifier's typed fractions land on 158 g - the same model, sampled differently).
   That is a layer-by-layer slicer model, not a flat "15 %" factor: a 2.6 mm wall needs 3 lines of
   0.45 = 2.7 mm, so the walls print SOLID and only the plate's faces and the big bosses carry
-  infill. 1 kg spool = 6.4 sets (52.0 m of filament). With the modules in it the box weighs
-  392 g on two wall hooks.
+    infill. 1 kg spool = 6.3 sets (53.0 m of filament). With the modules in it the box weighs
+    396 g on two wall hooks.
   (v3.0 quoted ~102 g from a blanket 50 % factor - too low, corrected here and in the notes.)
   Thinnest sheet anywhere: 2.2 mm (the bearing band the RC522 lies on). Faces steeper than 60 deg:
-  0.36 % of the shell (296 mm2), every one bridging under 3 mm -> supports off. First layer
+    0.30 % of the shell (244 mm2), every one bridging under 3 mm -> supports off. First layer
   11 469 mm2, one closed contour on all four parts, no island to lift.
 
 SCREWS  (every fixing is a real circular self-tapping pilot; each one was found in the mesh,
@@ -110,18 +115,26 @@ ASSEMBLY ORDER
      20.4 x 12.4 slot in the -Y wall (that is the 18 x 10 USB plug plus 1.2 mm of room per side,
      measured through the whole 3 mm of wall - the connector shell never touches the plastic). The board has 0.5 mm of clearance to the front wall and the
      antenna end keeps its full keep-out box (verified: 0 of 27 000 samples inside material).
-  5. 3010 fan: 4 x M3 x 12 into the standoffs on the -X wall, **mounted so it blows IN** - the
+    5. 3010 fan: 4 x M3 x 12 into the standoffs on the -X wall, **mounted so it blows IN** - the
      arrows on the fan's frame have to point at the box, because the d28 bore (615 mm2, no grille)
-     is now the enclosure's only inlet. Air leaves through the 8 x 21 x 4.5 mm bottom grille and the
-     4 x 21 x 4 mm top grille: 1069 mm2 together, 1.74x the bore, which is what the sizing rule
-     asks for (>= 1.5x). The right-hand wall is plain - v3.2 cut 8 slots there, and with a fan doing
-     the work they only took stiffness out of the wall. It is a demister, not a cooler: run it
-     continuously off the ESP32's supply.
-     Against the fan's own curve that measures 0.84 L/s at 1.9 Pa (A_eff 533 mm2) - 84 % of
-     its free air, the whole 784 cm3 box changed every 0.9 s, 1.6 K below the no-flow rise.
-  6. Loom: cable ties through the 4 x d4.0 holes, USB / DC leads out through the bottom-wall
-     grille (8 x 21 x 4.5 slots) and the 20.4 x 12.4 USB opening - nothing hangs in front of the
-     fan (checked: 0 blocked rays across the whole bore).
+     is the enclosure's **only air opening**: v3.3 deleted the eight side slots and v3.4 deleted the
+     8 x 21 x 4.5 mm bottom grille and the 4 x 21 x 4 mm top grille, so those twelve hollows are
+     solid wall now and the only hole left in a wall for a cable is the 20.4 x 12.4 mm USB opening.
+     Two consequences, both measured:
+       - the fan IS a closure. Its 30 x 30 frame spans the bore with 1 mm of plastic all round, so
+         a built box has nothing a finger can follow; a shell used without the fan has a 28 mm hole
+         in the side. Do not commission the box before the fan is fitted.
+       - cooling is now carried by the skin, which is why it is not a problem: 1.6 W over 0.0585 m2
+         of PLA at h = 10 W/m2.K is 2.7 K above ambient, and the through-flow the plate seam still
+                  leaks (0.25 L/s at 12.2 Pa through A_eff 125 mm2, the 784 cm3 box changed every 3.2 s)
+         puts the box at 1.8 K overall. v3.3 measured 1.6 K, so the twelve hollows were worth
+         0.2 K - and the flow is now 30 % of what it was, which is what a d28 bore does to a
+         3.6 m3/h blower whatever is on the other side of it. Physics audit section 4 has both derivations, and the seam
+         row there is labelled ASSUMED because it depends on your print, not on the model.
+     It is a demister as much as a cooler: run it continuously off the ESP32's supply.
+  6. Loom: cable ties through the 4 x d4.0 holes, USB / DC leads out through the 20.4 x 12.4 mm
+     USB opening in the bottom wall - the only wall opening that is not the fan bore. Nothing hangs
+     in front of the fan (checked: 0 blocked rays across the whole bore).
   7. Close with the rear plate: the 2 mm register frame goes INTO the opening (0.25 mm per
      side, printed fit), 4 x M3 flat heads flush in the countersinks. Hang it on the wall with
      the two keyhole hooks (d7.5 + 4.6 slot, 50 mm span) - the plate carries 4 screws, so the
@@ -156,21 +169,25 @@ FILES IN THIS PACK
                                    PLA limits, slicer reality - and a re-measurement of this file
   v3_groove_check.txt              the fourth gate: measured size of every groove and the fit of
                                    every mating part, so the print order's tolerances are numbers
-  v3_design_notes.md               why each change was made + measured before/after (section 7
-                                   is the v3.3 air-path change)
-  master_prompt.md                 the full spec (29 sections: 0-26 the rules, 27 the v3
-                                   decisions, 28 what the physics round changed, 29 v3.3)
-  7 x .png                         every figure drawn from these STLs: drawing sheet, exploded,
-                                   fixing detail, fixing sections, all views, v2-vs-v3, and the
-                                   v3.3 opening map (each side wall sliced at mid-thickness, every
-                                   void labelled at the size it measured)
+    v3_design_notes.md               why each change was made + measured before/after - section 7 is
+                                   the v3.3 air path, 8 the fit gauge, 9 the v3.4 decision to close
+                                   every grille and what it costs in cooling
+  master_prompt.md                 the full spec (31 sections: 0-26 the rules, 27 the v3 decisions,
+                                   28 what the physics round changed, 29 v3.3, 30 the gauge card,
+                                   31 v3.4 - one hole, not twelve)
+  8 x .png                         every figure drawn from these STLs: drawing sheet, exploded,
+                                   fixing detail, fixing sections, all views, v2-vs-v3, the fit
+                                   gauge card, and the v3.4 opening inventory (each side wall sliced
+                                   at mid-thickness, every void labelled at the size it measured -
+                                   and it refuses to render 1 / 0 / 0 / 1 as anything else)
   build_v3_PARAMETRIC_generator.py the whole model in one file (params at the top)
   verify_v3_INDEPENDENT.py         run it against any future export to catch a bad STL
   audit_v3_PHYSICS.py              the physics auditor (slow: it slices at 0.01 mm and models the
                                    slicer's density layer by layer - 14 min, worth it after edits)
   check_v3_GROOVES.py              the groove / printed-fit walker (47 s) - run it on any future
                                    export to see the rebate, recess, lip and hole sizes it really has
-  make_grille_map_v3.py            redraws the opening map from any STL (3 s, and it fails if an
-                                   opening count is not the 9 / 4 / 0 / 1 this design has)
+    make_grille_map_v3.py            redraws the opening inventory from any STL (3 s, and it fails
+                                   if an opening count is not the 1 / 0 / 0 / 1 v3.4 has: the USB
+                                   slot, nothing, nothing, the fan bore)
   orient_v3.py                     the one table that puts every part in its printing attitude
   viewer_offline.html              open by double-click: v3, v2 and v1 side by side, no server

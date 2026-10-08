@@ -416,47 +416,83 @@ add("   clamps the board so it comes out with the ring - no board-prying on the 
 # =============================================================================================
 # 4  AIRFLOW
 # =============================================================================================
-section("4. AIRFLOW - the fan against the openings it really has", """
-Every opening is measured out of the meshes (a planar slice through each wall, every closed void
-counted), then modelled as sharp-edged orifices in series intersected with the fan's straight
-line:   dp = dp_max (1 - Q/Q_max)   and   dp = K rho/2 (Q/A_eff)^2,  K = 1.3.
+section("4. AIRFLOW - one opening on purpose, and what cooling costs without the grilles", """
+v3.3 cut 8 + 4 slots so the fan could push air through the box.  v3.4 fills every one of them in:
+the user has a 3010 blower and wants one hole, not twelve.  So the question this section has to
+answer is not "is the grille big enough" but "does the box still shed its heat with a single
+opening", and it is answered with two paths computed from the meshes:
+  PASSIVE - heat conducts through the PLA skin and leaves the box by free convection plus
+  radiation, dT = P / (h A_skin).  This path does not care about openings at all, which is exactly
+  why deleting twelve of them is not the disaster it looks like.
+  THROUGH-FLOW - the fan still moves air, in through the bore and out through the one gap a
+  printed box cannot avoid: the register seam around the rear plate.  Modelled as sharp-edged
+  orifices in series with the fan's straight line, dp = dp_max (1 - Q/Q_max) and
+  dp = K rho/2 (Q/A_eff)^2, K = 1.3.  The seam area is ASSUMED (see its own row), everything else
+  here is measured.
+The two paths are in parallel, so their conductances add.
 """)
 xw = xwall_voids(SHELL, 1)                         # +X wall: v3.3 must be PLAIN here
 xwn = xwall_voids(SHELL, -1)                       # -X wall: the fan bore, which IS the inlet
 bore = max(xwn, key=lambda v: v["area"]) if xwn else None
 bore_a = bore["area"] if bore else 0.0
 yb = ywall_voids(SHELL, -1)
-exh = [v for v in yb if v["w"] > 8 and v["h"] < 8]        # the 8-slot bottom grille
-exh_a = sum(v["area"] for v in exh)
-usbs = [v for v in yb if v["h"] >= 8]                      # the USB opening: not airflow
 yt = ywall_voids(SHELL, 1)
-vent = [v for v in yt if v["w"] > 8 and v["h"] < 8]        # the 4-slot top grille
-vent_a = sum(v["area"] for v in vent)
-slots = exh + vent                                 # the passive set, now the OUTLET
-slot_a = sum(v["area"] for v in slots)
-pass_a = slot_a
-verdict(len(xw) == 0, "the +X wall is plain (v3.2's 8 side slots removed)",
-        f"{len(xw)} void(s) in the right-hand wall at mid-thickness: a fan moves the air, so "
-        f"the side grille was only cutting the wall")
-add(f"   INLET: the d{bore['w']:.1f} fan bore in the -X wall = {bore_a:.0f} mm2   |   OUTLET: "
-    f"bottom grille {len(exh)} slots {exh_a:.0f} mm2 + top grille {len(vent)} slots "
-    f"{vent_a:.0f} mm2 = {pass_a:.0f} mm2")
-add(f"   the path is the {bore_a:.0f} mm2 inlet in series with the {pass_a:.0f} mm2 outlet"
-    + (f"; the {usbs[0]['area']:.0f} mm2 USB opening sits in the same wall and carries no "
-       f"airflow duty" if usbs else ""))
+exh = [v for v in yb if v["h"] < 8]              # any grille slot left in the bottom wall
+vent = [v for v in yt if v["h"] < 8]              # ... or in the top wall
+usbs = [v for v in yb if v["h"] >= 8]             # the USB opening: a cable, no airflow duty
+slot_a = sum(v["area"] for v in exh + vent)      # the number the docs must report as 0
+verdict(len(xw) == 0, "the +X wall is still plain",
+        f"{len(xw)} void(s) in the right-hand wall at mid-thickness")
+verdict(len(exh) == 0 and len(vent) == 0, "the grilles really are filled in",
+        f"{len(exh)} slot(s) in the bottom wall and {len(vent)} in the top wall at "
+        f"mid-thickness; v3.3 measured 8 and 4, v3.4 asked for none")
+usb_w, usb_h = P["usb_slot"][0] + 2.4, P["usb_slot"][1] + 2.4      # the plug slot plus 1.2 mm/side
+verdict(len(usbs) == 1 and abs(max((v["w"] for v in usbs), default=0) - usb_w) < 0.25
+        and abs(max((v["h"] for v in usbs), default=0) - usb_h) < 0.25,
+        "the USB opening survived the change",
+        f"{len(usbs)} void(s) of cable opening, largest {max((v['w'] for v in usbs), default=0):.2f}"
+        f" x {max((v['h'] for v in usbs), default=0):.2f} mm against a designed {usb_w:.1f} x "
+        f"{usb_h:.1f} ({P['usb_slot'][0]:.1f} x {P['usb_slot'][1]:.1f} slot plus 1.2 mm per side)")
+verdict(bore is not None and abs(bore["w"] - P["fan_open_d"]) < 0.06,
+        "the fan bore is the one deliberate air opening",
+        f"a d{bore['w']:.2f} circle of {bore_a:.0f} mm2 in the -X wall, and it is the only "
+        f"air hole on the box")
+
+
+def _void_txt(vs):
+    return ", ".join(f"{v['w']:.1f} x {v['h']:.1f} mm ({v['area']:.0f} mm2)" for v in vs) or "none"
+
+
+add(f"   inventory off the mesh - bottom wall: {_void_txt(yb)}   top wall: {_void_txt(yt)}")
+add(f"                     +X wall: {_void_txt(xw)}   -X wall: {_void_txt(xwn)}")
 add("   direction matters at build time: the fan has to blow IN through that bore, so the "
     "arrows on its frame point at the box.  The enclosure then runs a little above ambient "
-    "pressure, which is what keeps dust out of the R307's prism.")
-A_eff = 1.0 / math.sqrt((1.0 / max(bore_a, 1.0)) ** 2 + (1.0 / max(pass_a, 1.0)) ** 2)
-q, dp = FAN["q_max"] / 1e3, 0.0
-for _ in range(500):
-    v = q / (A_eff * 1e-6)
-    dp = 1.3 * AIR["rho"] / 2.0 * v * v
-    qn = FAN["q_max"] / 1e3 * max(0.0, 1.0 - dp / FAN["dp_max"])
-    if abs(qn - q) < 1e-13:
-        break
-    q = 0.5 * (q + qn)
-q, dp = FAN["q_max"] / 3600.0, 0.0                 # m3/h -> m3/s, re-solve the duty point
+    "pressure, which is what keeps dust out of the R307's prism and forces the used air back "
+    "out through the plate seam.")
+add("   the bore is now the biggest hole on the box, and it is closed by the fan itself: a "
+    "30 x 30 frame over a d28 opening spans it completely.  That makes the fan a structural "
+    "part of the enclosure rather than an accessory - a shell printed and used without it has a "
+    "28 mm hole in the side.")
+
+# ---- the passive path, which is what the box actually relies on now
+A_skin = 2.0 * (W * H + W * D + H * D) / 1e6
+P_diss = 1.6                                   # ESP32 TX burst + RC522 + the fan's own draw
+H_PLA = 10.0                                   # W/m2.K, free convection + radiation, matte PLA
+dT_pass = P_diss / (H_PLA * A_skin)
+verdict(dT_pass <= 12.0, "the skin alone gets the heat out",
+        f"{P_diss:.1f} W over {A_skin:.4f} m2 of outer wall at h = {H_PLA:.0f} W/m2.K -> "
+        f"dT = {dT_pass:.1f} K above ambient.  The 12 K ceiling is where an ESP32 crystal starts "
+        f"to drift and a humid Mirzapur morning fogs the R307 prism; at h = 5 W/m2.K (a closed "
+        f"cabinet, no air movement at all) it is {P_diss / (5.0 * A_skin):.1f} K, still inside it."
+        f"  Wall plastic is the resistor here, not the openings, which is why filling twelve of "
+        f"them in costs so little")
+
+# ---- the through-flow the fan still gets, with the register seam as its only outlet
+seam_per = 2.0 * ((W - 2 * WS) + (H - 2 * WS))          # the frame the plate registers into
+SEAM_GAP = 0.25                                          # the design clearance, per side [ASSUMED]
+seam_a = seam_per * SEAM_GAP
+A_eff = 1.0 / math.sqrt((1.0 / max(bore_a, 1.0)) ** 2 + (1.0 / max(seam_a, 1.0)) ** 2)
+q = FAN["q_max"] / 3600.0                                # m3/h -> m3/s, solve the duty point
 for _ in range(400):
     v = q / (A_eff * 1e-6)
     dp = 1.3 * AIR["rho"] / 2.0 * v * v
@@ -465,32 +501,32 @@ for _ in range(400):
         break
     q = 0.5 * (q + qn)
 q_lps, free_lps = q * 1e3, FAN["q_max"] / 3.6       # 3.6 m3/h of free air = 1.0 L/s
-verdict(pass_a >= 1.5 * bore_a, "the grilles are not the bottleneck",
-        f"{pass_a:.0f} mm2 of outlet against a {bore_a:.0f} mm2 inlet = "
-        f"{pass_a / bore_a:.2f}x the bore; a sharp-edged opening in front of a small blower "
-        f"wants >= 1.5x its own area, so the orifice loss sits on the fan's rim and not on "
-        f"the plastic (v3.0 measured 118 mm2 of 6 x d5 holes: 0.19x)")
-verdict(q_lps >= 0.8, "air actually moved through the box",
-        f"bore-limited duty point A_eff {A_eff:.0f} mm2 -> {q_lps:.2f} L/s "
-        f"({q_lps * 60:.0f} L/min) at {dp:.1f} Pa = {q_lps / free_lps * 100:.0f} % of free air; "
-        f"the {bore_a:.0f} mm2 inlet bore of a 3010 blower is what caps it, not the walls",
-        warn=q_lps < 0.8)
+dT_flow = P_diss / (AIR["rho"] * AIR["cp"] * max(q, 1e-12))
+G_tot = P_diss / dT_pass + P_diss / max(dT_flow, 1e-9)
+dT_tot = P_diss / G_tot
+verdict(dT_tot <= 12.0, "both paths together",
+        f"skin {dT_pass:.1f} K and flow {dT_flow:.1f} K in parallel -> dT = {dT_tot:.1f} K at "
+        f"{P_diss:.1f} W; v3.3 measured 1.6 K through the grilles, so closing them costs about "
+        f"{max(dT_tot - 1.6, 0):.1f} K")
+add(f"   ASSUMED row, labelled as one: the outlet is the plate seam, {seam_per:.0f} mm of "
+    f"register frame with {SEAM_GAP:.2f} mm of clearance per side = {seam_a:.0f} mm2.  Your print "
+    f"decides that number - a 0.10 mm tighter fit takes 40 % of the leak away - so it is recorded "
+    f"as a note, never as a gate.  What is measured is the bore, and the absence of everything "
+    f"else.")
 vol_mm3 = W * H * D / 1e3
-add(f"   that is the box's whole {vol_mm3:.0f} cm3 volume changed every "
-    f"{vol_mm3 * 1e-6 / max(q, 1e-9):.1f} s")
-P_diss = 1.6                                   # ESP32 TX burst + RC522 + fan
-dT = P_diss / (AIR["rho"] * AIR["cp"] * max(q, 1e-9))
-verdict(dT < 12.0, "convective temperature rise at that flow",
-        f"{P_diss:.1f} W in, {q * 1e3:.2f} L/s out -> dT = {dT:.1f} K above ambient", warn=dT >= 12)
-no_fan_dT = P_diss / (AIR["rho"] * AIR["cp"] * 0.35e-3)     # natural convection, 0.35 L/s
-add(f"   with the fan off, the same box relies on natural convection alone: dT would be "
-    f"~{no_fan_dT:.0f} K, and the prism would fog on a humid morning - the fan is a demister,")
-add(f"   not a cooler, and it is right to run it continuously from the ESP32's own supply.")
-big = max(slots, key=lambda v: v["w"] * v["h"])
-add(f"   widest grille slot {big['w']:.1f} x {big['h']:.1f} mm: a finger needs about 8 mm of "
-    f"clear opening and a card 54 mm, so")
-add(f"   nothing inside can be reached through the air path, and the {bore_a:.0f} mm2 bore is "
-    f"guarded by the fan's own frame.")
+add(f"   {q_lps:.2f} L/s through that seam changes the box's whole {vol_mm3:.0f} cm3 volume every "
+    f"{vol_mm3 * 1e-6 / max(q, 1e-9):.1f} s, i.e. {q_lps / free_lps * 100:.0f} % of the fan's free "
+    f"air at {dp:.1f} Pa.  v3.3 got 0.84 L/s out of 533 mm2 of effective area; the {bore_a:.0f} "
+    f"mm2 bore was already the limit, which is the whole reason this trade was affordable.")
+add("   reading of these two rows, not a gate: through-flow is no longer what keeps this box cool.  "
+    f"What the fan does inside a sealed box is break the boundary layer off the LCD and the R307 "
+    f"prism and hold the enclosure slightly above room pressure, and with it switched off the skin "
+    f"path alone still sits {12.0 - dT_pass:.1f} K inside the ceiling - so 0.1 W of fan is still "
+    f"worth spending for the demisting, which is why the print order runs it continuously from the "
+    f"ESP32's own supply")
+add(f"   nothing can be reached through the air path either: the {bore_a:.0f} mm2 bore is spanned "
+    f"by the fan frame once built, and the only other hole is the USB slot, which is 12.4 mm tall "
+    f"and sits behind a plug.")
 
 # =============================================================================================
 # 5  MATERIAL / TOLERANCE
@@ -667,7 +703,10 @@ for i in range(len(front)):
                               f"{front[j]['w']:.0f}x{front[j]['h']:.0f}"
 verdict(worst > 6.0, "thinnest ligament between front-wall openings",
         f"{worst:.2f} mm ({where}) across {len(front)} openings", warn=worst <= 6.0)
-for grp, gnm in ((exh + usbs, "bottom grille"), (vent, "top grille")):
+# v3.4: there is no grille, so there is no plastic between slots to judge.  The same loop now runs
+# over whatever each wall does contain - one opening in the bottom wall, nothing in the top - and if
+# a slot ever came back through P["grilles"] = True it would be measured against the same rule.
+for grp, gnm in ((yb, "bottom wall"), (yt, "top wall")):
     web, wpair = 9e9, ""
     for i in range(len(grp)):
         for j in range(i + 1, len(grp)):
@@ -693,15 +732,19 @@ verdict(csk_ok >= 1.2, "plastic between each plate countersink and the outline",
 # distance, the cavity outline inside it is - a slot that ends within a millimetre of the
 # front wall's inner face undermines that corner instead of breathing through it.
 XIN, Z0, Z1 = W / 2 - WS, ZF, D - ZF
-for grp, gnm in ((exh, "bottom"), (vent, "top")):
+for grp, gnm in ((yb, "bottom wall"), (yt, "top wall")):
+    if not grp:
+        add(f"   {gnm}: no opening at all at mid-thickness - one continuous sheet, so the "
+            f"corner joints are unbroken along the whole wall")
+        continue
     n_x = min(XIN - (abs(v["cu"]) + v["w"] / 2) for v in grp)
-    verdict(n_x > 3.0, f"{gnm} grille to the side wall",
-            f"{n_x:.2f} mm of solid left between the outermost slot and the inner face of the "
-            f"2.6 mm side wall (rule: at least the wall thickness)")
+    verdict(n_x > 3.0, f"{gnm} opening to the side wall",
+            f"{n_x:.2f} mm of solid between the outermost edge of the opening and the inner face "
+            f"of the 2.6 mm side wall (rule: at least the wall thickness)")
     n_z = min(min(v["cv"] - v["h"] / 2 - Z0, Z1 - (v["cv"] + v["h"] / 2)) for v in grp)
-    verdict(n_z > 1.5, f"{gnm} grille to the front / rear wall",
-            f"{n_z:.2f} mm between the nearest slot edge and the inner face of the wall it is "
-            f"beside (rule: >= 1.5 mm, so the slot never breaks the corner joint)")
+    verdict(n_z > 1.5, f"{gnm} opening to the front / rear wall",
+            f"{n_z:.2f} mm between the nearest edge and the inner face of the wall beside it "
+            f"(rule: >= 1.5 mm, so an opening never breaks the corner joint)")
 
 # =============================================================================================
 # 9  SLICER REALITY
@@ -806,10 +849,11 @@ claim("RFID aperture height", rvw[0]["h"] if rvw else 0, P["rfid_window"][1], 0.
 claim("fan bore", bore["w"], P["fan_open_d"], 0.05)
 claim("RC522 ring thickness", RING_T, P["rc522_ring"][2], 0.001)
 claim("plate thickness", P["plate_t"], 3.0, 0.001)
-add(f"   inlet: d{bore['w']:.0f} bore = {bore_a:.0f} mm2, fan blowing in;   outlet: "
-    f"{len(exh)} x {exh[0]['w']:.0f} x {exh[0]['h']:.1f} bottom + {len(vent)} x "
-    f"{vent[0]['w']:.0f} x {vent[0]['h']:.0f} top = {slot_a:.0f} mm2   (the docs have to say "
-    f"8 x 21 x 4.5 and 4 x 21 x 4, not v3.2's 8 x 30 x 5 side slots)")
+add(f"   the box has {len(yb) + len(yt) + len(xw) + len(xwn)} openings in its four side walls and "
+    f"they are the two it is meant to have: a d{bore['w']:.0f} bore of {bore_a:.0f} mm2 with the "
+    f"fan blowing IN, and the USB slot.  slot area anywhere else on the box: {slot_a:.0f} mm2 "
+    f"(v3.3: 1069).  The docs have to say the grille is gone, not v3.3's 8 x 21 x 4.5 + "
+    f"4 x 21 x 4 and not v3.2's 8 x 30 x 5 side slots")
 for nm, (a, b) in (("", (0, 0)),):
     pass
 for nm, mm in zip([r[0] for r in rows], [r[3] for r in rows]):
@@ -819,16 +863,17 @@ for nm, mm in zip([r[0] for r in rows], [r[3] for r in rows]):
                 f"mesh d{mm:.2f} (thread-forming size, read with a 0.01 mm radial step)")
 DOC = {"design notes": "docs/v3_design_notes.md", "print order": "exports/README_PRINT_ORDER_v3.txt"}
 REQ = {
-    "design notes": [r"110 x 155 x 46", r"3\.0 mm", r"2\.6 mm", r"8 x 21 x 4.5", r"4 x 21 x 4",
-                     r"2\.05", r"1\.8", r"bed-aligned", r"blow(?:s|ing)? IN"],
-    "print order": [r"110 x 155 x 46", r"8 x 21 x 4.5", r"blow(?:s|ing)? IN",
-                    r"M2\.5 x 8", r"15 %", r"no supports"],
+    "design notes": [r"110 x 155 x 46", r"3\.0 mm", r"2\.6 mm", r"grilles are gone",
+                     r"only air opening", r"only the USB", r"2\.05", r"1\.8", r"bed-aligned",
+                     r"blow(?:s|ing)? IN"],
+    "print order": [r"110 x 155 x 46", r"grilles are gone", r"only air opening",
+                    r"blow(?:s|ing)? IN", r"M2\.5 x 8", r"15 %", r"no supports"],
 }
 for nm, rel in DOC.items():
     p = os.path.join(ROOT, rel)
     txt = open(p, encoding="utf-8").read() if os.path.exists(p) else ""
     missing = [pat for pat in REQ[nm] if not re.search(pat, txt)]
-    verdict(not missing, f"{rel}: carries the v3.3 numbers",
+    verdict(not missing, f"{rel}: carries the v3.4 numbers",
             f"missing patterns: {missing if missing else 'none'}", warn=True)
     vols = set(round(float(v), 1) for v in re.findall(r"(\d+\.\d) cm3", txt))
     real = {round(abs(m.volume) / 1e3, 1) for _n, m in PARTS}

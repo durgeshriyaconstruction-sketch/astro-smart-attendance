@@ -79,23 +79,35 @@ shell 110.0 x 155.0 x 43.0 mm  |  assembly 110 x 155 x 46 mm  |  walls front 3.0
    never glued; the LCD is taken out from the front after its 4 screws, and the RC522 ring
    clamps the board so it comes out with the ring - no board-prying on the aperture edge.
 
-4. AIRFLOW - the fan against the openings it really has
+4. AIRFLOW - one opening on purpose, and what cooling costs without the grilles
 ------------------------------------------------------------------------------
-   Every opening is measured out of the meshes (a planar slice through each wall, every closed void
-   counted), then modelled as sharp-edged orifices in series intersected with the fan's straight
-   line:   dp = dp_max (1 - Q/Q_max)   and   dp = K rho/2 (Q/A_eff)^2,  K = 1.3.
-   the +X wall is plain (v3.2's 8 side slots removed) 0 void(s) in the right-hand wall at mid-thickness: a fan moves the air, so the side grille was only cutting the wall PASS
-   INLET: the d28.0 fan bore in the -X wall = 615 mm2   |   OUTLET: bottom grille 8 slots 738 mm2 + top grille 4 slots 331 mm2 = 1069 mm2
-   the path is the 615 mm2 inlet in series with the 1069 mm2 outlet; the 247 mm2 USB opening sits in the same wall and carries no airflow duty
-   direction matters at build time: the fan has to blow IN through that bore, so the arrows on its frame point at the box.  The enclosure then runs a little above ambient pressure, which is what keeps dust out of the R307's prism.
-   the grilles are not the bottleneck         1069 mm2 of outlet against a 615 mm2 inlet = 1.74x the bore; a sharp-edged opening in front of a small blower wants >= 1.5x its own area, so the orifice loss sits on the fan's rim and not on the plastic (v3.0 measured 118 mm2 of 6 x d5 holes: 0.19x) PASS
-   air actually moved through the box         bore-limited duty point A_eff 533 mm2 -> 0.84 L/s (50 L/min) at 1.9 Pa = 84 % of free air; the 615 mm2 inlet bore of a 3010 blower is what caps it, not the walls PASS
-   that is the box's whole 784 cm3 volume changed every 0.9 s
-   convective temperature rise at that flow   1.6 W in, 0.84 L/s out -> dT = 1.6 K above ambient     PASS
-   with the fan off, the same box relies on natural convection alone: dT would be ~4 K, and the prism would fog on a humid morning - the fan is a demister,
-   not a cooler, and it is right to run it continuously from the ESP32's own supply.
-   widest grille slot 21.0 x 4.5 mm: a finger needs about 8 mm of clear opening and a card 54 mm, so
-   nothing inside can be reached through the air path, and the 615 mm2 bore is guarded by the fan's own frame.
+   v3.3 cut 8 + 4 slots so the fan could push air through the box.  v3.4 fills every one of them in:
+   the user has a 3010 blower and wants one hole, not twelve.  So the question this section has to
+   answer is not "is the grille big enough" but "does the box still shed its heat with a single
+   opening", and it is answered with two paths computed from the meshes:
+   PASSIVE - heat conducts through the PLA skin and leaves the box by free convection plus
+   radiation, dT = P / (h A_skin).  This path does not care about openings at all, which is exactly
+   why deleting twelve of them is not the disaster it looks like.
+   THROUGH-FLOW - the fan still moves air, in through the bore and out through the one gap a
+   printed box cannot avoid: the register seam around the rear plate.  Modelled as sharp-edged
+   orifices in series with the fan's straight line, dp = dp_max (1 - Q/Q_max) and
+   dp = K rho/2 (Q/A_eff)^2, K = 1.3.  The seam area is ASSUMED (see its own row), everything else
+   here is measured.
+   The two paths are in parallel, so their conductances add.
+   the +X wall is still plain                 0 void(s) in the right-hand wall at mid-thickness      PASS
+   the grilles really are filled in           0 slot(s) in the bottom wall and 0 in the top wall at mid-thickness; v3.3 measured 8 and 4, v3.4 asked for none PASS
+   the USB opening survived the change        1 void(s) of cable opening, largest 20.40 x 12.40 mm against a designed 20.4 x 12.4 (18.0 x 10.0 slot plus 1.2 mm per side) PASS
+   the fan bore is the one deliberate air opening a d28.00 circle of 615 mm2 in the -X wall, and it is the only air hole on the box PASS
+   inventory off the mesh - bottom wall: 20.4 x 12.4 mm (247 mm2)   top wall: none
+                     +X wall: none   -X wall: 28.0 x 28.0 mm (615 mm2)
+   direction matters at build time: the fan has to blow IN through that bore, so the arrows on its frame point at the box.  The enclosure then runs a little above ambient pressure, which is what keeps dust out of the R307's prism and forces the used air back out through the plate seam.
+   the bore is now the biggest hole on the box, and it is closed by the fan itself: a 30 x 30 frame over a d28 opening spans it completely.  That makes the fan a structural part of the enclosure rather than an accessory - a shell printed and used without it has a 28 mm hole in the side.
+   the skin alone gets the heat out           1.6 W over 0.0585 m2 of outer wall at h = 10 W/m2.K -> dT = 2.7 K above ambient.  The 12 K ceiling is where an ESP32 crystal starts to drift and a humid Mirzapur morning fogs the R307 prism; at h = 5 W/m2.K (a closed cabinet, no air movement at all) it is 5.5 K, still inside it.  Wall plastic is the resistor here, not the openings, which is why filling twelve of them in costs so little PASS
+   both paths together                        skin 2.7 K and flow 5.4 K in parallel -> dT = 1.8 K at 1.6 W; v3.3 measured 1.6 K through the grilles, so closing them costs about 0.2 K PASS
+   ASSUMED row, labelled as one: the outlet is the plate seam, 509 mm of register frame with 0.25 mm of clearance per side = 127 mm2.  Your print decides that number - a 0.10 mm tighter fit takes 40 % of the leak away - so it is recorded as a note, never as a gate.  What is measured is the bore, and the absence of everything else.
+   0.25 L/s through that seam changes the box's whole 784 cm3 volume every 3.2 s, i.e. 25 % of the fan's free air at 12.2 Pa.  v3.3 got 0.84 L/s out of 533 mm2 of effective area; the 615 mm2 bore was already the limit, which is the whole reason this trade was affordable.
+   reading of these two rows, not a gate: through-flow is no longer what keeps this box cool.  What the fan does inside a sealed box is break the boundary layer off the LCD and the R307 prism and hold the enclosure slightly above room pressure, and with it switched off the skin path alone still sits 9.3 K inside the ceiling - so 0.1 W of fan is still worth spending for the demisting, which is why the print order runs it continuously from the ESP32's own supply
+   nothing can be reached through the air path either: the 615 mm2 bore is spanned by the fan frame once built, and the only other hole is the USB slot, which is 12.4 mm tall and sits behind a plug.
 
 5. MATERIAL LIMITS AND THE PRINTED FIT
 ------------------------------------------------------------------------------
@@ -147,20 +159,19 @@ shell 110.0 x 155.0 x 43.0 mm  |  assembly 110 x 155 x 46 mm  |  walls front 3.0
    The worst mechanical cases for a wall-mounted reader: two screws in the wall, a hard press on the
    LCD glass, and the ligaments between the openings in the front wall (thin ligaments are where
    these boxes actually crack).
-   printed plastic 210 g (solid) + modules 237 g = 447 g -> 4.4 N on the wall, 2.19 N per hook
-   in-plane shear in the plate above each hook 2.19 N on a 13.8 mm2 ligament = 0.16 MPa vs 8.5 MPa (SF 54) PASS
-   the 4 plate screws against peel off the wall ~316 N pull-out each = 1264 N vs 4.4 N total -> 289x   PASS
+   printed plastic 214 g (solid) + modules 237 g = 451 g -> 4.4 N on the wall, 2.21 N per hook
+   in-plane shear in the plate above each hook 2.21 N on a 13.8 mm2 ligament = 0.16 MPa vs 8.5 MPa (SF 53) PASS
+   the 4 plate screws against peel off the wall ~316 N pull-out each = 1264 N vs 4.4 N total -> 286x   PASS
    front wall under a 20 N thumb press        ~1.7 MPa vs 55 MPa (SF 33.0), centre deflection 0.36 mm over a 105 mm span PASS
    at v2's 2.4 mm front wall the same press gives 2.6 MPa and 0.71 mm of dish - enough to pinch the LCD against its bezel, which
    is why v3 went to 3.0 mm there and 2.6 mm on the sides.
    thinnest ligament between front-wall openings 22.50 mm (38x56 vs 21x25) across 3 openings            PASS
-   web between neighbouring bottom grille openings 3.50 mm minimum (21x5 vs 21x4) in a 3.0 mm wall        PASS
-   web between neighbouring top grille openings 4.00 mm minimum (21x4 vs 21x4) in a 3.0 mm wall        PASS
+   web between neighbouring bottom wall openings 9000000000.00 mm minimum () in a 3.0 mm wall           PASS
+   web between neighbouring top wall openings 9000000000.00 mm minimum () in a 3.0 mm wall           PASS
    plastic between each plate countersink and the outline 2.25 mm minimum of the 4 corners (v3.0 measured 0.08 mm - the d6.6 cone was opening onto the R3 corner round; v3.1 moved the screws 3.5 mm inboard) PASS
-   bottom grille to the side wall             4.40 mm of solid left between the outermost slot and the inner face of the 2.6 mm side wall (rule: at least the wall thickness) PASS
-   bottom grille to the front / rear wall     1.75 mm between the nearest slot edge and the inner face of the wall it is beside (rule: >= 1.5 mm, so the slot never breaks the corner joint) PASS
-   top grille to the side wall                4.40 mm of solid left between the outermost slot and the inner face of the 2.6 mm side wall (rule: at least the wall thickness) PASS
-   top grille to the front / rear wall        15.00 mm between the nearest slot edge and the inner face of the wall it is beside (rule: >= 1.5 mm, so the slot never breaks the corner joint) PASS
+   bottom wall opening to the side wall       3.30 mm of solid between the outermost edge of the opening and the inner face of the 2.6 mm side wall (rule: at least the wall thickness) PASS
+   bottom wall opening to the front / rear wall 9.30 mm between the nearest edge and the inner face of the wall beside it (rule: >= 1.5 mm, so an opening never breaks the corner joint) PASS
+   top wall: no opening at all at mid-thickness - one continuous sheet, so the corner joints are unbroken along the whole wall
 
 9. SLICER REALITY - what the four shipped files do on a bed
 ------------------------------------------------------------------------------
@@ -189,12 +200,12 @@ shell 110.0 x 155.0 x 43.0 mm  |  assembly 110 x 155 x 46 mm  |  walls front 3.0
    total print volume for all four parts: 110 x 155 mm of bed, no part needs a raft and only the
    shell needs a brim if your bed is not perfectly flat (its rim is 436 mm long).
    slicer settings assumed for the mass: 0.45 mm nozzle, 3 walls, 0.28 mm layers, 3 top/bottom skins, 15 % infill
-   main shell     112.0 cm3 solid,   86 sampled layers, extrudes   79 % of that -> ~110.0 g
+   main shell     115.2 cm3 solid,   86 sampled layers, extrudes   79 % of that -> ~113.6 g
    rear plate      53.8 cm3 solid,   10 sampled layers, extrudes   62 % of that -> ~ 41.5 g
    R307 bracket     1.0 cm3 solid,    6 sampled layers, extrudes  100 % of that -> ~  1.2 g
    RC522 ring       2.2 cm3 solid,    5 sampled layers, extrudes  100 % of that -> ~  2.7 g
-   filament estimate 155 g + 237 g of modules = 392 g hanging on the wall; 1 kg spool prints the set 6.4x (v3.0 docs quoted ~102 g, from a blanket 50 % factor - too low, the 2.6 mm walls are all perimeter and print solid)
-   printed mass vs the two wall hooks         392 g all up = 3.8 N, so 1.9 N per hook on an 8 mm nylon plug rated 300 N+ PASS
+   filament estimate 159 g + 237 g of modules = 396 g hanging on the wall; 1 kg spool prints the set 6.3x (v3.0 docs quoted ~102 g, from a blanket 50 % factor - too low, the 2.6 mm walls are all perimeter and print solid)
+   printed mass vs the two wall hooks         396 g all up = 3.9 N, so 1.9 N per hook on an 8 mm nylon plug rated 300 N+ PASS
 
 10. DOCUMENTED CLAIMS vs THE SHIPPED GEOMETRY
 ------------------------------------------------------------------------------
@@ -212,14 +223,14 @@ shell 110.0 x 155.0 x 43.0 mm  |  assembly 110 x 155 x 46 mm  |  walls front 3.0
    fan bore                                   mesh 28.00mm vs documented 28.00mm (+/-0.05)           PASS
    RC522 ring thickness                       mesh 2.60mm vs documented 2.60mm (+/-0.001)            PASS
    plate thickness                            mesh 3.00mm vs documented 3.00mm (+/-0.001)            PASS
-   inlet: d28 bore = 615 mm2, fan blowing in;   outlet: 8 x 21 x 4.5 bottom + 4 x 21 x 4 top = 1069 mm2   (the docs have to say 8 x 21 x 4.5 and 4 x 21 x 4, not v3.2's 8 x 30 x 5 side slots)
+   the box has 2 openings in its four side walls and they are the two it is meant to have: a d28 bore of 615 mm2 with the fan blowing IN, and the USB slot.  slot area anywhere else on the box: 0 mm2 (v3.3: 1069).  The docs have to say the grille is gone, not v3.3's 8 x 21 x 4.5 + 4 x 21 x 4 and not v3.2's 8 x 30 x 5 side slots
    LCD bezel pilot documented at d2.05        mesh d2.04 (thread-forming size, read with a 0.01 mm radial step) PASS
    RC522 ring pilot documented at d2.05       mesh d2.04 (thread-forming size, read with a 0.01 mm radial step) PASS
    ESP32 bosses pilot documented at d1.80     mesh d1.78 (thread-forming size, read with a 0.01 mm radial step) PASS
-   docs/v3_design_notes.md: carries the v3.3 numbers missing patterns: none                                 PASS
-   docs/v3_design_notes.md: every cm3 figure matches the mesh volumes found [1.0, 2.2, 53.8, 112.0, 169.0]; off-list none    PASS
-   exports/README_PRINT_ORDER_v3.txt: carries the v3.3 numbers missing patterns: none                                 PASS
-   exports/README_PRINT_ORDER_v3.txt: every cm3 figure matches the mesh volumes found [112.0, 169.0]; off-list none                    PASS
+   docs/v3_design_notes.md: carries the v3.4 numbers missing patterns: none                                 PASS
+   docs/v3_design_notes.md: every cm3 figure matches the mesh volumes found [1.0, 2.2, 53.8, 115.2, 172.2]; off-list none    PASS
+   exports/README_PRINT_ORDER_v3.txt: carries the v3.4 numbers missing patterns: none                                 PASS
+   exports/README_PRINT_ORDER_v3.txt: every cm3 figure matches the mesh volumes found [115.2, 172.2]; off-list none                    PASS
 ==============================================================================
 
 PHYSICS RESULT: no failures. 2 item(s) recorded as notes -> M2.5 pan head is flush with the ring's inner face, PLA margin - unshaded outside wall / closed room

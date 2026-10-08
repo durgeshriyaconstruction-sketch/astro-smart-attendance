@@ -13,7 +13,7 @@ Sections
   3  wall thickness map       8  driver access for screws
   4  component clearance       9  RF path in front of the window
   5  pilot-hole diameters     10 printed-part fits
-  6b grille inventory (v3.3)
+    6b opening inventory (v3.4, grilles filled in)
 """
 import os
 import sys
@@ -132,11 +132,9 @@ OPENINGS = [
     ("R307 window", (RCX, RCY, 1.5), (0, 0, -1), (RW - 3, RH - 3)),
     ("RFID scan window", (FCX, FCY, 1.5), (0, 0, -1), (RFW - 4, RFH - 4)),
     ("USB slot", (ESP_FACE + 3.5, -H / 2 + 0.5, ESP_ZC), (0, -1, 0), (14, 6)),
-    ("fan bore", (-W / 2 + 0.5, FAN_Y, FAN_Z), (-1, 0, 0), (FAN_D - 8, FAN_D - 8)),
-    ("bottom exhaust", (12.5, -H / 2 + 0.5, 7.0), (0, -1, 0), (14, 3)),
-    ("top vent", (12.5, H / 2 - 0.5, 26.0), (0, 1, 0), (14, 1.5)),
-    ("bottom grille, far row", (-37.5, -H / 2 + 0.5, 15.0), (0, -1, 0), (14, 3)),
-    ("top grille, last slot", (37.5, H / 2 - 0.5, 26.0), (0, 1, 0), (14, 2)),
+        ("fan bore", (-W / 2 + 0.5, FAN_Y, FAN_Z), (-1, 0, 0), (FAN_D - 8, FAN_D - 8)),
+    # v3.3 probed four grille slots here.  v3.4 filled them in, so the test flips: see
+    # SOLID_WALLS, where the same twelve positions have to be blocked instead.
 ]
 # v3.3: the right-hand (+X) wall carries NO openings at all - the fan's own bore is the
 # inlet.  Same ray test, opposite verdict: none of these may escape.
@@ -145,8 +143,23 @@ SOLID_WALLS = [
     ("+X wall, mid height", (W / 2 - 0.5, -17.5, 25.0), (1, 0, 0)),
     ("+X wall, top corner", (W / 2 - 0.5, 52.5, 33.0), (1, 0, 0)),
     ("+X wall, bottom corner", (W / 2 - 0.5, 52.5, 5.0), (1, 0, 0)),
-    ("+X wall, above the USB", (W / 2 - 0.5, -60.0, 5.0), (1, 0, 0)),
+        ("+X wall, above the USB", (W / 2 - 0.5, -60.0, 5.0), (1, 0, 0)),
 ]
+# v3.4: the twelve grille slots the user asked for are gone, and "gone" is a claim that has to be
+# tested.  A ray starting inside the wall and fired outwards escapes through a 21 mm slot the
+# moment one exists, so all twelve old centres plus both ends of each slot must block all nine
+# sample rays.  Nothing is typed from the design: these are the v3.3 slot positions.
+SOLID_WALLS += [("bottom wall, old grille slot at x=%+.1f z=%.1f" % (vx, vz),
+                 (vx, -H / 2 + 0.5, vz), (0, -1, 0))
+                for vx in (-37.5, -12.5, 12.5, 37.5) for vz in (7.0, 15.0)]
+SOLID_WALLS += [("bottom wall, end of old slot at x=%+.1f z=%.1f" % (vx + sx, vz),
+                 (vx + sx, -H / 2 + 0.5, vz), (0, -1, 0))
+                for vx in (-37.5, -12.5, 12.5, 37.5) for vz in (7.0, 15.0) for sx in (-9.5, 9.5)]
+SOLID_WALLS += [("top wall, old grille slot at x=%+.1f" % vx, (vx, H / 2 - 0.5, 26.0), (0, 1, 0))
+                for vx in (-37.5, -12.5, 12.5, 37.5)]
+SOLID_WALLS += [("top wall, end of old slot at x=%+.1f" % (vx + sx),
+                 (vx + sx, H / 2 - 0.5, 26.0), (0, 1, 0))
+                for vx in (-37.5, -12.5, 12.5, 37.5) for sx in (-9.5, 9.5)]
 
 add("INDEPENDENT VERIFICATION - Astro Smart Attendance enclosure v3 (re-design)")
 add("source: cad/v3/*.stl only; no number imported from the generator")
@@ -401,14 +414,15 @@ free = area * (1 - blocked.sum() / len(o))
 verdict(blocked.sum() == 0, "fan bore 100 % open",
         f"{free:.0f} of {area:.0f} mm2 clear ({100 * free / area:.1f} %); v2 passed 50 %")
 
-# ------------------------------------------------------------- 6b the v3.3 grilles
-# v3.3 moved the whole air path: the +X wall is PLAIN, the fan bore in the -X wall is the
-# inlet (the fan is mounted blowing INTO the box), and the air leaves through a grille of
-# slots in the bottom wall and one in the top wall.  Every number below is measured off the
-# mesh by slicing the wall at mid-thickness - the sizing rule (outlet >= 1.5 x inlet) is
-# re-run here, not copied from the generator.
+# ------------------------------------------------------- 6b the v3.4 opening inventory
+# v3.3 cut a grille of slots in the bottom wall and another in the top wall so the fan could
+# push air through the box.  v3.4 fills every one of them in: the user has a 3010 blower and
+# wants one hole, not twelve.  This section is an inventory rather than a sizing check - it
+# slices each wall at mid-thickness, lists every closed void the mesh really contains, and the
+# verdict is that there are exactly two openings on the whole box: the fan bore (air) and the
+# USB slot (a cable, no airflow duty).  Nothing below is copied from the generator.
 add("")
-add("6b. grilles: what the walls actually contain at mid-thickness")
+add("6b. opening inventory: what each wall contains at mid-thickness (v3.4, grilles filled)")
 
 
 def wall_voids(axis, at):
@@ -434,51 +448,39 @@ def wall_voids(axis, at):
 
 WT = 3.0                                          # top/bottom wall thickness
 bot = wall_voids("y", -H / 2 + WT / 2)
-slots = [r for r in bot if r[4] < 20.0]
+grilles_b = [r for r in bot if r[4] < 20.0]
 usbs = [r for r in bot if r[4] >= 20.0]
-verdict(len(slots) == 8, "bottom grille slots", f"{len(slots)} found, 4 x z=7 + 4 x z=15")
-verdict(len(usbs) == 1, "bottom wall: exactly one USB opening",
-        f"{len(usbs)} void above the grille: {usbs[0][1]:.1f} x {usbs[0][2]:.1f} mm"
-        if len(usbs) == 1 else f"{len(usbs)} found")
-ws = max(abs(r[1] - 21.0) for r in slots)
-hs = max(abs(r[2] - 4.5) for r in slots)
-verdict(ws < 0.25 and hs < 0.25, "bottom slot size",
-        f"{[f'{r[1]:.2f}x{r[2]:.2f}' for r in slots[:2]]} worst off by {max(ws, hs):.2f} mm")
-rowx = sorted(round(r[3], 2) for r in slots)
-verdict(rowx == [-37.5, -37.5, -12.5, -12.5, 12.5, 12.5, 37.5, 37.5], "bottom slot columns",
-        f"{sorted(set(rowx))}")
-zs = sorted(round(r[4], 2) for r in slots)
-verdict(set(zs) == {7.0, 15.0}, "bottom slot rows", f"{sorted(set(zs))} mm above the bed")
+verdict(len(grilles_b) == 0, "bottom wall carries no grille slot",
+        f"{len(grilles_b)} void(s) below z=20 where 8 x (21 x 4.5) slots were cut in v3.3"
+        if grilles_b else "0 voids - the wall is one continuous sheet")
+verdict(len(usbs) == 1, "bottom wall: the USB opening is the only hole in it",
+        f"{usbs[0][1]:.2f} x {usbs[0][2]:.2f} mm at z={usbs[0][4]:.2f}"
+        if len(usbs) == 1 else f"{len(usbs)} voids found")
+if len(usbs) == 1:
+    verdict(abs(usbs[0][1] - 20.4) < 0.25 and abs(usbs[0][2] - 12.4) < 0.25,
+            "USB opening still the size it was",
+            f"{usbs[0][1]:.2f} x {usbs[0][2]:.2f} mm (design 20.4 x 12.4), so filling the "
+            f"grille in did not touch the cable opening")
 top = wall_voids("y", H / 2 - WT / 2)
-verdict(len(top) == 4, "top grille slots", f"{len(top)} found, 21 x 4 at z=26")
-verdict(max(max(abs(r[1] - 21.0) for r in top), max(abs(r[2] - 4.0) for r in top)) < 0.25,
-        "top slot size", f"{[f'{r[1]:.2f}x{r[2]:.2f}' for r in top[:2]]}")
-verdict(sorted(round(r[3], 2) for r in top) == [-37.5, -12.5, 12.5, 37.5],
-        "top slot columns", f"{sorted(round(r[3], 1) for r in top)}")
+verdict(len(top) == 0, "top wall carries no grille slot",
+        f"{len(top)} void(s) where 4 x (21 x 4) slots were cut in v3.3" if top
+        else "0 voids - the wall is one continuous sheet")
 pl = wall_voids("x", W / 2 - 1.3)
 verdict(len(pl) == 0, "+X wall is plain (no openings)",
         f"{len(pl)} voids in the right wall at mid-thickness")
 inl = wall_voids("x", -W / 2 + 2.6 / 2)
-verdict(len(inl) == 1 and abs(inl[0][0] - np.pi * (FAN_D / 2) ** 2) < 8,
-        "-X wall: the fan bore is the only opening",
-        f"{len(inl)} void, {inl[0][0]:.0f} mm2 of a {np.pi * (FAN_D / 2) ** 2:.0f} mm2 bore"
-        if inl else "no opening found")
-a_out = sum(r[0] for r in slots) + sum(r[0] for r in top)
-a_in = np.pi * (FAN_D / 2) ** 2
-verdict(a_out >= 1.5 * a_in, "outlet >= 1.5 x inlet area",
-        f"{a_out:.0f} mm2 of grille vs {a_in:.0f} mm2 bore (needs {1.5 * a_in:.0f})")
-low = min(r[4] - r[2] / 2 for r in slots)
-verdict(low >= 3.0 + 1.5 - 0.05, "grille stays clear of the front wall",
-        f"lowest slot edge {low:.2f} mm, i.e. {low - 3.0:.2f} mm clear of that wall's inner face")
-# centre-to-centre is not the web: the plastic that matters is edge to edge.
-hsh = slots[0][2]
-zr = sorted({round(r[4], 2) for r in slots})
-web = min([b - a - hsh for a, b in zip(zr, zr[1:])], default=9e9)
-xr = sorted({r[3] for r in slots})
-web_x = min(b - a - slots[0][1] for a, b in zip(xr, xr[1:]))
-verdict(web >= 3.0 - 0.05 and web_x >= 3.0 - 0.05, "webs between the slots",
-        f"{web:.2f} mm of plastic between the rows, {web_x:.2f} mm between the columns "
-        f"(rule: never thinner than the 3.0 mm wall)")
+a_bore = np.pi * (FAN_D / 2) ** 2
+verdict(len(inl) == 1 and abs(inl[0][0] - a_bore) < 8, "-X wall: the fan bore is the only opening",
+        f"{len(inl)} void, {inl[0][0]:.0f} mm2 of a {a_bore:.0f} mm2 bore" if inl
+        else "no opening found")
+n_voids = len(bot) + len(top) + len(pl) + len(inl)
+verdict(n_voids == 2, "whole-box opening count",
+        f"{n_voids} voids across the four walls at mid-thickness: 1 fan bore + 1 USB slot.  The "
+        f"{8 * 21.0 * 4.5 + 4 * 21.0 * 4.0:.0f} mm2 of grille v3.3 cut here is solid wall again, "
+        f"which is also why there is no web or outlet-area rule left to check on these walls")
+add(f"   the fan is what closes the bore: a 30 x 30 frame over a d{FAN_D:.0f} hole leaves 1 mm of "
+    f"plastic all round, so with the fan screwed in the box has no opening a finger can follow - "
+    f"but printing the shell without the fan leaves a clear d{FAN_D:.0f} hole in the side")
 
 # ------------------------------------------------------------------ 7 layers
 add("")

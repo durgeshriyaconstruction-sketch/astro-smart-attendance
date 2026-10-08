@@ -3,8 +3,9 @@
 Everything in this file is a measurement of the shipped `cad/v3/*.stl` files, not an intention.
 Box: **110 x 155 x 46 mm** outer, walls 2.6 mm on the sides and 3.0 mm front / rear / top,
 plate 3.0 mm skin + 2 mm register frame, 22 self-tapping pilots at thread minor diameter
-(M2.5 -> 2.05, M2.2 -> 1.80, M3 -> 2.50), plain side walls - the fan bore is the inlet and
-two grilles the outlet (v3.3) - no supports anywhere.
+(M2.5 -> 2.05, M2.2 -> 1.80, M3 -> 2.50), plain side walls, and since v3.4 one hole: the d28 fan
+bore is the **only air opening** on the box - the twelve grille slots v3.3 cut were filled in by
+request - no supports anywhere.
 All four files are **bed-aligned**: the orientation a printer must see is baked into the triangles
 (`tools/orient_v3.py` is the single source of truth, and the verifier undoes that one translation
 before it asserts anything in the design frame).
@@ -60,8 +61,8 @@ was replaced with a different joint.
 | fingerprint mounting | 2 posts + a flat 2 mm strap over the sensor face | **dog-bone bracket** (wide over the holes, narrow across the glass) + 2 seat ribs, plus the module registers on the rebate floor | the bracket can be lifted off without prying on the glass |
 | rear closure | solid 2 mm plug filling the opening (79.6 cc) | **8-sided register frame**, 2 mm proud, 0.25 mm/side, with the ESP32 zone cut clear in the **frame only** (**53.8 cm3**) | 26 cm3 (32 %) less plastic, and the board + its bosses + its locating tabs get real clearance while the 3 mm skin stays unbroken |
 | ESP32 mounting | 4 square 8 x 8 posts | 4 **round d7 bosses** with **d3.6 x 0.7 spotfaces** | a round boss has no corner crack; the spotface sinks the head so the plate can still close |
-| ventilation | fan wall only, everything else choked | **v3.3: no side openings at all.** The d28 fan bore in the -X wall is the INLET (615 mm2, fan blows IN); the outlet is an 8-slot bottom grille + 4-slot top grille = 1069 mm2, 1.74x the bore. See the v3.3 section below | air has a real path and the walls are not perforated for nothing |
-| print volume | 199.6 cc (all 4 parts) | **169.0 cm3** CAD -> **155 g printed** (110 g shell + 41 g plate + 4 g small parts at 0.45 nozzle, 3 walls, 15 % infill) | the ring and the frame replace bars and a plug; 391 g all up with the modules on two wall hooks |
+| ventilation | fan wall only, everything else choked | **v3.4: one opening, the one that moves air.** The d28 fan bore in the -X wall is the only air hole on the box (615 mm2, fan blows IN) and the bottom wall keeps just the USB opening; v3.3's 8-slot bottom + 4-slot top grilles (1069 mm2, 1.74x the bore) are solid plastic. See sections 7 and 9 | air has a real path, the walls are not perforated for nothing, and nothing on the box is an opening without a duty |
+| print volume | 199.6 cc (all 4 parts) | **172.2 cm3** CAD -> **159 g printed** (114 g shell + 42 g plate + 4 g small parts at 0.45 nozzle, 3 walls, 15 % infill) | the ring and the frame replace bars and a plug; 396 g all up with the modules on two wall hooks |
 
 Nothing above is a design *claim*: `build_v3.py` section K measures the aperture and the bore by
 ray-scan, the plate volume by mesh volume, the ledge flatness by probe, and `verify_v3.py`
@@ -71,7 +72,7 @@ repeats the aperture, the bore, the frame fit and the wall map from the STLs alo
 
 | file | print | notes |
 |---|---|---|
-| `01_MAIN_SHELL_v3.stl` | x1 | 112.0 cm3, 14 426 triangles, watertight, 1 body, 0 open edges |
+| `01_MAIN_SHELL_v3.stl` | x1 | 115.2 cm3, 11 108 triangles, watertight, 1 body, 0 open edges |
 | `02_REAR_PLATE_v3.stl` | x1 | 53.8 cm3, 3 mm plate + 2 mm register frame |
 | `03_R307_BRACKET_v3.stl` | x1 | 1.0 cm3, flat, 36.8 x 14.0 x 3.2 |
 | `04_RC522_RING_v3.stl` | x1 | 2.2 cm3, flat, 43.6 x 76.0 x 2.6 (body 43.6 x 62.4, screw tabs to y +/-38) |
@@ -116,12 +117,15 @@ got its own 2-4 screws.
   recess for a fan that is bolted to standoffs and never enters that wall - and v3 **deletes
   it**: the fan wall is a flat 3.0 mm plate with a clean d28 bore, which is both the visible
   change and the reason no fragile sliver is left in the print.
-* faces steeper than 60 degrees: 296 mm2 = **0.36 %** of the shell, and each of those bridges
-  less than 3 mm -> **supports: no**.
-* 214 slices at 0.2 mm: zero self-intersections, zero empty layers, first layer 11 469 mm2.
-* the worst area jump in the whole print (2 415 mm2 at z=10) cantilevers 0.00 mm past the layer
-  below it - it is an internal shelf, not a bridge.
-* the 9 sub-micron sliver triangles left by the boolean rim chamfers are inside the mesh, are
+* faces steeper than 60 degrees: 244 mm2 = **0.30 %** of the shell (v3.3 measured 296 mm2 =
+  0.36 % - filling the grilles in removed 52 mm2 of slot rims), and each of those bridges less
+  than 3 mm -> **supports: no**.
+* 214 slices at 0.2 mm: zero self-intersections, zero empty layers, first layer 11 469 mm2 (the
+  footprint did not change - the shell's outline is the same 110 x 155 mm front face).
+* the worst area jump in the whole print is 794 mm2 of new wall at z=0.6 and it cantilevers
+  0.20 mm past the layer below (v3.3's worst was 2 415 mm2 at z=10 with a 0.00 mm cantilever);
+  2 634 mm2 is added over the whole 43.0 mm of print, 0.47 % of the layer sum.
+* the 10 sub-micron sliver triangles left by the boolean rim chamfers are inside the mesh, are
   under 1 um2 each, and are reported (not hidden) by the verifier.
 
 ## 5. Four numbers that still need your calipers
@@ -186,8 +190,12 @@ mass.  The air path went through two changes: v3.1/v3.2 opened 8 x 30 x 5 mm sta
 side slots** and moved the inlet into the fan's own bore (see the v3.3 section below). The 15 % infill figure of ~102 g was a blanket 50 % factor and is
 **too low**: a 2.6 mm wall printed on a 0.45 nozzle with 3 perimeter lines is 2.7 mm of perimeter,
 so it prints solid. Layer-by-layer over the shipped meshes the parts extrude 79 % (shell), 62 %
-(plate), 100 % (bracket) and 100 % (ring) of their CAD volume = **155 g of PLA**, 392 g with the
-modules on the wall, and a 1 kg spool prints the set 6.4 times (52.0 m of 1.75 mm filament).
+(plate), 100 % (bracket) and 100 % (ring) of their CAD volume = **159 g of PLA**, 396 g with the
+modules on the wall, and a 1 kg spool prints the set 6.3 times (53.0 m of 1.75 mm filament).
+(`verify_v3`'s typed per-part fractions put the same print at 158 g - 0.6 % apart, both quoted
+rather than smoothed, because the two are different samplings of one model.)  Those
+those are the v3.4 figures; the grilles v3.3 left in the bottom and top walls were worth 3.2 cc of
+plastic and 3 g of it.
 
 Assembly note that came out of section 3: the reader's 8-pin header may not be taller than about
 6 mm over the pads, because the channel under the ESP32 posts is 9.8 mm and the board plus a 9 mm
@@ -202,32 +210,33 @@ Print order (unchanged by all of the above): all four parts flat on the bed, `01
 
 ---
 
-## 7. v3.2 -> v3.3: the fan does the work, so the side grooves went away
+## 7. v3.2 -> v3.3: the fan does the work, so the side grooves went away  *(v3.3, superseded below)*
 
 Asked for directly: *"remove the right side many grooves - for that I have fan"*.  The eight stadium
-slots in the +X wall are gone and that wall is now solid 2.6 mm plastic - the independent checker
-slices it at mid-thickness and finds **0 voids**.  A fan still has to move air through *something*,
-so the duty moved instead of disappearing, and the numbers below are what the shipped STLs measure,
-not what the model was meant to have:
+slots in the +X wall went, and that wall is solid 2.6 mm plastic - the independent checker
+slices it at mid-thickness and finds **0 voids**, still true in v3.4.  A fan still has to move air
+through *something*, so the duty moved instead of disappearing, and the numbers below are what the
+v3.3 STLs measured - the history of where the openings were, with v3.4's change in section 9:
 
-| | v3.2 | v3.3 (shipped) |
+| | v3.2 | v3.3 (then v3.4, section 9) |
 |---|---|---|
 | inlet | 8 x 30 x 5 mm slots in the +X wall, 1157 mm2 | the **d28 fan bore itself** in the -X wall: 615 mm2, measured 615 of 616 clear |
 | fan direction | blowing OUT (exhaust) | **blowing IN** - the arrows moulded on the fan's frame point at the box |
-| outlet | 4 x (20 x 4) bottom + 3 x (16 x 3) top, 452 mm2 | **8 x (21 x 4.5) bottom + 4 x (21 x 4) top = 1069 mm2**, 1.74x the bore |
+| outlet | 4 x (20 x 4) bottom + 3 x (16 x 3) top, 452 mm2 | **8 x (21 x 4.5) bottom + 4 x (21 x 4) top = 1069 mm2**, 1.74x the bore - all twelve of those slots are filled in now |
 | right (+X) wall | perforated over 4 of its 6 rows of features | plain; nothing to sand, nothing to crack, and the ESP32 bosses keep their full wall behind them |
 
-The rule from the master prompt is unchanged - the passive set must stay **>= 1.5x the fan bore** -
-it is only *which* openings carry it that moved.  Everything else about the path is deliberate:
+The rule as it stood then was from the master prompt - the passive set must stay **>= 1.5x the fan
+bore** - and it is that rule, not the geometry, that v3.4 replaces with a different one (section 9).
+Everything else about the path was deliberate, and stays true of the walls as they now stand:
 
-* bottom grille: 21.00 x 4.50 mm slots in 4 columns (+/-12.5, +/-37.5) at 2 heights (z 7.0 and 15.0),
+* bottom grille (v3.3, now solid): 21.00 x 4.50 mm slots in 4 columns (+/-12.5, +/-37.5) at 2 heights (z 7.0 and 15.0),
   every corner rounded r1.6 (r1.2 in the top wall) so there is no corner to start a crack - which
   also means each one measures 92.3 mm2 of free area, not the 94.5 mm2 of a sharp rectangle;
 * top grille: 21.00 x 4.00 mm, 4 slots at z 26, i.e. the warmest air above the board level;
 * 3.50 mm of plastic between the two rows, 4.00 mm between the columns - never thinner than the
   3.0 mm wall they are cut in;
-* the lowest slot edge sits 1.75 mm clear of the front wall's inner face, so the grille never breaks
-  the corner joint, and 4.6 mm clear of the 20.4 x 12.4 mm USB opening in the same wall;
+* the lowest slot edge sat 1.75 mm clear of the front wall's inner face, and 4.6 mm clear of the
+  20.4 x 12.4 mm USB opening in the same wall - that opening is the one thing left in it;
 * pressurising the box rather than evacuating it is the better direction for this unit: it pushes air
   out through the RFID aperture and the LCD rebate, which is what keeps dust from being sucked in
   around the R307 prism.
@@ -241,16 +250,18 @@ the wall around it.  Dropping the slot height to 4.5 and opening the rows to 7 /
 web, and widening the slots 18 -> 21 mm at a 25 mm pitch (still 4.00 mm between neighbours) paid the
 area back with interest: 985 mm2 -> 1069 mm2 of outlet.
 
-Duty point against the fan's straight line, from the same mesh (physics audit section 4):
-duty point A_eff 533 mm2 -> **0.84 L/s at 1.9 Pa**, 84 % of the fan's free air, the whole
-784 cm3 box changed every 0.9 s, dT 1.6 K at 1.6 W.  That is the same duty point v3.2 measured
-(0.86 L/s) with a wall full of holes in it, reached now with the passive openings alone and
-no perforation in the side wall; the bottom grille is 8 x 21 x 4.5 mm and the top 4 x 21 x 4 mm,
-which is where the 1069 mm2 comes from.
+Duty point against the fan's straight line, as section 4 of the physics audit measured it **on the
+v3.3 mesh**: A_eff 533 mm2 -> 0.84 L/s at 1.9 Pa, 84 % of the fan's free air, the whole 784 cm3 box
+changed every 0.9 s, dT 1.6 K at 1.6 W.  That was the same duty point v3.2 measured (0.86 L/s) with
+a wall full of holes in it, reached with the passive openings alone and no perforation in the side
+wall; the bottom grille was 8 x 21 x 4.5 mm and the top 4 x 21 x 4 mm, which is where the
+1069 mm2 came from.  With the grilles filled in the flow is smaller and the box is no cooler - that
+is section 9's measurement, not this one.
 Nothing in this section is load-bearing on the geometry switch alone: setting `P["side_intake"] = True`
-in `tools/build_v3.py` puts v3.2's perforated wall back in one rebuild, and the build's self-test
-changes its checks to match.  That flag exists so this decision can be reversed without archaeology;
-it is not a hidden second design - the shipped model is the one with `side_intake=False`.
+in `tools/build_v3.py` puts v3.2's perforated wall back in one rebuild, `P["grilles"] = True` puts
+v3.3's twelve slots back, and the build's self-test changes its checks to match either way.  Those
+flags exist so these decisions can be reversed without archaeology; they are not hidden second
+designs - the shipped model is the one with `side_intake=False, grilles=False`.
 
 
 ## 8. The fifth print: `05_FIT_GAUGE_v3.stl`, a card that answers the five open questions
@@ -306,3 +317,67 @@ bigger of the two.  That row can still fail, and fails if a wall ever does taper
 The card is registered everywhere a part has to be: `tools/orient_v3.py` (`0.0`, printed flat,
 engraved face up), the pack's STL list, its figure list, the offline viewer, and the print order -
 where it is step 0, before the shell, which is the entire point of it.
+
+
+## 9. v3.3 -> v3.4: one hole, not twelve - the grilles are gone
+
+Asked for directly, pointing at the hollows in the side of the box: *"remove all unnecessary ... no
+need for those hollows, only let that DC fan one - not more, and last check"*.  So every grille slot
+was filled in.  The bottom wall loses its 8 x (21 x 4.5) grille and keeps **only the USB opening**
+(20.4 x 12.4 mm, a cable hole, never an air one); the top wall loses its 4 x (21 x 4) grille and has
+no opening left at all; the +X wall was already plain in v3.3 and still is.  What is on the box now:
+
+| wall (measured at mid-thickness off the shipped STL) | v3.3 | v3.4 |
+|---|---|---|
+| bottom (-Y) | 8 slots + USB, 9 voids | **1 void**: the 20.40 x 12.40 mm USB opening |
+| top (+Y) | 4 slots, 4 voids | **0 voids** |
+| right (+X) | 0 voids | 0 voids |
+| left (-X) | d28 bore, 615 mm2 | **d28 bore, 615 mm2 - the only air opening** |
+
+That inventory is not a claim in a document, it is `tools/verify_v3.py` section 6b, run on the STL
+and nothing else, and it also fires 9 sample rays at each of the twelve old slot centres and both
+ends of every slot (36 probes, 324 rays) which all have to be *blocked*: a slot that came back would
+let them through.  `tools/make_grille_map_v3.py` draws the same four sections and exits non-zero
+unless the counts are 1 / 0 / 0 / 1.
+
+**What the change costs, measured rather than argued.**  The openings were the *flow* path; the heat
+mostly leaves through the *skin*, and the skin did not change.  Section 4 of the physics audit now
+computes both:
+
+* passive: 1.6 W (ESP32 in TX bursts + RC522 + the fan's own draw) over 0.0585 m2 of PLA at
+  h = 10 W/m2.K -> **dT = 2.7 K** above ambient; at h = 5 (a closed cabinet, no air movement) 5.5 K;
+* through-flow: the fan has only the bore in front of it and the plate's register seam to get out
+    of, 509 mm of frame x 0.25 mm of clearance = 127 mm2 *[this one row is an ASSUMPTION about your
+  print, and the audit records it as a note, never as a gate]* -> A_eff 125 mm2 -> **0.25 L/s at
+  12.2 Pa**, 25 % of the fan's free air, the 784 cm3 box changed every 3.2 s, dT 5.4 K;
+* the two paths are in parallel, so the box settles at **dT = 1.8 K**.  v3.3 measured 1.6 K with
+  1069 mm2 of grille open, so closing all twelve slots is worth **0.2 K**: the through-flow fell
+  from 0.84 L/s to 0.25 L/s, 30 % of what it was, because a d28 bore was always what limited a
+  3.6 m3/h blower - but the skin never noticed, and that is the whole reason the trade was open
+  to make.  12.2 Pa is high up a small blower's pressure curve, which is what a fan facing a
+  narrow gap does; it costs a little noise, not cooling.
+
+The trade is therefore real but small, and two things about it are worth knowing before the print is
+sanded off the bed:
+
+* the fan is now part of the enclosure, not an accessory.  The d28 bore is the biggest hole on the
+  box; a 30 x 30 frame spans it with 1 mm of plastic all round, so with the fan screwed in there is
+  no opening a finger can follow, but a shell used *without* the fan has a 28 mm hole in its side.
+* what the fan still does inside a sealed box is stir: it breaks the boundary layer off the LCD and
+  the R307 prism and holds the enclosure slightly above room pressure, which is what keeps dust from
+  being pulled in around the scanner.  It is a demister that also cools, and it should keep running
+  from the ESP32's own supply.
+
+Nothing else moved.  Filling twelve slots in added 3.2 cc of plastic to the shell (112.0 cc -> **115.2 cm3**),
+11 108 triangles where v3.3 had 14 426 (3 318 fewer, because the slot outlines and their corner arcs
+are gone), and it *reduced* the fragile geometry: overhang area 296 mm2 -> **244 mm2** (0.30 % of the
+shell), still no supports, first layer 11 469 mm2.  The four box parts are now **172.2 cm3 CAD ->
+159 g of PLA**, 396 g with the modules on two wall hooks, 53.0 m of filament, 6.3 sets on a 1 kg
+spool.  `02_REAR_PLATE_v3.stl`, `03_R307_BRACKET_v3.stl` and `04_RC522_RING_v3.stl` are byte-identical
+to v3.3 - only the shell was rebuilt - and so is `05_FIT_GAUGE_v3.stl`, which the user still prints
+first because none of this changes a pilot diameter.
+
+Reversible in one line, like every other aesthetic decision on this model: `P["grilles"] = True` in
+`tools/build_v3.py` brings all twelve slots back, and the builder's self-checks, section 6b of the
+verifier and the opening map all switch their expectations with the flag rather than being edited to
+match.

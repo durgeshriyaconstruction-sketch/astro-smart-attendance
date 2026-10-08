@@ -246,24 +246,28 @@ panels = [
      f"{r307_open[1]:.1f} | RFID scan aperture {rfid_open[0]:.1f} x {rfid_open[1]:.1f} "
      "fully open | the LCD + fingerprint openings carry a 0.45 x 3.0 rebate ring"),
     ("front", "REAR - 3 mm plate, 4 x M3 and 2 hang hooks",
-     "the frame side, facing the cavity: no plug behind it, the whole ESP32 zone is cut out, "
-     "cable exit is through the bottom wall (4 x d4.0 tie holes + the exhaust slot)"),
+     "the frame side, facing the cavity: no plug behind it, the whole ESP32 zone is cut out; the "
+     "loom is lashed down through the 4 x d4.0 tie holes and leaves through the USB opening in the "
+     "bottom wall, which is the only hole the box has besides the fan bore"),
     ("side", "INLET WALL (-X) - d28 bore with nothing across it",
      "30 x 30 x 10 fan on 10 mm standoffs, 4 x M3 self-tapping into d2.5 pilots from the "
-     "inside, mounted so it BLOWNS IN through this bore.  v2 put 3 grille bars over it; "
-     "v3.3 makes the bore the box's only inlet (616 mm2)"),
+     "inside, mounted so it BLOWNS IN through this bore.  v2 put 3 grille bars over it; v3.3 made "
+     "the bore the inlet and v3.4 made it the box's ONLY air opening (616 mm2) - the fan frame "
+     "spans the hole, so the fan is part of the enclosure, not an extra"),
     ((-90, 0), "+X WALL - PLAIN, the 8 side slots are gone",
      "v3.2 cut 8 x 30 x 5 stadium slots here.  With a fan doing the work they only took "
      "stiffness out of the wall, so v3.3 deletes them: this wall is now solid 2.6 mm "
      "plastic, verified as 0 voids at mid-thickness"),
-    ("top", f"TOP WALL - 4 x ({P['top_vent'][0]:.0f} x {P['top_vent'][1]:.0f}) vents",
-     f"warm air leaves above the ESP32 at z {P['top_vent_z']:.0f}; the top wall is 3.0 mm and "
-     f"the slot edges keep 5 mm from every corner (measured 21.0 mm to the short edge)"),
-    ((0, -90), "BOTTOM WALL - 8-slot exhaust grille + 4 cable-tie holes",
-     f"4 columns x 2 rows of {P['vent_slot'][0]:.0f} x {P['vent_slot'][1]:.0f} mm slots at "
-     f"z {P['vent_z'][0]:.0f} and {P['vent_z'][1]:.0f}, plus the d4.0 tie holes the loom is "
-     f"lashed down with - bottom + top grilles together give 1069 mm2, 1.74x the bore, "
-     f"and the USB opening stays clear of both"),
+    ("top", "TOP WALL - v3.4 filled the 4 vents in: 0 voids at mid-thickness",
+     f"this wall carried 4 x ({P['top_vent'][0]:.0f} x {P['top_vent'][1]:.0f}) mm slots at z "
+     f"{P['top_vent_z']:.0f} in v3.3.  They are solid plastic now, so the wall is one continuous "
+     f"3.0 mm sheet and its corner joints are unbroken - measured, not asserted, by section 6b of "
+     f"the independent verifier"),
+    ((0, -90), "BOTTOM WALL - v3.4 filled the 8 grille slots in; only the USB opening",
+     f"the dark rectangle is the 20.4 x 12.4 mm USB opening; the "
+     f"{P['vent_slot'][0]:.0f} x {P['vent_slot'][1]:.0f} mm slots this wall carried in v3.3 "
+     f"(4 columns x 2 rows, 1069 mm2 with the top wall) are solid plastic, and cooling moved to "
+     f"the skin - 2.7 K at 1.6 W, physics audit section 4"),
 ]
 PW, PH, GAP = 1180, 640, 30
 big = Image.new("RGB", (PW, 60 + (PH + GAP) * len(panels) + 40), PANEL_BG)
@@ -279,7 +283,7 @@ d.text((12, 34), "part colours: shell (blue-grey)  rear plate (green)  R307 brac
 y0 = 60 + (PH + GAP) * len(panels)
 d.line([12, y0, PW - 12, y0], fill=(60, 64, 74))
 d.text((12, y0 + 8), "print: shell + plate + ring + bracket, front face down, 0.2 mm layers, "
-                     "3 perimeters, 15 % infill - support-free (0.36 % of the shell's faces are "
+                     "3 perimeters, 15 % infill - support-free (0.30 % of the shell's faces are "
                      "steeper than 60 deg, and each of those bridges < 3 mm)", fill=YEL)
 big.save(OUT + "v3_all_views.png")
 print("wrote renders/v3_all_views.png", big.size)

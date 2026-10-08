@@ -1,9 +1,10 @@
-"""v3.3 opening map - the four walls, drawn from the shipped STL and nothing else.
+"""v3.4 opening inventory - the four walls, drawn from the shipped STL and nothing else.
 
 The all-views render can show a plain wall, but it cannot show *why* the holes are where they
-are.  This figure cuts each wall at mid-thickness, lifts every closed void out of the section, and
-draws it with the dimensions measured back off the triangles.  Nothing here is typed from the
-design: if the mesh says 20.8 mm the label says 20.8 mm.
+are, and after v3.4 it cannot show that twelve of them were closed either.  This figure cuts each
+wall at mid-thickness, lifts every closed void out of the section, and draws it with the dimensions
+measured back off the triangles.  Nothing here is typed from the design: if the mesh says 20.8 mm
+the label says 20.8 mm, and a wall with nothing in it is drawn as a wall with nothing in it.
 
     python3 tools/make_grille_map_v3.py   ->  renders/v3_grille_map.png
 """
@@ -62,13 +63,13 @@ def voids(axis, at):
 
 
 PANELS = [
-    ("y", -H / 2 + WALL_T / 2, "BOTTOM  wall  (y = -77.5 .. -74.5)",
-     "8 x 21 x 4.5 grille + the USB opening"),
-    ("y", H / 2 - WALL_T / 2, "TOP  wall  (y = +74.5 .. +77.5)",
-     "4 x 21 x 4 grille, above the board level"),
-    ("x", W / 2 - WALL_S / 2, "RIGHT  wall  (+X) - the v3.3 change",
-     "v3.2 cut 8 x 30 x 5 slots here;  v3.3: none"),
-    ("x", -W / 2 + WALL_S / 2, "LEFT  wall  (-X) - the fan bore IS the inlet",
+        ("y", -H / 2 + WALL_T / 2, "BOTTOM  wall  (y = -77.5 .. -74.5)  -  the v3.4 change",
+     "8 x 21 x 4.5 grille filled in;  only the USB opening is left"),
+    ("y", H / 2 - WALL_T / 2, "TOP  wall  (y = +74.5 .. +77.5)  -  the v3.4 change",
+     "4 x 21 x 4 grille filled in;  0 voids expected"),
+    ("x", W / 2 - WALL_S / 2, "RIGHT  wall  (+X) - plain since v3.3",
+     "v3.2 cut 8 x 30 x 5 slots here;  v3.3 and v3.4: none"),
+    ("x", -W / 2 + WALL_S / 2, "LEFT  wall  (-X) - the fan bore is the ONE air opening",
      f"d{BORE:.0f} clear bore, {np.pi * (BORE / 2) ** 2:.0f} mm2, fan blows IN"),
 ]
 
@@ -137,17 +138,20 @@ for ax, (axis, at, title, sub) in zip(axes, PANELS):
 grille = sum(v["a"] for v in voids("y", -H / 2 + WALL_T / 2)[0] if v["h"] < 8)
 grille += sum(v["a"] for v in voids("y", H / 2 - WALL_T / 2)[0])
 bore_a = np.pi * (BORE / 2) ** 2
+A_SKIN = 2.0 * (W * H + W * D + H * D) / 1e6      # m2 of outer PLA, from the same box outline
 fig.text(0.012, 0.055,
-         "measured off cad/v3/01_MAIN_SHELL_v3.stl: each wall cut by one plane at its own "
-         "mid-thickness (bottom/top y = +/-76.0, sides x = +/-53.7), every closed void in that "
-         "section drawn at its measured size.  No tolerance applied, nothing typed from the design.", color="#cfdcef", fontsize=8.6)
+         "measured off cad/v3/01_MAIN_SHELL_v3.stl: each wall cut at its own mid-thickness "
+         "(bottom/top y = +/-76.0, sides x = +/-53.7) and every closed void drawn at the size it "
+         "measured.  No tolerance applied, nothing typed from the design.", color="#cfdcef",
+         fontsize=8.6)
 fig.text(0.012, 0.022,
-         f"air path: inlet = the d28 bore, {bore_a:.0f} mm2  ->  outlet = the two grilles, "
-         f"{grille:.0f} mm2 = {grille / bore_a:.2f}x the bore (rule >= 1.5x).  "
-         f"Nothing is left of the perforated right-hand wall: 0 voids, and 4.4 mm of solid from "
-         f"every grille slot to the side wall.", color="#68d391", fontsize=9.2)
-fig.suptitle("ASTRO SMART ATTENDANCE v3.3  -  every opening, measured back out of the printed mesh"
-             "   (110 x 155 x 46 mm, walls 3.0 front / 2.6 sides / 3.0 top-bottom)",
+                  f"v3.4: {grille:.0f} mm2 of grille left anywhere (v3.3: 1069), so the bore is the air "
+         f"path - d28, {bore_a:.0f} mm2, fan blowing IN.  Cooling is carried by {A_SKIN:.4f} m2 of "
+         f"skin: 2.7 K at 1.6 W, 1.8 K with the seam's through-flow (audit section 4).",
+         color="#68d391", fontsize=9.2)
+fig.suptitle("ASTRO SMART ATTENDANCE v3.4  -  every opening left on the box, measured back out of "
+             "the printed mesh   (110 x 155 x 46 mm, walls 3.0 front / 2.6 sides / 3.0 top-bottom)"
+             ", grilles filled in by request",
              color="#eef3fa", fontsize=12.6, x=0.012, ha="left", y=0.985)
 fig.subplots_adjust(left=0.05, right=0.99, top=0.83, bottom=0.19, wspace=0.16)
 os.makedirs(os.path.dirname(OUT), exist_ok=True)
@@ -155,9 +159,25 @@ fig.savefig(OUT, facecolor=fig.get_facecolor())
 print("wrote", OUT)
 for title, n, tot in measured:
     print(f"   {title:46s} {n} openings  {tot:7.1f} mm2")
-# 9 in the bottom wall = the 8 grille slots plus the USB opening, which is cut in
-# the same sheet and is expected to be there (20.4 x 12.4, see the print order).
-bad = [t for t, n, _ in measured if n not in (9, 4, 0, 1)]
+# v3.4 expectation, per panel in order: the bottom wall keeps ONE void (the USB opening, cut in
+# the same sheet as the grille it used to share the wall with), the top and +X walls keep NONE, and
+# the -X wall keeps exactly the fan bore.  A count of anything else means a slot came back or an
+# opening was closed by accident, and the figure would then be lying about the box.
+EXPECT = [(1, "bottom", 20.4, 12.4), (0, "top", 0.0, 0.0), (0, "right", 0.0, 0.0),
+          (1, "left", BORE, BORE)]
+bad = []
+for (title, n, tot), (en, gnm, ew, eh) in zip(measured, EXPECT):
+    if n != en:
+        bad.append(f"{gnm}: {n} void(s), expected {en}")
+for (axis, at, title, _sub), (_en, gnm, ew, eh) in zip(PANELS, EXPECT):
+    if ew <= 0:
+        continue
+    vs, _ = voids(axis, at)
+    for v in vs:
+        if abs(v["w"] - ew) > 0.25 or abs(v["h"] - eh) > 0.25:
+            bad.append(f"{gnm}: void measures {v['w']:.2f} x {v['h']:.2f}, expected "
+                       f"{ew:.1f} x {eh:.1f}")
 if bad:
-    print("WARNING: unexpected opening counts in: " + ", ".join(bad), file=sys.stderr)
+    print("WARNING: opening inventory does not match v3.4: " + "; ".join(bad), file=sys.stderr)
     sys.exit(1)
+print("opening inventory as v3.4 expects: bottom 1 (USB), top 0, +X 0, -X 1 (the bore)")

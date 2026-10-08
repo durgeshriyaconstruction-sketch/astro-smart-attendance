@@ -13,7 +13,8 @@ v3 is a RE-DESIGN, not a polish of v2.  Architectural changes vs v2:
      protection), R307 bracket redrawn as a dog-bone with two stiffening ribs
   6  ESP32 on 4 round d7 bosses with 0.5 spotfaces + a 3 x 2 locating rail
   7  rear plate: 2 strain-relief slots in line with 2 tie posts, register lip tightened to
-     0.55 mm, plain side walls - the d28 fan bore is the inlet and the 8 + 4 grilles the outlet
+          0.55 mm, plain side walls - the d28 fan bore is the ONLY air opening (v3.4 deleted the 12
+     grille slots), so the box is cooled passively and the fan breaks the boundary layer inside
 
 Axes:   X = width (110)   Y = height (155)   Z = depth (48)
         z = 0  -> device FRONT (user) face
@@ -96,6 +97,12 @@ P = dict(
     # below give (measured, see docs/v3_physics_audit.txt section 4).  side_intake=True restores
     # the v3.2 arrangement (8 x 30 x 5 in +X, fan exhausting) in one rebuild.
     side_intake=False,
+    # v3.4: the user has a 3010 fan and wants ONE opening, not twelve.  Every grille slot that
+    # used to be cut in the bottom and top walls is solid plastic now, and the only deliberate air
+    # opening on the box is the d28 fan bore in the -X wall.  What that costs in cooling is
+    # measured in section 4 of the physics audit rather than guessed at; grilles=True puts all
+    # twelve slots back with one rebuild, and the build's own checks change to match.
+    grilles=False,
     # the pitch is 25 mm and the slot 21 wide, which leaves 4.0 mm of web - thicker than the
     # 3.0 mm wall itself.  Two rows of 5 mm at 7 / 14.5 left a 2.5 mm web between the rows,
     # i.e. a ligament thinner than the wall it sits in, and the physics audit (section 8)
@@ -354,14 +361,15 @@ def build_shell():
     cut.append(ext_y(rr(usx, ezc, usw, ush, 2.0), -H / 2 - 2, -hi + 0.1))
     cut.append(ext_y(rr(usx, ezc, usw + 2.4, ush + 2.4, 2.6), -H / 2 - 2, -hi + 2.0))
 
-    # -------------------------------------------------------- ventilation
-    vw2, vh2 = P["vent_slot"]
-    for vx in P["vent_rows"]:
-        for vz in P["vent_z"]:
-            cut.append(ext_y(rr(vx, vz, vw2, vh2, 1.6), -H / 2 - 2, -hi + 0.1))
-    for vx in P["top_vent_x"]:
-        w2, h2 = P["top_vent"]
-        cut.append(ext_y(rr(vx, P["top_vent_z"], w2, h2, 1.2), H / 2 + 2, hi - 0.1))
+    # -------------------------------------------------------- ventilation (v3.4: none but the bore)
+    if P["grilles"]:
+        vw2, vh2 = P["vent_slot"]
+        for vx in P["vent_rows"]:
+            for vz in P["vent_z"]:
+                cut.append(ext_y(rr(vx, vz, vw2, vh2, 1.6), -H / 2 - 2, -hi + 0.1))
+        for vx in P["top_vent_x"]:
+            w2, h2 = P["top_vent"]
+            cut.append(ext_y(rr(vx, P["top_vent_z"], w2, h2, 1.2), H / 2 + 2, hi - 0.1))
 
     # --------------------------------------------- v3 intake holes (+X wall)
     iw, ih, iys, izs, ir = P["intake"]
@@ -623,12 +631,14 @@ def opening_test(shell):
          (fcx, fcy - P["rfid_window"][1] / 2 - 2, (deep + zi) / 2)),
         ("USB slot",          (usx, -P["H"] / 2 + 1.5, ezc), (usx + P["usb_slot"][0] / 2 + 4, -P["H"] / 2 + 1.5, ezc)),
         ("fan bore (no grille)", (-P["W"] / 2 + 1.5, fy, fz), (-P["W"] / 2 + 1.5, fy, fz + P["fan_open_d"] / 2 + 4)),
-        ("exhaust slot",      (P["vent_rows"][0], -P["H"] / 2 + 1.5, P["vent_z"][0]),
-                              ((P["vent_rows"][0] + P["vent_rows"][1]) / 2,
-                               -P["H"] / 2 + 1.5, P["vent_z"][0])),
-        ("top vent",          (P["top_vent_x"][0], P["H"] / 2 - 1.5, P["top_vent_z"]),
-                              (P["top_vent_x"][0], P["H"] / 2 - 1.5,
-                               P["top_vent_z"] + P["top_vent"][1] / 2 + 5)),
+        *([("exhaust slot",      (P["vent_rows"][0], -P["H"] / 2 + 1.5, P["vent_z"][0]),
+                                  ((P["vent_rows"][0] + P["vent_rows"][1]) / 2,
+                                   -P["H"] / 2 + 1.5, P["vent_z"][0])),
+           ("top vent",          (P["top_vent_x"][0], P["H"] / 2 - 1.5, P["top_vent_z"]),
+                                 (P["top_vent_x"][0], P["H"] / 2 - 1.5,
+                                  P["top_vent_z"] + P["top_vent"][1] / 2 + 5))]
+          if P["grilles"] else            # v3.4: those openings do not exist, so do not probe them
+          []),
     ]
     res = []
     for name, p_open, p_wall in cases:
@@ -886,11 +896,25 @@ def audit(shell, plate, r307b, ring=None):
           if P["side_intake"] else
           [("+X wall plain (no side openings)",
             all(_solid(W_ / 2 - 1.0, iy, iz) for iy in iys for iz in tuple(izs) + (2.5, 41.0))),
-           ("bottom grille open", not _solid(P["vent_rows"][0], -H_ / 2 + 1.0, P["vent_z"][0])),
-           ("top grille open", not _solid(P["top_vent_x"][0], H_ / 2 - 1.0, P["top_vent_z"])),
-           ("wall between grille rows",
-            _solid((P["vent_rows"][0] + P["vent_rows"][1]) / 2, -H_ / 2 + 1.0,
-                   P["vent_z"][0]))]),
+            *([("bottom grille open", not _solid(P["vent_rows"][0], -H_ / 2 + 1.0, P["vent_z"][0])),
+              ("top grille open", not _solid(P["top_vent_x"][0], H_ / 2 - 1.0, P["top_vent_z"])),
+              ("wall between grille rows",
+               _solid((P["vent_rows"][0] + P["vent_rows"][1]) / 2, -H_ / 2 + 1.0,
+                      P["vent_z"][0]))]
+             if P["grilles"] else
+             # v3.4: the proof the slots are really gone is that every place one of them used to be
+             # is now solid wall, at the slot's own centre and at its two edges
+             [("bottom wall solid at all 8 old slot centres",
+               all(_solid(vx + dx, -H_ / 2 + 1.0, vz + dz)
+                   for vx in P["vent_rows"] for vz in P["vent_z"]
+                   for dx in (-9.5, 0.0, 9.5) for dz in (-2.0, 0.0, 2.0))),
+              ("top wall solid at all 4 old slot centres",
+               all(_solid(vx + dx, H_ / 2 - 1.0, P["top_vent_z"] + dz)
+                   for vx in P["top_vent_x"] for dx in (-9.5, 0.0, 9.5)
+                   for dz in (-1.8, 0.0, 1.8))),
+              ("the fan bore is still there", not _solid(-P["W"] / 2 + 1.0, fyv, fzv)),
+              ("the USB opening is still there",
+               not _solid(exf_ + 3.5, -H_ / 2 + 1.0, ezf_))])]),
         # pad top must be exactly the board's back face (4.6) - probe OFF the pilot axis
         ("ring pad coplanar",       bool(shell.contains(
             [[fcx - P["rc522_post_off"][0] + 2.6, fcy + P["rc522_post_off"][1] - 2.6,
