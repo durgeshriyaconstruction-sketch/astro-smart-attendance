@@ -7,13 +7,14 @@ plate 3.0 mm skin + 2 mm register frame, 22 self-tapping pilots at thread minor 
 All four files are **bed-aligned**: the orientation a printer must see is baked into the triangles
 (`tools/orient_v3.py` is the single source of truth, and the verifier undoes that one translation
 before it asserts anything in the design frame).
-Three independent programs had to agree before a single line was written here:
+Four independent programs had to agree before a single line was written here:
 
 | check | program | result |
 |---|---|---|
 | parametric audit A-K | `tools/build_v3.py` | `RESULT: ALL CHECKS PASS` (`docs/v3_audit.txt`) |
 | STL-only verification | `tools/verify_v3.py` | `INDEPENDENT RESULT: ALL CHECKS PASS` (`docs/v3_independent_verify.txt`) |
 | 10-section multi-physics audit | `tools/audit_physics_v3.py` | `PHYSICS RESULT: no failures` (`docs/v3_physics_audit.txt`) |
+| groove + printed-fit walk | `tools/check_grooves_v3.py` | `EVERY GROOVE AND FIT MEASURES AS DESIGNED` - 34 values, each probed at 0.02 mm through the shipped STLs (`docs/v3_groove_check.txt`) |
 
 That third program is the one that found the last three real defects, described in section 6.
 It re-measures the shipped triangles and then argues with them: thread bite and pull-out, screw
@@ -22,7 +23,17 @@ PLA's glass transition in an UP summer, 13.56 MHz and 2.4 GHz loss, the optical 
 the ligaments between openings, and a layer-by-layer slicer model of how much plastic is extruded.
 
 The second one never imports the generator: it re-types the reference dimensions, re-cuts the
-meshes and re-measures every hole, opening and wall from triangles alone.
+meshes and re-measures every hole, opening and wall from triangles alone. The fourth one is the
+answer to "is the size and the fitting of the groove 100 %": it does not check the *design*, it
+walks a probe line through each rebate, recess, lip and hole in the file you print and prints the
+number the plastic actually offers - mouth 72.00 x 23.53 for the LCD, depth 0.438, through-window
+66.00 x 17.53; R307 opening 21.01 x 25.01 around a 19.3 x 21.2 lens; RC522 recess 44.73 x 62.72
+x 0.798 deep leaving a 2.197 mm ledge, aperture 38.01 x 56.00; register lip 104.305 x 148.503 in
+a 104.785 x 148.982 opening = 0.240 mm per side; keyhole 7.531 x 4.614 at 50.01 span; ring
+opening 37.008 x 55.002 so its lip stands 0.50 mm inside the aperture; ring body 2.611 with 1.097
+left under the 1.503 head recess; and the ring's four pads and its rim level to 0.001 mm. Every
+one of those agrees with the intent within 0.035 mm, which is the probe's own 0.02 mm quantisation
+plus rounding - i.e. the plastic is where it was told to be.
 
 ---
 

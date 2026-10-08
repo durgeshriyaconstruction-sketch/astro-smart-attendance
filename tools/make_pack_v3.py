@@ -35,6 +35,8 @@ PROOF = {  # pack name -> (source, the verdict string it must contain)
                                   "INDEPENDENT RESULT: ALL CHECKS PASS"),
     "v3_physics_audit.txt": (os.path.join("docs", "v3_physics_audit.txt"),
                              "PHYSICS RESULT: no failures"),
+    "v3_groove_check.txt": (os.path.join("docs", "v3_groove_check.txt"),
+                            "EVERY GROOVE AND FIT MEASURES AS DESIGNED"),
 }
 DOCS = {
     "README_PRINT_ORDER_v3.txt": os.path.join("exports", "README_PRINT_ORDER_v3.txt"),

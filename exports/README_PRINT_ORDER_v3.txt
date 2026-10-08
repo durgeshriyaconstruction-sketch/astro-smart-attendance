@@ -13,6 +13,10 @@ WHAT THIS IS
     python3 tools/verify_v3.py    ->  INDEPENDENT RESULT: ALL CHECKS PASS
                                       (docs/v3_independent_verify.txt - STL-only, re-typed dims)
     python3 tools/audit_physics_v3.py -> PHYSICS RESULT: no failures
+    python3 tools/check_grooves_v3.py  ->  EVERY GROOVE AND FIT MEASURES AS DESIGNED
+                                      (docs/v3_groove_check.txt - 34 numbers, each walked at
+                                       0.02 mm through the print files: every rebate, recess,
+                                       register lip, keyhole and ring opening, as printed)
                                       (docs/v3_physics_audit.txt - fasteners, airflow, RF, optics,
                                        PLA limits, insertion kinematics, slicer reality, and a
                                        re-measurement of every number written in this file)
@@ -118,6 +122,8 @@ FILES IN THIS PACK
   v3_independent_verify.txt        the STL-only check (12 sections, 4-12 mm probes)
   v3_physics_audit.txt             the third gate: fasteners, airflow, RF, optics, kinematics,
                                    PLA limits, slicer reality - and a re-measurement of this file
+  v3_groove_check.txt              the fourth gate: measured size of every groove and the fit of
+                                   every mating part, so the print order's tolerances are numbers
   v3_design_notes.md               why each change was made + measured before/after
   master_prompt.md                 the full spec (28 sections: 0-26 the rules, 27 the v3
                                    decisions, 28 what the physics round changed)
