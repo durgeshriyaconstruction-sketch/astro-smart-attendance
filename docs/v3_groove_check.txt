@@ -1,0 +1,127 @@
+ASTRO SMART ATTENDANCE v3 - GROOVE, RECESS AND PRINTED-FIT MEASUREMENTS
+============================================================================================
+probe: 0.02 mm material/void walk through the shipped bed-aligned STLs, back in the
+design frame (z = 0 at the front outer face, +z into the box; front wall 0 -> 3.0, the rear
+opening at z = 43.0, the plate's 2 mm register frame reaching down to z = 41.0).
+
+0. THE FRONT WALL - the sheet every groove is cut in
+   PASS  front wall thickness (plain area)                   2.991 mm   design   3.00   (+/-0.035)
+   the outer face at 5 points away from every feature: 0.009, 0.009, 0.009, 0.009, 0.009
+   PASS  flatness of that face (spread, = the bed's job)     0.000 mm   design   0.00   (+/-0.05)
+   outer face 0.017 (this line's grid; the 5-point check reads 0.009 - the
+   0.02 mm probe step is the only uncertainty), inner face 3.009: the wall is
+   2.991 mm thick, and every
+   depth below is measured from that outer face - which is the face that prints on the bed,
+   so it is the one surface guaranteed to be true.
+
+1. LCD 1602 - the sunk rebate ring the glass stands in
+   A rebate is a printed locating surface: its DEPTH is what limits how far the bezel can
+   sink, its WIDTH is how much of the bezel it actually holds.
+   PASS  rebate mouth, across                               72.003 mm   design  72.00   (+/-0.035)
+   PASS  rebate mouth, up                                   23.529 mm   design  23.50   (+/-0.035)
+   PASS  through-window, across                             66.004 mm   design  66.00   (+/-0.035)
+   PASS  through-window, up                                 17.532 mm   design  17.50   (+/-0.035)
+   PASS  rebate depth                                        0.438 mm   design   0.45   (+/-0.035)
+   PASS  wall left under the rebate floor                    2.556 mm   design   2.55   (+/-0.035)
+      z=+0.1: opening  72.003 mm wide   <- rebate level
+      z=+0.4: opening  72.003 mm wide   <- rebate level
+      z=+0.5: opening  66.004 mm wide   <- straight through
+      z=+1.0: opening  66.004 mm wide   <- straight through
+      z=+2.0: opening  66.004 mm wide   <- straight through
+      z=+2.9: opening  66.004 mm wide   <- straight through
+   -> YOUR PART: the glass must be <= 66.00 x 17.53 mm to drop through the window,
+      and the bezel flange must be >= 72.00 x 23.53 mm overall so it lands on the
+      rebate instead of falling in. The step that sinks into the rebate has to be
+      <= 0.44 mm tall - that is the whole capture - and the flange has to
+      overlap the rebate on all four sides, i.e. its outer rectangle must reach past
+      72.0 x 23.5 mm. A standard 1602 bezel is 80 x 36, so it does: that is what
+      makes the module locate on the plastic instead of floating on its screws.
+
+2. R307 - bezel relief (the through-opening), the rebate that registers it, the seat ribs
+   PASS  rebate mouth, across                               25.329 mm   design  25.30   (+/-0.035)
+   PASS  rebate mouth, up                                   27.209 mm   design  27.20   (+/-0.035)
+   PASS  through-opening, across                            21.011 mm   design  21.00   (+/-0.035)
+   PASS  through-opening, up                                25.010 mm   design  25.00   (+/-0.035)
+   PASS  rebate depth                                        0.438 mm   design   0.45   (+/-0.035)
+   the through-opening is 21.01 x 25.01 mm and the module's own lens is 19.3 x 21.2 mm
+   -> +0.86 mm clear on each side across and +1.90 mm up: no
+      plastic is in front of the sensor at any angle the finger can arrive from, and the rim
+      left over around the opening is what the module's bezel presses on to seal it.
+   -> YOUR PART: the R307's raised lens housing must be <= 21.01 x 25.01 mm to pass
+      through, and its front frame >= 25.33 x 27.21 mm to sit on the rebate; the
+      frame's thickness has 0.45 mm of rebate to sink into and the 2 anti-rotation
+      ribs (1.2 x 1.5 mm at 0.35 mm off the body) stop it turning once screwed.
+
+3. RC522 - the 0.8 mm recess in the wall, the open aperture, and the 4 locating ribs
+   PASS  recess in the outer face, across                   44.727 mm   design  44.70   (+/-0.035)
+   PASS  recess in the outer face, up                       62.723 mm   design  62.70   (+/-0.035)
+   PASS  aperture through the wall, across                  38.009 mm   design  38.00   (+/-0.035)
+   PASS  aperture through the wall, up                      56.004 mm   design  56.00   (+/-0.035)
+   PASS  recess depth                                        0.798 mm   design   0.80   (+/-0.035)
+   PASS  ledge sheet left under the recess                   2.197 mm   design   2.20   (+/-0.035)
+   the board lies on the wall's inner face at z=3.009 and the 4 locating ribs stand 1.002 mm proud of it (design 1.00), their faces 0.70 mm apart diametrically = 0.35 mm per side of a 40.0 x 60.0 board
+   a screw pad under the ring (8 x 8, 2.8 mm off its hole): material 0.016 -> 4.611, so the pad top is 1.603 mm proud of the
+   wall's inner face = the board's own thickness (1.6 mm), which is what makes the pad top and the
+   board's back face ONE plane - the ring lies on both at once and cannot tilt or shim.
+   PASS  rim top level with the pad top (one bearing plane)   -0.001 mm   design   0.00   (+/-0.03)
+   (the rim that used to carry v2's clamp bars is trimmed to 4.610, the pads to
+   4.611: a 0.001 mm difference, so the 2.6 mm ring rests on four pads and a rim
+   at the same height - it cannot rock, and nothing has to be shaved to make it sit flat.)
+   -> YOUR PART: a 40.0 x 60.0 x 1.6 mm PCB drops onto the inner face with 2.36 mm of
+      room across and 1.36 mm up in the recess, and the ribs at 0.35 mm per side
+      centre it. The aperture is completely open, so no card-side dimension has to pass
+      through anything: only the 2.6 mm ring and the 1.6 mm board stack up behind the wall.
+
+4. REAR PLATE - the register lip that locates it in the opening (the fit that closes the box)
+   shell: outer faces  -54.982 /  +55.002   inner faces  -52.383 /  +52.403
+   plate lip: outer faces  -52.143 /  +52.163   inner faces  -44.144 /  +44.164
+   opening 104.785 x 148.982 mm  vs  lip 104.305 x 148.503 mm
+   PASS  register gap per side, across                       0.240 mm   design   0.25   (+/-0.035)
+   PASS  register gap per side, up                           0.240 mm   design   0.25   (+/-0.035)
+   PASS  plate skin thickness at the centre                  2.993 mm   design   3.00   (+/-0.035)
+   PASS  lip + skin, total (2.0 lip + 3.0 skin)              4.988 mm   design   5.00   (+/-0.035)
+   the shell's rim top face is at z=43.011; the plate's lip reaches from 41.000 to 43.0, i.e. 2.00 mm of it is inside the opening and the 3.00 mm skin lands
+   on the wall's inner ledge, not in the hole. 8.0 mm of lip width x 0.24 mm gap per side. A slicer overshoots an
+   external face by 0.05-0.15 mm, and this lip is the only face that has to be undersized,
+   so the plate can be stiff to close but cannot jam: 0.25 - 0.15 still slides.
+
+5. THE TWO THINGS THE WHOLE BOX HANGS ON - keyholes in the plate
+   keyhole at x=-25.0: open from y=-3.766 to +12.003 = 15.769 mm along the slot axis  [design: a 7.5 head circle centred at y=0 plus a slot to y=+12.0, i.e. 15.75 mm]
+   PASS  slot+head length at x=-25.0                        15.769 mm   design  15.75   (+/-0.05)
+   PASS  head entry circle at x=-25.0                        7.531 mm   design   7.50   (+/-0.05)
+   PASS  slot width at x=-25.0 (shank must slide)            4.614 mm   design   4.60   (+/-0.035)
+   keyhole at x=+25.0: open from y=-3.766 to +12.003 = 15.769 mm along the slot axis  [design: a 7.5 head circle centred at y=0 plus a slot to y=+12.0, i.e. 15.75 mm]
+   PASS  slot+head length at x=+25.0                        15.769 mm   design  15.75   (+/-0.05)
+   PASS  head entry circle at x=+25.0                        7.531 mm   design   7.50   (+/-0.05)
+   PASS  slot width at x=+25.0 (shank must slide)            4.614 mm   design   4.60   (+/-0.035)
+   both keyholes found at y=0: centres at -25.004 and +25.004 = 50.01 mm apart [design span 50.0]
+   -> YOUR PART: a screw head up to 7.5 mm across drops through, and the 4.6 mm slot
+      locks it when the plate is slid down 50 mm apart on two wall studs. The audit's own
+      load case says the hooks carry 1.7 N each against 8.5 MPa of shear area - 54x - so the
+      hooks are convenience, the 4 plate screws are the real fixing.
+
+6. RC522 RING - the lip that stands inside the aperture, and its own opening
+   PASS  ring opening, across                               37.008 mm   design  37.00   (+/-0.035)
+   PASS  ring opening, up                                   55.002 mm   design  55.00   (+/-0.035)
+   -> the ring's inner lip therefore stands 0.50 mm inside the 38.0 mm aperture
+      across and 0.50 mm up: that is the anti-creep capture of the board,
+      printed as one part with the ring, not glued, and it is why the board cannot walk out
+      even with the screws loose.
+   PASS  ring body thickness                                 2.611 mm   design   2.60   (+/-0.035)
+   PASS  plastic left under the head recess floor            1.097 mm   design   1.10   (+/-0.035)
+   through the tab centre: 0 transitions -> the screw clearance hole is open right through the ring, as it must be
+   -> the recess is 1.503 mm deep in the ring's outer face, sized for a DIN 84 / ISO 7380
+      pan head 2.0 mm tall, so 0.50 mm of the head still stands above the ring's inner face -
+      inside the box, over the PCB, where it touches nothing. An M2.5 x 8 pan head is the
+      length this assumes; a socket cap (1.3 mm head, 4.5 mm across) would sink fully.
+
+============================================================================================
+   wall  : 2/2 measured values agree with the design within 0.035 mm
+   lcd   : 6/6 measured values agree with the design within 0.035 mm
+   r307  : 5/5 measured values agree with the design within 0.035 mm
+   rc522 : 7/7 measured values agree with the design within 0.035 mm
+   plate : 4/4 measured values agree with the design within 0.035 mm
+   hook  : 6/6 measured values agree with the design within 0.035 mm
+   ring  : 4/4 measured values agree with the design within 0.035 mm
+
+GROOVE RESULT: EVERY GROOVE AND FIT MEASURES AS DESIGNED

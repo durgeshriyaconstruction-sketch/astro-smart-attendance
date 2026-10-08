@@ -1,0 +1,236 @@
+ASTRO SMART ATTENDANCE v3 - PHYSICS / LOGIC AUDIT
+==============================================================================
+cad/v3/*.stl are the bed-aligned print files.  Every number below is measured on exactly
+those triangles (put back in the design frame with the same table the verifier uses), so this
+audit, the two CAD checkers and the print order all describe the object the user slicess.
+shell 110.0 x 155.0 x 43.0 mm  |  assembly 110 x 155 x 46 mm  |  walls front 3.0, side 2.6, top 3.0, plate 3.0 mm
+
+1. FASTENERS - thread engagement, measured from the holes that were actually printed
+------------------------------------------------------------------------------
+   Thread-forming (self-tapping) screws into printed PLA want a pilot at the thread's MINOR
+   diameter, not at nominal: at nominal the crest only just touches the wall, the joint is friction,
+   and the screw spins instead of biting.  Pull-out = shear of the plastic around the engaged thread
+   cylinder, with PLA cross-layer shear 8.5 MPa and 55 % thread fill:
+   F = tau * pi * d_minor * L_engagement * 0.55
+   LCD bezel: 4 x M2.5 pilot                  d2.04 vs minor d2.03 -> play 0.01 mm radially          PASS
+   LCD bezel: pull-out reserve                ~188 N vs 0.88 N held = 213x                           PASS
+   R307 bracket: 2 x M3 pilot                 d2.48 vs minor d2.39 -> play 0.05 mm radially          PASS
+   R307 bracket: pull-out reserve             ~221 N vs 0.18 N held = 1253x                          PASS
+   RC522 ring: 4 x M2.5 pilot                 d2.04 vs minor d2.03 -> play 0.01 mm radially          PASS
+   RC522 ring: pull-out reserve               ~75 N vs 0.17 N held = 447x                            PASS
+   ESP32 bosses: 4 x M2.2 pilot               d1.78 vs minor d1.75 -> play 0.02 mm radially          PASS
+   ESP32 bosses: pull-out reserve             ~147 N vs 0.25 N held = 598x                           PASS
+   fan bosses: 4 x M3 pilot                   d2.48 vs minor d2.39 -> play 0.05 mm radially          PASS
+   fan bosses: pull-out reserve               ~362 N vs 0.15 N held = 2458x                          PASS
+   rear plate: 4 x M3 pilot                   d2.48 vs minor d2.39 -> play 0.05 mm radially          PASS
+   rear plate: pull-out reserve               ~291 N vs 0.59 N held = 495x                           PASS
+
+   the 22 pilots as built:
+   joint        screw    n   pilot   minor  radial  depth   pull-out    load
+   LCD bezel    M2.5     4   2.04    2.03   +0.01    6.3      188 N   0.88 N
+   R307 bracket M3       2   2.48    2.39   +0.05    6.3      221 N   0.18 N
+   RC522 ring   M2.5     4   2.04    2.03   +0.01    2.5       75 N   0.17 N
+   ESP32 bosses M2.2     4   1.78    1.75   +0.02    5.7      147 N   0.25 N
+   fan bosses   M3       4   2.48    2.39   +0.05   10.3      362 N   0.15 N
+   rear plate   M3       4   2.48    2.39   +0.05    8.3      291 N   0.59 N
+   Reality check: the plate carries the whole unit on 4 screws and the enclosure hangs from 2
+   wall screws, so a 260 g box plus a 30 N card tug is ~2.5 N per hook against ~290 N per
+   screw.  Fastener *count and access*, not fastener strength, is what governs this design -
+   which is why every module got its own 2-4 screws in v3 instead of v2's clip bars.
+
+2. SCREW HEADS - does each head fit the space it has to sit in?
+------------------------------------------------------------------------------
+   DIN 125 pan heads (what is in every electronics kit) and DIN 965 flat heads, against recesses
+   measured on the meshes.  A proud head only matters when something must pass over it - which is
+   exactly the case at the RC522, where a card is slid across that face.
+   ring counterbore measured d5.50 x 1.60 mm deep in a 2.6 mm part
+   M2.5 pan head fits in diameter             d5.0 head in a d5.5 pocket                             PASS
+   M2.5 pan head is flush with the ring's inner face 2.5 mm tall head in 1.6 mm of pocket -> +0.90 mm proud; the face points into open cavity air, so proud is allowed NOTE
+   M2.5 flat head (DIN 965) seats in the same pocket 1.60 mm tall head in 1.6 mm -> flush - the option to use if the ring is ever moved in front of the wall PASS
+   clamp load bearing area under the head     annulus d2.05..d5.50 = 20 mm2 -> at 5 N of clamp force 0.24 MPa bearing vs ~60 MPa yield for PLA PASS
+   rear plate: M3 flat head in the 90 deg countersink csk measured d6.40 at the outer face vs d6.0 x 1.85 mm head -> flush with the wall when screwed up PASS
+   ESP32: thread exit relief in each boss     measured d3.10 over the d1.80 pilot for the outer 0.7 mm, so the thread is not pinched where it leaves the boss PASS
+   ESP32: a d4.4 x 2.2 pan head has room at all 4 pads 0 of 196 samples inside printed material (the head sits on the board's pad, so the pad's own annulus must be >= d5.0 - caliper item) PASS
+   R307 bracket and fan: M3 pan heads (d5.6 x 3.0 mm) sit in
+   open cavity air with 14.5 mm of headroom
+   above them - nothing has to clear them, and the bracket's 5.6 mm pocket is only there to
+   stop the head tilting.  No standoffs or nuts are needed anywhere in this design.
+
+3. KINEMATICS - can every part get in, and can it get back out?
+------------------------------------------------------------------------------
+   The enclosure is assembled through its rear opening: nothing is slid in through a wall slot, so a
+   part is installable if a column swept from its seat out past the box misses the printed walls.
+   rear opening: 104.8 x 149.0 mm; the plate's 8 mm register frame takes 8.25 mm of that on 3 sides and the -X stretch is cut away over the ESP32
+   LCD1602 + backpack passes the rear opening 80.0 x 36.0 vs 104.8 x 149.0 mm                        PASS
+   R307 module passes the rear opening        44.1 x 20.0 vs 104.8 x 149.0 mm                        PASS
+   RC522 60x40 PCB passes the rear opening    60.0 x 40.0 vs 104.8 x 149.0 mm                        PASS
+   ESP32 DevKit V1 passes the rear opening    51.5 x 28.3 vs 104.8 x 149.0 mm                        PASS
+   3010 fan passes the rear opening           30.0 x 30.0 vs 104.8 x 149.0 mm                        PASS
+   a 4 mm hex key + hand passes the rear opening 60.0 x 60.0 vs 104.8 x 149.0 mm                        PASS
+   ESP32 goes in first, straight down along Z 0 of 2352 samples inside printed material over a full descent at its seat (nothing printed is in that column) PASS
+   RC522 board slides straight in along Z     0.00 mm3 of its swept column lands inside printed material PASS
+   R307 module slides straight in along Z     0.00 mm3 of its swept column lands inside printed material PASS
+   LCD stack slides straight in along Z       0.00 mm3 of its swept column lands inside printed material PASS
+   the plate leaves and returns without disturbing any module 0.00 mm3 swept against shell, bracket and ring         PASS
+   the plate's own 4 holes are d3.4 CLEARANCE (the thread is in the shell's bosses), which is
+   right: the only way to open the box is to pull the plate straight off, and a threaded plate
+   would have to be screwed out through the cavity.
+   All 5 screw groups are reachable with the plate off, which is why the plate is screwed and
+   never glued; the LCD is taken out from the front after its 4 screws, and the RC522 ring
+   clamps the board so it comes out with the ring - no board-prying on the aperture edge.
+
+4. AIRFLOW - one opening on purpose, and what cooling costs without the grilles
+------------------------------------------------------------------------------
+   v3.3 cut 8 + 4 slots so the fan could push air through the box.  v3.4 fills every one of them in:
+   the user has a 3010 blower and wants one hole, not twelve.  So the question this section has to
+   answer is not "is the grille big enough" but "does the box still shed its heat with a single
+   opening", and it is answered with two paths computed from the meshes:
+   PASSIVE - heat conducts through the PLA skin and leaves the box by free convection plus
+   radiation, dT = P / (h A_skin).  This path does not care about openings at all, which is exactly
+   why deleting twelve of them is not the disaster it looks like.
+   THROUGH-FLOW - the fan still moves air, in through the bore and out through the one gap a
+   printed box cannot avoid: the register seam around the rear plate.  Modelled as sharp-edged
+   orifices in series with the fan's straight line, dp = dp_max (1 - Q/Q_max) and
+   dp = K rho/2 (Q/A_eff)^2, K = 1.3.  The seam area is ASSUMED (see its own row), everything else
+   here is measured.
+   The two paths are in parallel, so their conductances add.
+   the +X wall is still plain                 0 void(s) in the right-hand wall at mid-thickness      PASS
+   the grilles really are filled in           0 slot(s) in the bottom wall and 0 in the top wall at mid-thickness; v3.3 measured 8 and 4, v3.4 asked for none PASS
+   the USB opening survived the change        1 void(s) of cable opening, largest 20.40 x 12.40 mm against a designed 20.4 x 12.4 (18.0 x 10.0 slot plus 1.2 mm per side) PASS
+   the fan bore is the one deliberate air opening a d28.00 circle of 615 mm2 in the -X wall, and it is the only air hole on the box PASS
+   inventory off the mesh - bottom wall: 20.4 x 12.4 mm (247 mm2)   top wall: none
+                     +X wall: none   -X wall: 28.0 x 28.0 mm (615 mm2)
+   direction matters at build time: the fan has to blow IN through that bore, so the arrows on its frame point at the box.  The enclosure then runs a little above ambient pressure, which is what keeps dust out of the R307's prism and forces the used air back out through the plate seam.
+   the bore is now the biggest hole on the box, and it is closed by the fan itself: a 30 x 30 frame over a d28 opening spans it completely.  That makes the fan a structural part of the enclosure rather than an accessory - a shell printed and used without it has a 28 mm hole in the side.
+   the skin alone gets the heat out           1.6 W over 0.0585 m2 of outer wall at h = 10 W/m2.K -> dT = 2.7 K above ambient.  The 12 K ceiling is where an ESP32 crystal starts to drift and a humid Mirzapur morning fogs the R307 prism; at h = 5 W/m2.K (a closed cabinet, no air movement at all) it is 5.5 K, still inside it.  Wall plastic is the resistor here, not the openings, which is why filling twelve of them in costs so little PASS
+   both paths together                        skin 2.7 K and flow 5.4 K in parallel -> dT = 1.8 K at 1.6 W; v3.3 measured 1.6 K through the grilles, so closing them costs about 0.2 K PASS
+   ASSUMED row, labelled as one: the outlet is the plate seam, 509 mm of register frame with 0.25 mm of clearance per side = 127 mm2.  Your print decides that number - a 0.10 mm tighter fit takes 40 % of the leak away - so it is recorded as a note, never as a gate.  What is measured is the bore, and the absence of everything else.
+   0.25 L/s through that seam changes the box's whole 784 cm3 volume every 3.2 s, i.e. 25 % of the fan's free air at 12.2 Pa.  v3.3 got 0.84 L/s out of 533 mm2 of effective area; the 615 mm2 bore was already the limit, which is the whole reason this trade was affordable.
+   reading of these two rows, not a gate: through-flow is no longer what keeps this box cool.  What the fan does inside a sealed box is break the boundary layer off the LCD and the R307 prism and hold the enclosure slightly above room pressure, and with it switched off the skin path alone still sits 9.3 K inside the ceiling - so 0.1 W of fan is still worth spending for the demisting, which is why the print order runs it continuously from the ESP32's own supply
+   nothing can be reached through the air path either: the 615 mm2 bore is spanned by the fan frame once built, and the only other hole is the USB slot, which is 12.4 mm tall and sits behind a plug.
+
+5. MATERIAL LIMITS AND THE PRINTED FIT
+------------------------------------------------------------------------------
+   This unit is going on a wall in Uttar Pradesh, so the ambient numbers below matter more than the
+   CAD numbers: PLA's useful ceiling is its glass transition (~60 C), and its 0.2-0.5 % shrinkage is
+   what the printed fits have to absorb.
+   PLA margin - shaded indoor wall, peak summer Tg ~60 C vs 45 C = +15 K                               PASS
+   PLA margin - sun through a window onto the wall Tg ~60 C vs 55 C = +5 K                                PASS
+   PLA margin - unshaded outside wall / closed room Tg ~60 C vs 65 C = -5 K   -> print PETG (Tg ~80 C) or anneal at 80 C for 1 h NOTE
+   no geometry change is needed to switch to PETG: same model, 230-240 C nozzle, 80-90 C
+   bed, and the print order's temperatures are the only thing that changes.
+   differential thermal growth across the register frame both parts are the same plastic so the 0.37 mm of growth on a 155 mm side is common-mode and cancels; only a temperature DIFFERENCE bites (5 K -> 0.031 mm vs 0.25 mm per side) PASS
+   shrinkage 0.2 % (dry filament, tuned) vs the plate's register 0.21 mm on the 104.8 mm opening; the frame is 8 separate ribs and the plate is drawn home by 4 x M3, so an oversized rib cannot lock the plate out PASS
+   shrinkage 0.5 % (humid filament, Mirzapur monsoon) vs the plate's register 0.52 mm on the 104.8 mm opening; the frame is 8 separate ribs and the plate is drawn home by 4 x M3, so an oversized rib cannot lock the plate out PASS
+   wall thickness vs shrinkage: a 2.6 mm wall varies by 0.005-0.013 mm - irrelevant.  The
+   fit that must survive shrinkage is the 0.25 mm/side register and the 0.35 mm part fit,
+   both of which are generous for FDM and both still verified in section 10 of the STL audit.
+
+6. RF - 13.56 MHz through the wall, 2.4 GHz out of the cavity, metal nearby
+------------------------------------------------------------------------------
+   Dielectric loss in a slab: alpha = (2 pi f / c) sqrt(eps_r) tan(delta) / 2, loss = 8.686 alpha t.
+   PLA at these frequencies is nearly invisible; what matters is geometry - how much plastic is in
+   front of the coil, and how far the nearest metal is from the loop.
+   13.56 MHz (RC522) through 2.20 mm of PLA   0.0001 dB (eps_r 2.6, tan d 0.02)                      PASS
+   2.44 GHz (Wi-Fi) through 3.00 mm of PLA    0.0214 dB (eps_r 2.6, tan d 0.02)                      PASS
+   nearest steel screw to the antenna loop    heads are 38.0 mm from the coil centre vs a ~25 mm loop -> 25.5 mm clear; keep the ring screws at 8 mm so no shank runs beside the coil plane PASS
+   ESP32_RF_ANTENNA_KEEP_OUT empty of printed material 0 of 4350 points inside the 15 mm slab in front of the trace (y -18.5..-3.5, the whole cavity depth in x) - nothing printed stands in it, and the two antenna-end bosses sit BEHIND the board, beside it PASS
+   metal at the antenna end                   the two antenna-end screw heads are 10.7 mm from the trace end, so M2.2 x 8 mm screws only - a long shank running beside the trace pulls the 2.4 GHz match; no brass or steel washers under those two heads PASS
+   the reader's stated working distance (up to 10 mm for a card, ~2.5 mm for a tag) is
+   reduced by the 2.2 mm ledge only in the front half of the board; the aperture
+   puts AIR in front of the coil's centre, which is why the opening was made 100 % clear.
+
+7. WHAT THE USER AND THE SENSORS CAN SEE
+------------------------------------------------------------------------------
+   Fingerprint: the R307 is an optical (reflective prism) module, so it needs an unobstructed cone
+   from its window to where a finger lands, and nothing in front of the glass to scatter light.
+   LCD: a stock 1602 has a narrow contrast cone; the window must not clip the character area even
+   when the box is looked up at from below, because it is wall-mounted at about eye height.
+   R307: 20 deg cone to 8 mm proud of the face is clear 0 of 1815 samples inside material; the 21.0 x 25.0 mm bezel relief is what keeps the 19.3 x 21.2 mm window unobstructed PASS
+   LCD: the whole 64 x 14 character area is readable 2275/2275 (point, angle) samples pass; the window stops the view only beyond +/-34 deg horizontally and +/-49 deg vertically (measured at the wall's mid-plane), and the panel's own contrast cone is narrower than that PASS
+   the window is 1.03x the character width and 1.25x their height, and the
+   0.45 x 3.0 mm rebate sinks the glass 0.45 mm
+   below the surface, so glare is reduced and the module is protected by a real frame - the
+   two things v2 got wrong at the same time (its aperture was blocked by bars AND the glass
+   was flush and chippable).
+
+8. STRUCTURE - hanging load, thumb pressure, and the plastic between the holes
+------------------------------------------------------------------------------
+   The worst mechanical cases for a wall-mounted reader: two screws in the wall, a hard press on the
+   LCD glass, and the ligaments between the openings in the front wall (thin ligaments are where
+   these boxes actually crack).
+   printed plastic 214 g (solid) + modules 237 g = 451 g -> 4.4 N on the wall, 2.21 N per hook
+   in-plane shear in the plate above each hook 2.21 N on a 13.8 mm2 ligament = 0.16 MPa vs 8.5 MPa (SF 53) PASS
+   the 4 plate screws against peel off the wall ~316 N pull-out each = 1264 N vs 4.4 N total -> 286x   PASS
+   front wall under a 20 N thumb press        ~1.7 MPa vs 55 MPa (SF 33.0), centre deflection 0.36 mm over a 105 mm span PASS
+   at v2's 2.4 mm front wall the same press gives 2.6 MPa and 0.71 mm of dish - enough to pinch the LCD against its bezel, which
+   is why v3 went to 3.0 mm there and 2.6 mm on the sides.
+   thinnest ligament between front-wall openings 22.50 mm (38x56 vs 21x25) across 3 openings            PASS
+   web between neighbouring bottom wall openings 9000000000.00 mm minimum () in a 3.0 mm wall           PASS
+   web between neighbouring top wall openings 9000000000.00 mm minimum () in a 3.0 mm wall           PASS
+   plastic between each plate countersink and the outline 2.25 mm minimum of the 4 corners (v3.0 measured 0.08 mm - the d6.6 cone was opening onto the R3 corner round; v3.1 moved the screws 3.5 mm inboard) PASS
+   bottom wall opening to the side wall       3.30 mm of solid between the outermost edge of the opening and the inner face of the 2.6 mm side wall (rule: at least the wall thickness) PASS
+   bottom wall opening to the front / rear wall 9.30 mm between the nearest edge and the inner face of the wall beside it (rule: >= 1.5 mm, so an opening never breaks the corner joint) PASS
+   top wall: no opening at all at mid-thickness - one continuous sheet, so the corner joints are unbroken along the whole wall
+
+9. SLICER REALITY - what the four shipped files do on a bed
+------------------------------------------------------------------------------
+   A slicer drops a part onto the bed but never rotates it, so the print orientation has to be baked
+   into the STL.  These are the files as the user receives them, measured without any undo.
+   01_MAIN_SHELL_v3.stl: sits on the bed      min z +0.0000 mm, printed flat: front face down on the bed, rear opening up - no supports PASS
+   01_MAIN_SHELL_v3.stl: first-layer contact  11396 mm2 in 1 contour(s)                              PASS
+   01_MAIN_SHELL_v3.stl: first layer is one closed contour 1 loop(s) - islands on the first layer lift and shed debris PASS
+   01_MAIN_SHELL_v3.stl: inside a 220x220x250 mm bed 110.0 x 155.0 x 43.0 mm                                PASS
+   02_REAR_PLATE_v3.stl: sits on the bed      min z +0.0000 mm, printed flat: register frame down on the bed, outer face up PASS
+   02_REAR_PLATE_v3.stl: first-layer contact  2997 mm2 in 1 contour(s)                               PASS
+   02_REAR_PLATE_v3.stl: first layer is one closed contour 1 loop(s) - islands on the first layer lift and shed debris PASS
+   02_REAR_PLATE_v3.stl: inside a 220x220x250 mm bed 110.0 x 155.0 x 5.0 mm                                 PASS
+   03_R307_BRACKET_v3.stl: sits on the bed    min z +0.0000 mm, printed flat: back face down on the bed PASS
+   03_R307_BRACKET_v3.stl: first-layer contact 501 mm2 in 1 contour(s)                                PASS
+   03_R307_BRACKET_v3.stl: first layer is one closed contour 1 loop(s) - islands on the first layer lift and shed debris PASS
+   03_R307_BRACKET_v3.stl: inside a 220x220x250 mm bed 36.8 x 14.0 x 3.2 mm                                   PASS
+   04_RC522_RING_v3.stl: sits on the bed      min z -0.0000 mm, printed flat: pad face down on the bed PASS
+   04_RC522_RING_v3.stl: first-layer contact  883 mm2 in 1 contour(s)                                PASS
+   04_RC522_RING_v3.stl: first layer is one closed contour 1 loop(s) - islands on the first layer lift and shed debris PASS
+   04_RC522_RING_v3.stl: inside a 220x220x250 mm bed 43.6 x 76.0 x 2.6 mm                                   PASS
+   05_FIT_GAUGE_v3.stl: sits on the bed       min z +0.0000 mm, printed flat: card flat on the bed, engraved face up PASS
+   05_FIT_GAUGE_v3.stl: first-layer contact   12369 mm2 in 1 contour(s)                              PASS
+   05_FIT_GAUGE_v3.stl: first layer is one closed contour 1 loop(s) - islands on the first layer lift and shed debris PASS
+   05_FIT_GAUGE_v3.stl: inside a 220x220x250 mm bed 150.0 x 112.0 x 12.6 mm                                PASS
+   total print volume for all four parts: 110 x 155 mm of bed, no part needs a raft and only the
+   shell needs a brim if your bed is not perfectly flat (its rim is 436 mm long).
+   slicer settings assumed for the mass: 0.45 mm nozzle, 3 walls, 0.28 mm layers, 3 top/bottom skins, 15 % infill
+   main shell     115.2 cm3 solid,   86 sampled layers, extrudes   79 % of that -> ~113.6 g
+   rear plate      53.8 cm3 solid,   10 sampled layers, extrudes   62 % of that -> ~ 41.5 g
+   R307 bracket     1.0 cm3 solid,    6 sampled layers, extrudes  100 % of that -> ~  1.2 g
+   RC522 ring       2.2 cm3 solid,    5 sampled layers, extrudes  100 % of that -> ~  2.7 g
+   filament estimate 159 g + 237 g of modules = 396 g hanging on the wall; 1 kg spool prints the set 6.3x (v3.0 docs quoted ~102 g, from a blanket 50 % factor - too low, the 2.6 mm walls are all perimeter and print solid)
+   printed mass vs the two wall hooks         396 g all up = 3.9 N, so 1.9 N per hook on an 8 mm nylon plug rated 300 N+ PASS
+
+10. DOCUMENTED CLAIMS vs THE SHIPPED GEOMETRY
+------------------------------------------------------------------------------
+   Every size quoted in the design notes, the print order, the viewers and the master prompt is
+   re-measured here against the meshes.  A claim that no longer matches is a bug in the docs.
+   outer width                                mesh 110.00mm vs documented 110.00mm (+/-0.02)         PASS
+   outer height                               mesh 155.00mm vs documented 155.00mm (+/-0.02)         PASS
+   assembly depth                             mesh 46.00mm vs documented 46.00mm (+/-0.001)          PASS
+   front wall                                 mesh 3.00mm vs documented 3.00mm (+/-0.001)            PASS
+   side wall                                  mesh 2.60mm vs documented 2.60mm (+/-0.001)            PASS
+   LCD window                                 mesh 66.00mm vs documented 66.00mm (+/-0.05)           PASS
+   LCD window height                          mesh 17.50mm vs documented 17.50mm (+/-0.05)           PASS
+   RFID aperture width                        mesh 38.00mm vs documented 38.00mm (+/-0.05)           PASS
+   RFID aperture height                       mesh 56.00mm vs documented 56.00mm (+/-0.05)           PASS
+   fan bore                                   mesh 28.00mm vs documented 28.00mm (+/-0.05)           PASS
+   RC522 ring thickness                       mesh 2.60mm vs documented 2.60mm (+/-0.001)            PASS
+   plate thickness                            mesh 3.00mm vs documented 3.00mm (+/-0.001)            PASS
+   the box has 2 openings in its four side walls and they are the two it is meant to have: a d28 bore of 615 mm2 with the fan blowing IN, and the USB slot.  slot area anywhere else on the box: 0 mm2 (v3.3: 1069).  The docs have to say the grille is gone, not v3.3's 8 x 21 x 4.5 + 4 x 21 x 4 and not v3.2's 8 x 30 x 5 side slots
+   LCD bezel pilot documented at d2.05        mesh d2.04 (thread-forming size, read with a 0.01 mm radial step) PASS
+   RC522 ring pilot documented at d2.05       mesh d2.04 (thread-forming size, read with a 0.01 mm radial step) PASS
+   ESP32 bosses pilot documented at d1.80     mesh d1.78 (thread-forming size, read with a 0.01 mm radial step) PASS
+   docs/v3_design_notes.md: carries the v3.4 numbers missing patterns: none                                 PASS
+   docs/v3_design_notes.md: every cm3 figure matches the mesh volumes found [1.0, 2.2, 53.8, 115.2, 172.2]; off-list none    PASS
+   exports/README_PRINT_ORDER_v3.txt: carries the v3.4 numbers missing patterns: none                                 PASS
+   exports/README_PRINT_ORDER_v3.txt: every cm3 figure matches the mesh volumes found [115.2, 172.2]; off-list none                    PASS
+==============================================================================
+
+PHYSICS RESULT: no failures. 2 item(s) recorded as notes -> M2.5 pan head is flush with the ring's inner face, PLA margin - unshaded outside wall / closed room

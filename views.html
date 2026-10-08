@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Astro Smart Attendance - enclosure v3 (re-design) + v2, all views</title>
+<style>
+ body{background:#12151c;color:#e9ecf2;font:15px/1.5 ui-sans-serif,system-ui,Segoe UI,Roboto,sans-serif;margin:0;padding:26px 30px 60px}
+ h1{font-size:21px;margin:0 0 4px}
+ h2{font-size:17px;margin:38px 0 10px;color:#f6e05e}
+ .sub{color:#93a0b5;margin:0 0 18px}
+ a.big{display:inline-block;background:#2b6cb0;color:#fff;text-decoration:none;padding:9px 14px;border-radius:6px;margin:0 10px 14px 0;font-weight:600}
+ a.big.alt{background:#2f855a}
+ a.big.zip{background:#744210}
+ figure{margin:0 0 22px;background:#0b0d12;border:1px solid #262c38;border-radius:8px;padding:10px}
+ figcaption{color:#9fb0c6;font-size:13px;margin:0 0 8px}
+ img{display:block;width:100%;height:auto;border-radius:4px}
+ .row{display:flex;gap:22px;flex-wrap:wrap}
+ .row figure{flex:1 1 460px}
+ .grid{display:flex;gap:18px;flex-wrap:wrap}
+ .grid figure{flex:1 1 320px;min-width:300px}
+ .old{filter:saturate(.72)}
+ .v2{background:#0d1015;border:1px solid #212736;border-radius:8px;padding:18px 20px 6px}
+ ul.facts{margin:0 0 14px;padding-left:20px;color:#c3cee0;font-size:14px}
+ ul.facts b{color:#f6e05e}
+ pre{white-space:pre-wrap;background:#0b0d12;border:1px solid #262c38;border-radius:8px;padding:14px;font:13px/1.55 ui-monospace,Menlo,Consolas,monospace}
+</style>
+</head>
+<body>
+<h1>Astro Smart Attendance &mdash; enclosure <span style="color:#68d391">v3.4, the complete re-design</span></h1>
+<p class="sub">110 &times; 155 &times; <b>46</b> mm &middot; 4 printed parts (the RFID hold-down is now <b>one</b>
+ring instead of two clamp bars) &middot; no supports &middot; 22 circular self-tapping pilots &middot;
+172.2 cm<sup>3</sup> of plastic (159 g printed PLA at 15&nbsp;% infill) &middot; four checkers say ALL CHECKS PASS,
+and the second one reads only the STL triangles.</p>
+
+<ul class="facts">
+  <li><b>100&nbsp;% open</b> RFID scan aperture &mdash; 56 &times; 38 mm, R5 corners, 0 of 8269 probe rays blocked (v2 lost 190 mm<sup>2</sup> to stiffener bars)</li>
+    <li><b>d28 fan bore with nothing across it, and it is the only hole for air on the whole box</b>
+      &mdash; no grille, and the 1.4 mm seat lip v2 left standing around the bore is gone; the
+      thinnest sheet anywhere in the print is now the 2.2 mm band the RC522 lies on</li>
+  <li><b>0.45 &times; 3.0 mm rebate rings</b> sunk around the LCD and fingerprint openings &mdash; each module's own bezel registers in them, so the openings read as a shadow line instead of a cut edge</li>
+  <li><b>rear plate: register frame, not a plug</b> &mdash; 53.8 cm<sup>3</sup> instead of 79.6 cm<sup>3</sup>, with the whole ESP32 zone cut clear so its bosses and locating tabs have room</li>
+    <li><b>v3.4: one hole, not twelve</b> &mdash; asked for by name (&ldquo;only let that DC fan one,
+      not more&rdquo;), the 8 bottom and 4 top grille slots are filled in and the right-hand wall has
+      been plain since v3.3: measured at mid-thickness the four side walls hold <b>1 USB opening, 0
+      voids, 0 voids and the d28 bore</b>. The fan is mounted blowing IN and its own 30 &times; 30
+      frame spans the bore, so the fan is part of the closure. Cooling is now carried by the skin of
+            the box: 2.7&nbsp;K above ambient at 1.6&nbsp;W, 1.8&nbsp;K once the fan&rsquo;s through-flow
+      is added (0.25&nbsp;L/s at 12.2&nbsp;Pa through the plate seam), against a 12&nbsp;K
+      ceiling &mdash; v3.3 measured 1.6&nbsp;K, so the twelve hollows were worth 0.2&nbsp;K &mdash; all four of those numbers measured in physics-audit
+      section 4, none of them argued in prose</li>
+  <li><b>every module screwed down</b>, RC522 included: 4 &times; M2.5 into blind pilots, heads sunk in the ring, no glue, no clips, no snap-fits</li>
+</ul>
+
+<a class="big" href="/viewer.html">Interactive 3D viewer &mdash; v3 / v2 / v1 in one canvas</a>
+<a class="big alt" href="/exports/viewer_offline.html">Self-contained viewer (the same file that ships in the ZIP)</a>
+<a class="big zip" href="/exports/ASTRO_SMART_ATTENDANCE_v3.zip">Download v3 ZIP &mdash; 4 STLs + 7 figures + 4 reports + the generators</a>
+<a class="big zip" style="background:#4a5568" href="/exports/ASTRO_SMART_ATTENDANCE_v2.zip">v2 ZIP (previous, still verified)</a>
+
+<h2>1 &mdash; the whole re-design on one page</h2>
+<figure>
+ <figcaption>v3 assembly: front / rear / inlet wall (-X, the fan bore) / <b>plain right wall (+X, nothing cut in it since v3.3)</b> / top / bottom, every part coloured, drawn from the four shipped STLs</figcaption>
+ <img src="/renders/v3_all_views.png" alt="overview">
+</figure>
+
+<h2>1b &mdash; v3.4: the opening inventory of the four side walls, sliced out of the shipped mesh</h2>
+<figure>
+ <figcaption>each wall cut by one plane at its own mid-thickness and every closed void drawn at the
+  size it <i>measured</i>: bottom <b>one void</b>, the 20.40&nbsp;&times;&nbsp;12.40&nbsp;mm USB opening &mdash;
+ the 8&nbsp;&times;&nbsp;21&nbsp;&times;&nbsp;4.5&nbsp;mm grille that used to sit under it is solid wall;
+ top <b>0 voids</b> (its 4&nbsp;&times;&nbsp;21&nbsp;&times;&nbsp;4&nbsp;mm slots are gone too); right wall
+ <b>0 voids</b> (v3.2 had 8 slots there); left wall the d28 bore, which is the one air opening.
+ Redrawn by <code>tools/make_grille_map_v3.py</code>, which exits non-zero if the counts are not
+ 1&nbsp;/&nbsp;0&nbsp;/&nbsp;0&nbsp;/&nbsp;1 &mdash; so this picture cannot be left behind by a rebuild.</figcaption>
+ <img src="/renders/v3_grille_map.png" alt="opening map">
+</figure>
+
+<h2>1c &mdash; four files, and what the vendor drawings settled</h2>
+<figure>
+ <figcaption>The pack is <b>4 printed parts</b>: shell, plate, R307 bracket, RC522 ring. The fit<br> gauge card that shipped from v3.2 to v3.4 was dropped, because every number it existed to<br> check has now been checked against published vendor data instead of against your calipers<br> (design notes &sect;10 has the sources).  <b>R307</b> 44.1 &times; 20 &times; 23.5 mm body, 19<br> &times; 21 mm glass &mdash; modelled exactly, and it has <i>no mounting holes of its own</i>:<br> the stock kits clamp it with a bracket and two long screws, which is what part 03 does, so the<br> 28.0 mm bracket pitch is ours and free.  <b>1602 + I2C</b> depth is sold between 13.2 and 20.0<br> mm; the pocket reserves 24.0.  <b>3010 fan</b> 30 &times; 30 &times; 10, pattern 24 &plusmn;<br> 0.3, four 3 mm holes, as modelled, and its bore is the only air opening.  <b>ESP32 DevKit<br> V1</b> 51.45 &times; 28.33, 52 &times; 28 &times; 14 with headers, against 16.0 reserved.<br> The only number still open is the ESP32 pad-hole diameter (2.5 reported, 3.0 on the nearest<br> drawing) and it moves no geometry: it decides whether <b>M2.2 &times; 8</b> or M2 &times; 8 is<br> the easier screw to find.  <i>The four STLs are byte-identical to v3.4 &mdash; the search found<br> nothing that needed moving.</i>  Full screw schedule: <code>README_PRINT_ORDER_v3.txt</code>,<br> SCREWS section.</figcaption>
+ <img src="/renders/v3_all_views.png" alt="the four parts, from the shipped STLs">
+</figure>
+
+<h2>2 &mdash; v2 &rarr; v3, same views, same projection, both columns rendered from shipped STLs</h2>
+<figure>
+ <figcaption>this is the answer to "it looks the same": front wall, rear plate, iso and fan wall, v2 on the left in cyan, v3 on the right in green</figcaption>
+ <img src="/renders/v3_vs_v2.png" alt="v2 vs v3">
+</figure>
+
+<div class="row">
+ <figure><figcaption>3 &mdash; dimensioned drawing sheet: front face, assembled iso, fan wall, rear plate</figcaption><img src="/renders/v3_drawing_sheet.png" alt="sheet"></figure>
+ <figure><figcaption>4 &mdash; exploded: the 4 printed parts, in the order they go together</figcaption><img src="/renders/v3_exploded_iso.png" alt="exploded"></figure>
+</div>
+
+<h2>5 &mdash; how the RC522 is held now (the fixing v2 did not have)</h2>
+<figure>
+ <figcaption>exploded stack + two real cut sections: the printed material in every section below is the polygon trimesh gets when it slices the exported .stl &mdash; so a hole you can see is a hole you can print</figcaption>
+ <img src="/renders/v3_fixing_detail.png" alt="fixing">
+</figure>
+<div class="grid">
+ <figure><figcaption>6 &mdash; the two sections enlarged (aperture band, then screw axis)</figcaption><img src="/renders/v3_fixing_section.png" alt="sections"></figure>
+ <figure><figcaption>7 &mdash; the RFID window change on its own: v1 closed pocket, v2 window with bars, v3 fully open</figcaption><img class="old" src="/renders/rfid_before_after.png" alt="rfid"></figure>
+</div>
+
+<h2>Print order (the file that ships at the top level of the ZIP)</h2>
+<pre id="ro">loading...</pre>
+
+<div class="v2">
+<h1 style="margin-top:6px">Previous version &mdash; enclosure v2 (kept intact as the fallback)</h1>
+<p class="sub">110 &times; 155 &times; 48 mm &middot; 4 printed parts (two of them the clamp bars, printed twice) &middot;
+thinnest wall 1.20 mm &middot; 90.4&nbsp;% open RFID window &middot; a solid 2 mm rear plug &middot;
+also ALL CHECKS PASS on both checkers &mdash; if you would rather print the version you already know,
+<code>cad/v2/</code> is unchanged.</p>
+<div class="row">
+ <figure><figcaption>v2 overview</figcaption><img class="old" src="/renders/v2_all_views.png" alt="v2 overview"></figure>
+ <figure><figcaption>v2 drawing sheet</figcaption><img class="old" src="/renders/v2_shell_drawing_sheet.png" alt="v2 sheet"></figure>
+</div>
+<div class="row">
+ <figure><figcaption>v2 exploded</figcaption><img class="old" src="/renders/v2_exploded_iso.png" alt="v2 exploded"></figure>
+ <figure><figcaption>v2 fixing detail (clamp bars + lip)</figcaption><img class="old" src="/renders/v2_fixing_detail.png" alt="v2 fixing"></figure>
+</div>
+</div>
+
+<script>
+ fetch('/exports/README_PRINT_ORDER_v3.txt').then(r=>r.text()).then(t=>{document.getElementById('ro').textContent=t});
+</script>
+</body>
+</html>

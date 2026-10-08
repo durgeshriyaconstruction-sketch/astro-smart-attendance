@@ -1,0 +1,181 @@
+INDEPENDENT VERIFICATION - Astro Smart Attendance enclosure v3 (re-design)
+source: cad/v3/*.stl only; no number imported from the generator
+==============================================================================
+
+1. mesh integrity of the exported files
+   01 main shell                    open=0 nonmanifold=0 bodies=1 vol=115.22 cm3 micro=10 PASS
+      (10 sub-micron sliver triangles, all inside x=-54.3..54.3 y=-76.7..76.8 -> rim/chamfer junctions, each < 1 um2, slicers ignore them)
+   02 rear plate                    open=0 nonmanifold=0 bodies=1 vol=53.80 cm3 micro=6 PASS
+      (6 sub-micron sliver triangles, all inside x=-54.3..54.3 y=-76.7..76.8 -> rim/chamfer junctions, each < 1 um2, slicers ignore them)
+   03 R307 bracket                  open=0 nonmanifold=0 bodies=1 vol=1.01 cm3 micro=0 PASS
+   04 RC522 ring                    open=0 nonmanifold=0 bodies=1 vol=2.19 cm3 micro=0 PASS
+   bed placement of the shipped files - this is what a slicer is actually handed:
+   01_MAIN_SHELL_v3.stl lies on the bed min z in file +0.0000 mm (design plane was z=0.0: front face down on the bed, rear opening up - no supports) PASS
+   02_REAR_PLATE_v3.stl lies on the bed min z in file +0.0000 mm (design plane was z=41.0: register frame down on the bed, outer face up) PASS
+   03_R307_BRACKET_v3.stl lies on the bed min z in file +0.0000 mm (design plane was z=26.5: back face down on the bed) PASS
+   04_RC522_RING_v3.stl lies on the bed min z in file -0.0000 mm (design plane was z=4.6: pad face down on the bed) PASS
+   05_FIT_GAUGE_v3.stl lies on the bed min z in file +0.0000 mm (design plane was z=0.0: card flat on the bed, engraved face up) PASS
+
+2. self-intersection / slice validity (every 0.2 mm through the shell)
+   slices valid (no self-intersection) 214 slices, invalid=0 empty=0            PASS
+
+3. wall thickness map (rays cast in from outside each face, 4 mm grid)
+   samples with material: 2846 of 3310 rays (464 pass straight through openings)
+   samples below 1.6 mm: 5 re-probed, 1 of them were tangential grazes off a feature face (a 4 mm grid can land exactly on one).  A real thin wall is thin from every direction; a graze is not, so the widest re-probe wins.
+      graze at [-51.0, -65.5, 50.0]: 0.97 mm raw -> 10.00 mm confirmed
+   thinnest wall found: 1.40 mm at [1.0, -57.5, -4.0]
+   thickness histogram (mm -> count): 1:5, 2:30, 3:2405, 4:20, 5:122, 6:1, 8:23, 9:14, 10:5, 11:21, 12:3, 13:22, 14:18, 17:16, 18:1, 20:12, 21:2, 22:8, 24:2, 25:7, 26:10, 30:1, 34:2, 40:2, 41:5, 43:22, 52:6, 53:1, 54:1, 78:1, 89:3, 102:1, 110:38, 121:6, 155:10
+   no wall thinner than 1.2 mm      min 1.40 mm                              PASS
+
+4. component clearance (envelopes re-typed here; 0 samples inside material required)
+   LCD glass zone                   0 of 5184 samples inside material        PASS
+   LCD pcb 80x36                    0 of 1440 samples inside material        PASS
+   LCD I2C backpack                 0 of 1890 samples inside material        PASS
+   R307 body 44.1x20x23.5           0 of 5280 samples inside material        PASS
+   R307 optical path                0 of 990 samples inside material         PASS
+   RC522 pcb 40x60                  0 of 1200 samples inside material        PASS
+   RC522 components                 0 of 2464 samples inside material        PASS
+   RC522 hold-down ring             0 of 2508 samples inside material        PASS
+   ESP32 pcb 51.45x28.33            0 of 754 samples inside material         PASS
+   ESP32 components 16 mm           0 of 6032 samples inside material        PASS
+   USB plug 15.6x8                  0 of 448 samples inside material         PASS
+   fan 3010 (on its standoffs)      0 of 2250 samples inside material        PASS
+   fan M3 head (on the fan's inner face) 0 of 900 samples inside material         PASS
+
+5. screw pilot holes - diameter measured from the mesh (8 rays at 3 depths)
+   LCD1602 M2.5                     measured d=2.05 mm (design 2.05) at (-37.5, 36.5) PASS
+   LCD1602 M2.5                     measured d=2.05 mm (design 2.05) at (37.5, 36.5) PASS
+   LCD1602 M2.5                     measured d=2.05 mm (design 2.05) at (-37.5, 67.5) PASS
+   LCD1602 M2.5                     measured d=2.05 mm (design 2.05) at (37.5, 67.5) PASS
+   R307 bracket M3                  measured d=2.50 mm (design 2.5) at (22.0, -24.1) PASS
+   R307 bracket M3                  measured d=2.50 mm (design 2.5) at (50.0, -24.1) PASS
+   RC522 ring M2.5                  measured d=2.05 mm (design 2.05) at (-33.0, -58.0) PASS
+   RC522 ring M2.5                  measured d=2.05 mm (design 2.05) at (0.9, -58.0) PASS
+   RC522 ring M2.5                  measured d=2.05 mm (design 2.05) at (-33.0, 9.9) PASS
+   RC522 ring M2.5                  measured d=2.05 mm (design 2.05) at (0.9, 9.9) PASS
+   ESP32 standoff M2.2              measured d=1.80 mm (design 1.8) at (-66.5, 16.8) PASS
+   ESP32 standoff M2.2              measured d=1.80 mm (design 1.8) at (-66.5, 38.2) PASS
+   ESP32 standoff M2.2              measured d=1.80 mm (design 1.8) at (-22.0, 16.8) PASS
+   ESP32 standoff M2.2              measured d=1.80 mm (design 1.8) at (-22.0, 38.2) PASS
+   rear plate M3                    measured d=2.50 mm (design 2.5) at (-46.5, -67.5) PASS
+   rear plate M3                    measured d=2.50 mm (design 2.5) at (46.5, -67.5) PASS
+   rear plate M3                    measured d=2.50 mm (design 2.5) at (-46.5, 67.5) PASS
+   rear plate M3                    measured d=2.50 mm (design 2.5) at (46.5, 67.5) PASS
+   Fan M3                           measured d=2.50 mm (design 2.5) at (5.0, 12.0) PASS
+   Fan M3                           measured d=2.50 mm (design 2.5) at (5.0, 36.0) PASS
+   Fan M3                           measured d=2.50 mm (design 2.5) at (29.0, 12.0) PASS
+   Fan M3                           measured d=2.50 mm (design 2.5) at (29.0, 36.0) PASS
+   the hold-down ring's own clearance holes (measured on 04):
+   ring hole (-33.0, -58.0)         through=True beside=True head-recess=True PASS
+   ring hole (-33.0, 9.9)           through=True beside=True head-recess=True PASS
+   ring hole (0.9, -58.0)           through=True beside=True head-recess=True PASS
+   ring hole (0.9, 9.9)             through=True beside=True head-recess=True PASS
+
+6. openings - a ray from inside must escape to the outside
+   LCD window                       9/9 sample rays escape                   PASS
+   R307 window                      9/9 sample rays escape                   PASS
+   RFID scan window                 9/9 sample rays escape                   PASS
+   USB slot                         9/9 sample rays escape                   PASS
+   fan bore                         9/9 sample rays escape                   PASS
+   +X wall, where a slot used to be 0/9 rays escape (all must be blocked)    PASS
+   +X wall, mid height              0/9 rays escape (all must be blocked)    PASS
+   +X wall, top corner              0/9 rays escape (all must be blocked)    PASS
+   +X wall, bottom corner           0/9 rays escape (all must be blocked)    PASS
+   +X wall, above the USB           0/9 rays escape (all must be blocked)    PASS
+   bottom wall, old grille slot at x=-37.5 z=7.0 0/9 rays escape (all must be blocked)    PASS
+   bottom wall, old grille slot at x=-37.5 z=15.0 0/9 rays escape (all must be blocked)    PASS
+   bottom wall, old grille slot at x=-12.5 z=7.0 0/9 rays escape (all must be blocked)    PASS
+   bottom wall, old grille slot at x=-12.5 z=15.0 0/9 rays escape (all must be blocked)    PASS
+   bottom wall, old grille slot at x=+12.5 z=7.0 0/9 rays escape (all must be blocked)    PASS
+   bottom wall, old grille slot at x=+12.5 z=15.0 0/9 rays escape (all must be blocked)    PASS
+   bottom wall, old grille slot at x=+37.5 z=7.0 0/9 rays escape (all must be blocked)    PASS
+   bottom wall, old grille slot at x=+37.5 z=15.0 0/9 rays escape (all must be blocked)    PASS
+   bottom wall, end of old slot at x=-47.0 z=7.0 0/9 rays escape (all must be blocked)    PASS
+   bottom wall, end of old slot at x=-28.0 z=7.0 0/9 rays escape (all must be blocked)    PASS
+   bottom wall, end of old slot at x=-47.0 z=15.0 0/9 rays escape (all must be blocked)    PASS
+   bottom wall, end of old slot at x=-28.0 z=15.0 0/9 rays escape (all must be blocked)    PASS
+   bottom wall, end of old slot at x=-22.0 z=7.0 0/9 rays escape (all must be blocked)    PASS
+   bottom wall, end of old slot at x=-3.0 z=7.0 0/9 rays escape (all must be blocked)    PASS
+   bottom wall, end of old slot at x=-22.0 z=15.0 0/9 rays escape (all must be blocked)    PASS
+   bottom wall, end of old slot at x=-3.0 z=15.0 0/9 rays escape (all must be blocked)    PASS
+   bottom wall, end of old slot at x=+3.0 z=7.0 0/9 rays escape (all must be blocked)    PASS
+   bottom wall, end of old slot at x=+22.0 z=7.0 0/9 rays escape (all must be blocked)    PASS
+   bottom wall, end of old slot at x=+3.0 z=15.0 0/9 rays escape (all must be blocked)    PASS
+   bottom wall, end of old slot at x=+22.0 z=15.0 0/9 rays escape (all must be blocked)    PASS
+   bottom wall, end of old slot at x=+28.0 z=7.0 0/9 rays escape (all must be blocked)    PASS
+   bottom wall, end of old slot at x=+47.0 z=7.0 0/9 rays escape (all must be blocked)    PASS
+   bottom wall, end of old slot at x=+28.0 z=15.0 0/9 rays escape (all must be blocked)    PASS
+   bottom wall, end of old slot at x=+47.0 z=15.0 0/9 rays escape (all must be blocked)    PASS
+   top wall, old grille slot at x=-37.5 0/9 rays escape (all must be blocked)    PASS
+   top wall, old grille slot at x=-12.5 0/9 rays escape (all must be blocked)    PASS
+   top wall, old grille slot at x=+12.5 0/9 rays escape (all must be blocked)    PASS
+   top wall, old grille slot at x=+37.5 0/9 rays escape (all must be blocked)    PASS
+   top wall, end of old slot at x=-47.0 0/9 rays escape (all must be blocked)    PASS
+   top wall, end of old slot at x=-28.0 0/9 rays escape (all must be blocked)    PASS
+   top wall, end of old slot at x=-22.0 0/9 rays escape (all must be blocked)    PASS
+   top wall, end of old slot at x=-3.0 0/9 rays escape (all must be blocked)    PASS
+   top wall, end of old slot at x=+3.0 0/9 rays escape (all must be blocked)    PASS
+   top wall, end of old slot at x=+22.0 0/9 rays escape (all must be blocked)    PASS
+   top wall, end of old slot at x=+28.0 0/9 rays escape (all must be blocked)    PASS
+   top wall, end of old slot at x=+47.0 0/9 rays escape (all must be blocked)    PASS
+   RFID aperture has no bar         8428 probes inside the rounded 38 x 56 window, 0 blocked   (v2: 190 mm2 of that area was stiffener bar) PASS
+   fan bore 100 % open              616 of 616 mm2 clear (100.0 %); v2 passed 50 % PASS
+
+6b. opening inventory: what each wall contains at mid-thickness (v3.4, grilles filled)
+   bottom wall carries no grille slot 0 voids - the wall is one continuous sheet PASS
+   bottom wall: the USB opening is the only hole in it 20.40 x 12.40 mm at z=27.50              PASS
+   USB opening still the size it was 20.40 x 12.40 mm (design 20.4 x 12.4), so filling the grille in did not touch the cable opening PASS
+   top wall carries no grille slot  0 voids - the wall is one continuous sheet PASS
+   +X wall is plain (no openings)   0 voids in the right wall at mid-thickness PASS
+   -X wall: the fan bore is the only opening 1 void, 615 mm2 of a 616 mm2 bore        PASS
+   whole-box opening count          2 voids across the four walls at mid-thickness: 1 fan bore + 1 USB slot.  The 1092 mm2 of grille v3.3 cut here is solid wall again, which is also why there is no web or outlet-area rule left to check on these walls PASS
+   the fan is what closes the bore: a 30 x 30 frame over a d28 hole leaves 1 mm of plastic all round, so with the fan screwed in the box has no opening a finger can follow - but printing the shell without the fan leaves a clear d28 hole in the side
+
+7. layer-by-layer printability (front face down, 0.2 mm slices)
+   first layer area                 11469 mm2 (bed adhesion)                 PASS
+   worst layer jump cantilevers little 794.2 mm2 newly added at z=0.6; its farthest point is 0.20 mm beyond the layer below (bridging span; <= 3.0 mm prints without support) PASS
+   total newly-added area over 43.0 mm of print: 2634 mm2 (0.47 % of the layer sum)
+
+8. driver access - a 6 mm wide x 25 mm long tool cylinder must be empty
+   rear plate M3 x4                 0 blocked samples over 25 mm             PASS
+   R307 bracket M3 x2               0 blocked samples over 13 mm             PASS
+   RC522 ring M2.5 x4               0 blocked samples over 23 mm             PASS
+   ESP32 M2.2 x4                    0 blocked samples over 25 mm             PASS
+   fan M3 x4                        0 blocked samples over 25 mm             PASS
+
+9. RF path in front of the scan window
+   no material in the 12 mm scan volume 0 of 11100 samples inside                PASS
+   board footprint (60 x 40) with an unobstructed forward path: 63.3 %  (880 of 2400 columns blocked, all of them by the ledge ring outside the window)
+   in front of the PCB there is 2.20 mm of printed wall where the recess leaves it (v2: 2.00 mm), and inside the 38 x 56 aperture exactly 0 mm - measured above
+   88.7 % of the board sits behind the open window and nothing at all is in front of that part of it; v2 put 2 x 2.5 mm bars across the same window (11.7 % of the board), which is the difference this re-design makes
+
+10. printed-part fits
+   plate register frame fits the shell opening opening 104.80 x 149.00, frame 104.30 x 148.50 -> gap 0.50 / 0.50 per side PASS
+   register is a frame, not a solid plug 2997 mm2 of material at z=42 inside a 15615 mm2 opening (19.2 %); v2 filled it with a 2 mm slab PASS
+   ring holes over the shell pads   4/4 pad seats free above the pads        PASS
+   shell is flat under the ring     0 of 3844 probes proud of z=4.60         PASS
+
+11. dimensions re-measured from the meshes
+   shell outer size                 [110.0, 155.0, 43.0] (design 110 x 155 x 43) PASS
+   rear plate size                  [110.0, 155.0, 5.0] (3 mm cover + 2 mm register frame; v3.1 deleted the 2 mm stand-off hang rails, so nothing else stands proud) PASS
+   plate countersink +X+Y keeps a wall 2.25 mm of plastic between the d6.6 x 90 deg cone and the part outline PASS
+   plate countersink +X-Y keeps a wall 2.25 mm of plastic between the d6.6 x 90 deg cone and the part outline PASS
+   plate countersink -X+Y keeps a wall 2.25 mm of plastic between the d6.6 x 90 deg cone and the part outline PASS
+   plate countersink -X-Y keeps a wall 2.25 mm of plastic between the d6.6 x 90 deg cone and the part outline PASS
+   plate skin has exactly 6 voids at mid-thickness 6: ['keyhole', 'screw clearance / countersink'] PASS
+   plate skin area at mid-thickness 15983 mm2 of a 110 x 155 slab (17050 mm2); v3.0 measured 14897 - the relief bug PASS
+   plate cover over the cavity >= 2.5 mm min 2.70 mm over 400 columns (8 are openings/keyholes); thin: none PASS
+   LCD window measured              66.0 x 17.5 vs design 66.0 x 17.5        PASS
+   R307 opening                     21.0 x 25.0 mm open, optical window 19.3 x 21.2 inside it, relief cut 21.0 x 25.0 PASS
+   RFID aperture is ONE opening     1 hole(s) of that size: 38.0 x 56.0 mm, area 2106 mm2 PASS
+   all through-openings seen in the front wall slice: 66.0x17.5, 38.0x56.0, 21.0x25.0, 2.1x2.0, 2.1x2.1, 2.0x2.1, 2.0x2.0
+   holes crossing z=42 (rear boss pilots): [(np.float64(-46.5), np.float64(-57.0)), (np.float64(-46.5), np.float64(10.5)), (np.float64(0.0), np.float64(11.0)), (np.float64(46.5), np.float64(-10.5)), (np.float64(46.5), np.float64(57.0))]
+
+12. material estimate
+   solid volume of all 4 printed parts: 172.2 cm3
+   shell 115.2 + plate 53.8 + bracket 1.01 + ring 2.19 cm3
+   printed PLA (0.45 nozzle, 3 walls, 3 skins, 15 % infill, no supports): shell 113 g / plate 41 g / bracket 1 g / ring 3 g  = TOTAL 158 g
+   extruded 128 cm3 = 53.0 m of 1.75 mm filament, so a 1 kg spool makes 6.3 sets; the blanket 0.62 factor understates the shell by 24 g because a 2.6 mm wall prints solid (3 perimeters x 0.45 mm)
+
+==============================================================================
+INDEPENDENT RESULT: ALL CHECKS PASS

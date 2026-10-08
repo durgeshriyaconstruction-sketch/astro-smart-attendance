@@ -1,0 +1,10 @@
+__pycache__/
+*.pyc
+.DS_Store
+renders/_*.png
+exports/ZIP_CONTENTS/
+pylibs/
+exports/ZIP_CONTENTS*/
+
+# regenerable design-frame copies of the shipped STLs (tools/build_v3.py writes these for the checkers)
+cad/v3/assembly/
