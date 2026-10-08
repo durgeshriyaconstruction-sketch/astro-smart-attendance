@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Astro Smart Attendance - v2 views</title>
+<style>
+ body{background:#12151c;color:#e9ecf2;font:15px/1.5 ui-sans-serif,system-ui,Segoe UI,Roboto,sans-serif;margin:0;padding:26px 30px 60px}
+ h1{font-size:21px;margin:0 0 4px}
+ .sub{color:#93a0b5;margin:0 0 18px}
+ a.big{display:inline-block;background:#2b6cb0;color:#fff;text-decoration:none;padding:9px 14px;border-radius:6px;margin:0 10px 18px 0;font-weight:600}
+ a.big.alt{background:#2f855a}
+ figure{margin:0 0 26px;background:#0b0d12;border:1px solid #262c38;border-radius:8px;padding:10px}
+ figcaption{color:#9fb0c6;font-size:13px;margin:0 0 8px}
+ img{display:block;width:100%;height:auto;border-radius:4px}
+ .row{display:flex;gap:22px;flex-wrap:wrap}
+ .row figure{flex:1 1 460px}
+</style>
+</head>
+<body>
+<h1>Astro Smart Attendance &mdash; enclosure v2, all views</h1>
+<p class="sub">110 &times; 155 &times; 48 mm &middot; 4 printed parts &middot; no supports &middot; every module screwed down through circular hollow pilots &middot; 22 pilots verified empty with material around them</p>
+<a class="big" href="/viewer.html">Open the interactive 3D viewer (v2 + v1 compare)</a>
+<a class="big alt" href="/exports/viewer_offline.html">Open the self-contained 3D viewer (same file as in the ZIP)</a>
+<a class="big" style="background:#744210" href="/exports/ASTRO_SMART_ATTENDANCE_v2.zip">Download the ZIP (16 files)</a>
+
+<figure>
+ <figcaption>1 &mdash; everything at a glance (drawing sheet + exploded + fixing detail + RFID before/after on one page)</figcaption>
+ <img src="/renders/v2_all_views.png" alt="overview">
+</figure>
+<div class="row">
+ <figure><figcaption>2 &mdash; drawing sheet: front / iso / side / rear plate, dimensions in mm</figcaption><img src="/renders/v2_shell_drawing_sheet.png" alt="sheet"></figure>
+ <figure><figcaption>3 &mdash; exploded: the 4 printed parts you put in the slicer</figcaption><img src="/renders/v2_exploded_iso.png" alt="exploded"></figure>
+</div>
+<div class="row">
+ <figure><figcaption>4 &mdash; RC522 screw fixing: exploded stack + dimensioned section (bright = cut by the plane, dim = behind it)</figcaption><img src="/renders/v2_fixing_detail.png" alt="fixing"></figure>
+ <figure><figcaption>5 &mdash; RFID scan area: v1 closed pocket vs v2 open 56 &times; 38 window</figcaption><img src="/renders/rfid_before_after.png" alt="rfid"></figure>
+</div>
+
+<h1 style="margin-top:34px">Print order</h1>
+<pre style="white-space:pre-wrap;background:#0b0d12;border:1px solid #262c38;border-radius:8px;padding:14px;font:13px/1.55 ui-monospace,Menlo,Consolas,monospace">
+loading...</pre>
+<script>
+ fetch('/exports/README_PRINT_ORDER.txt').then(r=>r.text()).then(t=>{document.querySelector('pre').textContent=t});
+</script>
+</body>
+</html>
