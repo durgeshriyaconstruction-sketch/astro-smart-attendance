@@ -8,3 +8,7 @@ exports/ZIP_CONTENTS*/
 
 # regenerable design-frame copies of the shipped STLs (tools/build_v3.py writes these for the checkers)
 cad/v3/assembly/
+
+# Blender autosave and the preview server log - regenerable, never shipped
+*.blend1
+serve.log

@@ -70,20 +70,45 @@ WHAT IS SETTLED, SO THAT YOU DO NOT HAVE TO MEASURE ANYTHING
   11 469 mm2, one closed contour on all four parts, no island to lift.
 
 SCREWS  (every fixing is a real circular self-tapping pilot; each one was found in the mesh,
-         its diameter measured with 8 rays, and the wall around it checked - 22 holes)
+         its diameter measured with 8 rays, and the wall around it checked - 22 holes.
+         v3.6 added the third measurement, `tools/hole_probe_v3.py`: the DEPTH of every void, so
+         the lengths below are what the printed holes can actually take, not what was intended.
+         Three rows changed as a result: the LCD to x 8, the reader ring to x 4, the R307
+         bracket to x 8.  Re-run `python3 tools/hole_probe_v3.py` after any geometry edit.)
   4 x M3 x 10     rear plate     -> 9 mm bosses, 6.6 mm 90-deg countersunk from outside
-                                    (pilot d2.5 x 9.0)
-  4 x M2.5 x 12   LCD1602+I2C    -> 6 x 6 bosses, glass sits on the wall's 1.6 mm shelf
-                                    (pilot d2.05 x 8.5 - the thread's minor, so it bites)
-  2 x M3 x 10     R307 bracket   -> the dog-bone bracket onto 2 posts   (pilot d2.5 x 8.0)
-  4 x M2.5 x 8    RC522 ring     -> 4 x 8 x 8 pads at (+/-17, +/-34) from the reader centre,
-                                    heads sunk in the ring's own d5.6 x 1.5 recesses. Use x 6 if
-                                    you like, x 8 reaches the blind pilot comfortably: pilot
-                                    d2.05 x 2.5 through the ring + blind d2.05 x 3.8 in the shell
-                                    pad, 1.4 mm of wall left under it - no through-hole.
-  4 x M3 x 12     fan 3010       -> 4 standoffs, 24 mm pitch            (pilot d2.5 x 12.0)
-                                    (v2's list said M3 x 20; that bottoms out - the pilot is
-                                    12 deep and the fan's lug 2.5 mm, so use M3 x 12-14)
+                                    (measured through the plate and the boss: 10.2 mm of void from
+                                    the countersink floor at z 44.2 down to z 34.0, so x 10 seats and
+                                    x 12 would be at the limit)
+  4 x M2.5 x 8    LCD1602+I2C    -> 6 x 6 bosses, glass sits on the wall's 1.6 mm shelf
+                                    (the pilot measures d2.05 x 7.0 deep off the shipped STL, at the
+                                    thread's minor so it bites: 1.6 of PCB + 7.0 of pilot + 0.4 of tip
+                                    chamfer = 9.0 of room, so x 8 seats and x 12 - the length this file
+                                    used to carry - would float the display 3 mm off its bosses)
+  2 x M3 x 8      R307 bracket   -> the dog-bone bracket onto 2 posts.  Measured off the mesh the
+                                    whole void - the bracket's 3.2 mm through-hole and the pilot in
+                                    the post below it - is 8.2 mm deep, so x 8 seats with 0.4 to
+                                    spare and the x 10 this file used to carry would stand the
+                                    bracket 1.8 mm off the posts, which is exactly the gap the
+                                    0.35 mm seat fit is meant to close.  Pan or flat head, your
+                                    choice: the audit measured 14.5 mm of headroom above both.
+  4 x M2.5 x 4    RC522 ring     -> 4 x 8 x 8 pads at (+/-17, +/-34) from the reader centre, heads
+                                    sunk in the ring's own d5.6 x 1.5 recesses.  MEASURED, off the
+                                    mesh: the pocket floor is at z 5.7 and the blind pilot ends at
+                                    z 1.4, so there are 4.3 mm of void (d2.05, and 1.4 mm of wall
+                                    left under it - blind, not a through-hole).  x 4 seats flush;
+                                    x 6 would float the ring 1.3 mm and x 8 - the length this file
+                                    used to recommend, and what the audit's fastener table still
+                                    models - would float it 3.3 mm, which is enough to lose the
+                                    0.5 mm lip overlap that holds the board down.  If you own only
+                                    x 6, use them and let the pocket be 1.5 mm deeper next print.
+  4 x M3 x 12     fan 3010       -> 4 standoffs, 24 mm pitch, pilot d2.5 measured 11.0 mm deep
+                                    with 1.6 mm of wall left behind it (blind, not a leak).
+                                    THE LENGTH IS YOUR FAN'S, and it is one look, not a caliper job:
+                                      holes through the whole 10 mm frame (the common 3010)  -> M3 x 20
+                                      holes in a thin 2.5-3 mm tab at the back plane         -> M3 x 12
+                                    Both stay inside the 11.0 pilot; longer would push the wall out.
+                                    v2's list said x 20 unconditionally, which is right for the first
+                                    case and 8 mm too long for the second.
   4 x M2.2 x 8    ESP32 DevKit   -> 4 round d8 bosses with d3.2 x 0.7 exit reliefs so the plate
                                     (no M2.2 in the drawer?  M2 x 8 self-tapping bites the same
                                     pilot and still clears a 2.5 mm board hole.  Do NOT substitute
@@ -91,7 +116,9 @@ SCREWS  (every fixing is a real circular self-tapping pilot; each one was found 
                                     still closes over the heads (pilot d1.8 x 5.7). M2.2 x 8 ONLY
                                     at the antenna end: the heads are 10.7 mm from the trace and a
                                     long shank beside it pulls the 2.4 GHz match. No steel or brass
-                                    washers under those two heads.
+                                    washers under those two heads. The boss pilot measures d1.78 x
+                                    7.0 deep, so 1.6 of board + 7.0 + 0.4 = 9.0 of room and x 8 seats
+                                    with 1.0 to spare.
   4 x cable ties  through the d4.0 holes in the 4 strain-relief posts
 
 ASSEMBLY ORDER
@@ -171,6 +198,41 @@ BEFORE YOU PRINT - NOTHING (design notes section 10 closed this list)
   does the thread bite, does the plastic stay flat at 60 C) and then re-measures every number in
   this file so the pack cannot drift from the model.
 
+  Since v3.6 there is a fourth measurement, and it is the one that found mistakes here:
+  tools/hole_probe_v3.py reads the depth of all 22 pilots out of the triangles - the face the head
+  bears on, how deep the void really is, and how much plastic is left behind the bottom.  A diameter
+  was always checkable, a length was only ever remembered, and three of the six lengths below were
+  wrong.  It is a gate, not a report: if a documented screw does not fit its own hole the tool exits
+  non-zero.  Run it after any change to a hole.
+
+THE .BLEND MODEL (v3.6)
+  exports/ASTRO_SMART_ATTENDANCE_v3.blend is the whole product as a native Blender scene, built by
+  tools/make_blend_v3.py from these four STLs - the printed parts sit exactly where the print
+  orientation table says they must (the tool asserts each part's lowest point equals its own lift),
+  plus the five modules as reserved envelopes, a real 3010 with its d28 bore and its 4 x d3.2 on
+  24 mm, and the 22 screws, each dropped into a hole the probe measured.  Nothing was typed.
+  It carries:
+    01 PRINTED      the 4 parts, assembled
+    02 MODULES      LCD + backpack, R307, RC522, ESP32, fan, USB plug (reference, not printed)
+    03 FASTENERS    22 screws with heads, the only things that may be hidden if you want the print
+                    bag on its own
+    04 BED ALIGNED  the 4 parts exactly as the STLs sit, switched off by default, so you can see
+                    what the slicer sees without re-importing anything
+    00 RIG          7 empties, one per group, keyframed: frames 1-24 apart, 24-48 back together,
+                    3 cameras (ortho front, 55 mm iso, ortho fan wall) and a sun
+  Units are millimetres at scene scale 0.001, so 1 unit = 1 mm and the numbers in the Outliner are
+  the numbers on this sheet.  The .glb is the same geometry for anyone who has no Blender: it keeps
+  1 unit = 1 mm too, so a viewer that assumes metres will show the case 1000x too big - set the
+  import scale to 0.001 and it is exact.
+  Check it yourself:  python3 tools/check_blend_v3.py   (needs `pip install bpy==4.5.14`, the official
+  Blender module, plus the same trimesh that tools/requirements_v3.txt already asks for).  It opens the
+  saved file, re-measures every solid from its own triangles, confirms each screw axis lands on a
+  measured hole to 0.000 mm, moves the timeline to prove the explode, re-imports the .glb and proves
+  the two copies agree to 0.05 mm, then reads the pixels of the three renders so a blank or black
+  frame would fail.  docs/v3_blend_check.txt is what it printed here.
+  Proof: docs/v3_hole_probe.txt (the holes), docs/v3_blend_build.txt (the build),
+  docs/v3_blend_check.txt (the gate, from the saved file).
+
 FILES IN THIS PACK
   01..04 *.stl                     the four prints
   v3_audit.txt                     the generator's own A-K checks, with the numbers
@@ -183,11 +245,20 @@ FILES IN THIS PACK
                                    the v3.3 air path, 8 the fit gauge (built, and now kept
                                    out of the pack), 9 the v3.4 decision to close every grille
                                    and what it cost in cooling, 10 the vendor data that closed
-                                   the measuring list
-  master_prompt.md                 the full spec (32 sections: 0-26 the rules, 27 the v3
+                                   the measuring list, 11 the .blend and what measuring the
+                                   hole depths found
+  ASTRO_SMART_ATTENDANCE_v3.blend  the native Blender assembly above (v3.6)
+  ASTRO_SMART_ATTENDANCE_v3_assembly.glb   the same geometry for any other viewer
+  v3_hole_probe.txt                the depth gate: 22 pilots measured, every documented screw
+                                   checked against the plastic that has to take it
+  v3_blend_build.txt               what the builder put into the .blend, with the volumes it
+                                   re-measured on the way in
+  v3_blend_check.txt               the independent gate, run against the saved .blend file
+  master_prompt.md                 the full spec (33 sections: 0-26 the rules, 27 the v3
                                    decisions, 28 the physics round, 29 v3.3, 30 the gauge
                                    card, 31 v3.4 - one hole, not twelve, 32 v3.5 - four
-                                   files and a checked size list)
+                                   files and a checked size list, 33 v3.6 - the .blend and
+                                   the day the screw lengths got measured)
   7 x .png                         every figure drawn from these STLs: drawing sheet, exploded,
                                    fixing detail, fixing sections, all views, v2-vs-v3, the fit
                                    v3.4 opening inventory (each side wall sliced at

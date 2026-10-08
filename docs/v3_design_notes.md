@@ -421,15 +421,41 @@ hole (22 of them):
 | where | screw | into | evidence |
 |---|---|---|---|
 | rear plate | 4 × M3 × 10 | ⌀2.48 × 9.0 blind pilots; plate holes ⌀3.4 clearance; 90° countersink ⌀6.40 | pull-out 291 N each vs 0.59 N of load |
-| LCD1602 | 4 × M2.5 × 12 | ⌀2.05 × 8.5 | the pilot is the thread's minor ⌀2.06, so it bites |
-| RC522 ring | 4 × M2.5 × 8 | ⌀2.05 (2.5 through the ring + 3.8 blind in the pad) | × 6 works too; heads sink in the ring's ⌀5.6 × 1.5 recesses |
-| R307 bracket | 2 × M3 × 10 | ⌀2.50 × 8.0 | and the stock R307 kit ships the same length |
-| fan | 4 × M3 × 12 (12–14) | ⌀2.50 × 12.0 | a 3010 usually ships **two** screws — you need four, pan head, not countersunk |
+| LCD1602 | 4 × M2.5 × **8** (was × 12, over-length) | ⌀2.05, 7.00 mm of void | the pilot is the thread's minor ⌀2.06, so it bites |
+| RC522 ring | 4 × M2.5 × **4** (was × 8, over-length) | ⌀2.05, 4.30 mm of void through ring and pad | ⌀5.6 × 1.5 recesses in the ring take the pan heads; × 5 is the longest this hole can be told |
+| R307 bracket | 2 × M3 × **8** (was × 10, over-length) | ⌀2.50, 8.20 mm of void | the bracket is 3.2 mm thick and printed, so its own thickness is already inside that void |
+| fan | 4 × M3 × **12** into the printed tabs; **× 20** only if you drill through the whole 10 mm frame | ⌀2.50, 11.00 mm of void from inside | a 3010 usually ships **two** screws — you need four, pan head, not countersunk; nothing longer than 20 goes in, it pushes the wall out |
 | ESP32 | 4 × M2.2 × 8 | ⌀1.80 × 5.7 | **M2.2 only** at the antenna end; M2 × 8 self-tapping is the fallback (it clears a 2.5 mm board hole and bites the same pilot); **not M2.5**, which may not pass that hole; never M3 |
 
 M2.2 × 8 is the only line a Mirzapur hardware shop might not stock — it is a precision size, sold
 online in packs.  M2 × 8 from any M2 kit is the substitute.  Everything else here is loose-change
 stock.
+
+
+## 11. v3.5 → v3.6: the `.blend`, and the holes measured to the depth
+
+The ask was the full 3D model as a real `.blend`.  It is there — `exports/ASTRO_SMART_ATTENDANCE_v3.blend`,
+written by Blender 4.5 LTS from the four shipped STLs, with the modules, the real 3010 and the 22 fasteners —
+and §11.1 at the end of this file is the model's own account.  What changed *documents* is smaller and worse:
+measuring the holes in the third dimension, which no checker had ever done.
+
+**Why three of those five lengths changed, and why the table now quotes a void instead of a depth.**
+Building the `.blend` for v3.6 forced one measurement that had never been made: not how wide each
+pilot is, but how deep it is.  `tools/hole_probe_v3.py` casts a ray down the axis of all 22 holes in
+the shipped meshes and records, for each, the face the head actually bears on, where the plastic
+starts, and how much material is left behind the bottom; the void plus the unprinted stack plus the
+0.4 mm every thread needs at its tip is the room a screw has.  Against that, `M2.5 × 12` for the LCD
+had 9.00 mm of room and would have floated the display 3.0 mm off its bosses, `M2.5 × 8` for the
+reader ring had 4.70 mm and would have stood 3.3 mm proud — which is more than the 0.5 mm the ring
+overlaps its pocket lip, so it would have cost the register as well as the seat — and `M3 × 10` for
+the R307 bracket had 8.60 mm.  All three are corrected above and in the print order, and the
+recommendations that survived are `M3 × 10` plate, `M3 × 12` fan tabs and `M2.2 × 8` ESP32.  Two
+things the same pass proved and that are worth saying out loud: no pilot in this enclosure is a
+through-hole — the thinnest skin under any of them is 1.40 mm, under the RC522 pads — and the
+`stack` term has to be the *unprinted* material only, because the bracket and the ring are printed,
+so counting their 3.2 mm and 2.6 mm as clearance manufactures room that is not there.  The tool is a
+gate rather than a note: it exits non-zero when a documented length does not seat, so a hole can be
+widened in `tools/build_v3.py` and the schedule will refuse to stay silent.
 
 And the fifth file is gone from the pack: `tools/build_gauge_v3.py`, `tools/check_gauge_v3.py`,
 `tools/make_gauge_figure_v3.py`, `cad/v3/05_FIT_GAUGE_v3.stl`, `docs/v3_gauge_build.txt`,
@@ -437,3 +463,28 @@ And the fifth file is gone from the pack: `tools/build_gauge_v3.py`, `tools/chec
 of them ships any more — `tools/make_pack_v3.py` lists four STLs.  If a vendor number ever turns out to
 be a lie about *your* module, `python3 tools/build_gauge_v3.py` prints the card again in 20 seconds of
 slicing time and the pack takes the line back.
+
+### 11.1 The `.blend` file itself
+
+`tools/make_blend_v3.py` imports the four bed-aligned STLs from `cad/v3/`, lifts each by the `dz` in
+`tools/orient_v3.py` (and asserts the part's lowest point *is* that lift, which is what proves the scene shows
+the part that prints), then builds the five module envelopes, a real 3010 — 30 × 30 × 10 minus a ⌀28 bore and
+4 × ⌀3.2 on 24 mm, 2 529 mm3 of plastic — and one screw per hole **measured** by
+`tools/hole_probe_v3.py`: shank at the thread's nominal, a pan head where the mesh has a ⌀5.6 × 1.5 recess, a
+countersunk cone where the rear plate has a 90° countersink.  Collections: `01 PRINTED`, `02 MODULES`,
+`03 FASTENERS`, `04 BED ALIGNED` (hidden, so a slicer view is one click away) and `00 RIG` — seven empties keyed
+apart over 24 frames and back over the next 24, three cameras, a sun.  Scene units are mm at
+`scale_length = 0.001`, so the numbers in the Outliner are the numbers on the print order.
+
+Nothing about it is taken on the builder's word.  `tools/check_blend_v3.py` opens the *saved* file, shares no
+code with the builder, and re-derives each solid's volume from its own polygons in world space: 115.22 / 53.80 /
+1.01 / 2.19 cm3, 172.22 total, assembly box 110.00 × 155.00 × 46.00 mm.  Then it checks that each of the 22
+screw axes lands on a hole centre the mesh itself reports (worst error 0.000 mm) and stops above the bottom of
+its pilot (+0.20 to +1.50 mm), that the modelled lengths equal the published schedule, that all seven groups
+really move more than 20 mm and in the order the print guide assembles them, that the `.glb` re-imports to the
+`.blend`'s own box to 0.05 mm, and that the three Cycles frames hold a shaded picture rather than a blank —
+pixel spread and variance, not file size.  It also gained the rule the first pass needed: nothing in the file
+may poke outside the case box + 2.5 mm, which is how a USB plug drawn from the envelope generator as a
+22.5 mm slab and hanging 14 mm in the air behind the wall got caught, and redrawn 2 mm proud of it.  Display
+only: the clearance envelope the audit measures is untouched, and no STL byte moved.
+

@@ -8,7 +8,9 @@ things before it writes a byte of archive:
     (that is exactly how v3.1's doc NOTEs got into the first v3 pack);
  2. the offline viewer is regenerated from the shipped STLs, so what a browser shows is what a
     printer gets, not a snapshot from a previous revision;
- 3. the archive is re-read after writing: each entry's bytes are compared with the file on disk.
+ 3. the .blend and the .glb must post-date the STLs they were built from - a model cut from geometry
+    that moved afterwards is a lie with a nicer viewport;
+ 4. the archive is re-read after writing: each entry's bytes are compared with the file on disk.
 
 Run:  python3 tools/make_pack_v3.py
 """
@@ -37,6 +39,11 @@ PROOF = {  # pack name -> (source, the verdict string it must contain)
                              "PHYSICS RESULT: no failures"),
     "v3_groove_check.txt": (os.path.join("docs", "v3_groove_check.txt"),
                             "EVERY GROOVE AND FIT MEASURES AS DESIGNED"),
+    # v3.6: the hole-depth gate and the two .blend reports.  The probe is listed first of the three
+    # because it is the one that can actually fail on a real mistake - a screw longer than its hole.
+    "v3_hole_probe.txt": (os.path.join("docs", "v3_hole_probe.txt"), "HOLE PROBE: ALL CHECKS PASS"),
+    "v3_blend_build.txt": (os.path.join("docs", "v3_blend_build.txt"), "BLENDER BUILD: ALL CHECKS PASS"),
+    "v3_blend_check.txt": (os.path.join("docs", "v3_blend_check.txt"), "BLENDER RESULT: ALL CHECKS PASS"),
     # 05_FIT_GAUGE shipped from v3.2 to v3.4 and is dropped here by request: the buyer would
     # rather trust the vendor drawings (design notes section 10) than print a test card, so the
     # tool, its figure and its two reports stay in the repo and out of the pack.
@@ -46,9 +53,11 @@ DOCS = {
     "v3_design_notes.md": os.path.join("docs", "v3_design_notes.md"),
     "master_prompt.md": os.path.join("docs", "master_prompt.md"),
 }
-# 7 figures: the fit-gauge card's own figure went out of the pack with the card (v3.5).
+# 10 figures: the fit-gauge card's own figure went out of the pack with the card (v3.5); the last
+# three are rendered by Cycles out of the SAVED .blend, not out of a viewer (v3.6).
 FIGS = [f"v3_{n}.png" for n in ["drawing_sheet", "exploded_iso", "fixing_detail",
-                                "fixing_section", "all_views", "vs_v2", "grille_map"]]
+                               "fixing_section", "all_views", "vs_v2", "grille_map",
+                               "blend_front", "blend_iso", "blend_exploded"]]
 SRC = {
     "build_v3_PARAMETRIC_generator.py": os.path.join("tools", "build_v3.py"),
     "verify_v3_INDEPENDENT.py": os.path.join("tools", "verify_v3.py"),
@@ -56,6 +65,19 @@ SRC = {
     "check_v3_GROOVES.py": os.path.join("tools", "check_grooves_v3.py"),
     "make_grille_map_v3.py": os.path.join("tools", "make_grille_map_v3.py"),
     "orient_v3.py": os.path.join("tools", "orient_v3.py"),
+    # v3.6.  hole_probe_v3.py runs on trimesh alone; the two .blend tools need the official Blender
+    # module (`pip install bpy==4.5.14`) and are the reason the pack carries a .blend at all.
+    "hole_probe_v3_DEPTH_gate.py": os.path.join("tools", "hole_probe_v3.py"),
+    "make_blend_v3.py": os.path.join("tools", "make_blend_v3.py"),
+    "check_blend_v3_INDEPENDENT.py": os.path.join("tools", "check_blend_v3.py"),
+}
+# the model files themselves.  The size floors are not decoration: a .blend or .glb under them means
+# the meshes did not go in, which is exactly what a half-failed export writes.
+MODEL = {
+    "ASTRO_SMART_ATTENDANCE_v3.blend":
+        (os.path.join("exports", "ASTRO_SMART_ATTENDANCE_v3.blend"), 300_000),
+    "ASTRO_SMART_ATTENDANCE_v3_assembly.glb":
+        (os.path.join("exports", "ASTRO_SMART_ATTENDANCE_v3_assembly.glb"), 200_000),
 }
 
 fails, notes = [], []
@@ -178,6 +200,20 @@ for f in FIGS:
     stage(os.path.join(ROOT, "renders", f), f)
 for pack_name, rel in SRC.items():
     stage(os.path.join(ROOT, rel), pack_name)
+for pack_name, (rel, floor) in MODEL.items():
+    mp = os.path.join(ROOT, rel)
+    if not os.path.exists(mp):
+        die(f"{rel} does not exist - run tools/make_blend_v3.py")
+        continue
+    sz = os.path.getsize(mp)
+    if sz < floor:
+        die(f"{rel} is {sz:,} bytes, under the {floor:,}-byte floor for a file holding {pack_name}'s meshes")
+    if not (stl_locked and in_head(rel)) and os.path.getmtime(mp) < t_stl - 1:
+        die(f"{rel} is OLDER than the STLs - it was built from geometry that has since moved")
+    rep = os.path.join(ROOT, "docs", "v3_blend_build.txt")
+    if os.path.exists(rep) and os.path.getmtime(mp) < os.path.getmtime(rep) - 1:
+        die(f"{rel} is older than docs/v3_blend_build.txt - the report describes a newer model")
+    stage(mp, pack_name)
 stage(os.path.join(ROOT, "exports", "viewer_offline.html"), "viewer_offline.html")
 
 lines = []

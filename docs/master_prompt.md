@@ -702,3 +702,54 @@ screw sizes definitively.
 * **Rules added**: a `[REF]` dimension must name the vendor page that supports it.  "Ask the user to
   measure" is allowed only after the published data has been exhausted, and vendor data for a generic
   module is labelled as *vendor data for a generic module* — never as the buyer's own unit.
+
+## 33. v3.6 — the `.blend`, and the day the screw lengths got measured
+
+The ask was `now for the full 3d create a full .blend model`.  Not a viewer and not a converter: a real
+native Blender scene, so the deliverable is the file a buyer would have made by hand in Blender — printed
+parts, modules, fasteners, rig.  It was built with the official `bpy` wheel (4.5.14 LTS, headless, the
+container's missing X11/GL symbols satisfied by no-op stubs in the gitignored `pylibs/stubs/`), so
+**Blender itself wrote the `.blend`** and every number below was read back out of the saved file, never out
+of the script's memory.
+
+`tools/make_blend_v3.py` imports the four bed-aligned STLs, restores each to the assembly frame with the same
+`tools/orient_v3.py` table the pack was built with, and refuses to hand-type fastener geometry: it calls
+`tools/hole_probe_v3.py`, which measures each hole's bearing face, its void depth and the plastic left behind
+it, and places one screw per measured hole at a length that hole can take.  Output:
+`exports/ASTRO_SMART_ATTENDANCE_v3.blend` (74 objects, 61 meshes, 3.58 MB),
+`exports/ASTRO_SMART_ATTENDANCE_v3_assembly.glb` (57 meshes, 1 unit = 1 mm), three Cycles frames
+`renders/v3_blend_front.png`, `v3_blend_iso.png`, `v3_blend_exploded.png`, and `docs/v3_blend_build.txt`.
+`BLENDER BUILD: ALL CHECKS PASS`.
+
+Two rules were honoured rather than restated.  (1) *The model must be the shipped model*: the builder
+re-measures the volumes off the triangles it imported (115.22 / 53.80 / 1.01 / 2.19 cm3, 172.22 total) and
+fails if they disagree with the published figures, asserts the assembly box is 110.00 × 155.00 × 46.00 mm, and
+asserts each part's lowest point *is* the lift its `dz` in the orientation table — which is what proves the
+`.blend` shows the part that prints rather than a relative of it.  (2) *Nothing is taken on the builder's own
+word*: `tools/check_blend_v3.py` opens the saved file, shares no code with the builder, re-derives every
+solid's volume from its own polygons in world space, checks that all 22 screw axes land on measured hole
+centres to 0.000 mm and stop above the pilot bottom, moves the timeline to confirm the seven explode groups
+really travel (4 out through the front, 1 through the back, 2 through the fan wall), re-imports the `.glb`
+and proves the copies agree to 0.05 mm, and samples the pixels of the three renders so a black or blank frame
+would fail.  `BLENDER RESULT: ALL CHECKS PASS`, exit 0.  No STL byte changed and `tools/build_v3.py` was not
+re-run.
+
+What the exercise caught is the part worth keeping.  Every screw length in the pack had been written from
+design intent: diameters were measured (8 rays per hole, in the audit and in the verifier), depths never
+were.  Against measured room, `M2.5 × 12` for the LCD had 9.00 mm and would have floated the display 3.0 mm
+off its bosses; `M2.5 × 8` for the reader ring had 4.70 mm and would have stood 3.3 mm proud, which is more
+than the 0.5 mm the ring overlaps its pocket lip, so it cost the register as well as the seat; `M3 × 10` for
+the R307 bracket had 8.60 mm (1.4 mm past its room, 1.8 mm past the bottom of the pilot).  All three are
+corrected in the print order and the design notes.  The same pass proved that no pilot in the enclosure is a
+through-hole — the thinnest skin under one is 1.40 mm, under the RC522 pads — and, the hard way, that an
+unprinted `stack` may only contain material that is *not* in the mesh the void was measured on: counting the
+printed bracket's 3.2 mm twice manufactured phantom room and hid a real over-length.  Two render faults were
+chased down as well: an ortho front camera aimed at the −Y face (this case's front is the z = 0 plane), and a
+USB plug drawn as the envelope generator's full 22.5 mm slab, which hung 14 mm outside the box.  The plug is
+now drawn 2 mm proud of the wall with the clearance envelope untouched, and `check_blend_v3.py` carries a
+rule that nothing in the file may poke outside the 110 × 155 × 46 box plus 2.5 mm.  A display flaw is still
+only a display flaw — and a hole that cannot take the screw it was promised is not a display flaw.
+
+Open, unchanged by this round: the ESP32 pad-hole diameter (2.5 mm reported by owners, 3.0 mm on the nearest
+same-family drawing) decides M2.2 vs M2 and moves no geometry; `P["grilles"] = True` still brings back the
+twelve slots; re-adding `05_FIT_GAUGE_v3.stl` to `make_pack_v3.py` still re-ships the fit gauge.

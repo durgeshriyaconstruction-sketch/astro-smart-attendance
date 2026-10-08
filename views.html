@@ -80,6 +80,36 @@ and the second one reads only the STL triangles.</p>
  <img src="/renders/v3_all_views.png" alt="the four parts, from the shipped STLs">
 </figure>
 
+<h2>1d &mdash; v3.6: the same product as a native <code>.blend</code>, and the measurement that found three wrong screws</h2>
+<figure>
+ <figcaption>Blender 4.5 LTS built <a href="/exports/ASTRO_SMART_ATTENDANCE_v3.blend"><code>ASTRO_SMART_ATTENDANCE_v3.blend</code></a>
+ from the four shipped STLs &mdash; <code>tools/make_blend_v3.py</code> wrote it, then
+ <code>tools/check_blend_v3.py</code> reopened the saved file and re-measured it.  Every image on this page
+ labelled <i>.blend</i> was rendered by Cycles out of that file, not out of a viewer.
+ <b>01 PRINTED</b> holds the four parts exactly where the print-orientation table says they sit;
+ <b>02 MODULES</b> the five reference envelopes plus a real 3010 with its 28&nbsp;mm bore and its
+ 4&nbsp;&times;&nbsp;3.2&nbsp;mm on 24&nbsp;mm; <b>03 FASTENERS</b> the 22 screws, each dropped into a hole
+ measured off the mesh; <b>04 BED ALIGNED</b> the same parts as a slicer sees them, switched off by default;
+ <b>00 RIG</b> seven empties keyframed 1&nbsp;&rarr;&nbsp;24 apart and 24&nbsp;&rarr;&nbsp;48 back together,
+ three cameras and a sun.  Units are millimetres at scene scale 0.001, so 1 unit = 1&nbsp;mm.
+ <a href="/exports/ASTRO_SMART_ATTENDANCE_v3_assembly.glb">A <code>.glb</code></a> carries the same geometry for
+ anyone without Blender &mdash; it keeps 1 unit = 1&nbsp;mm too, so set the import scale to 0.001 in a
+ metre-based viewer.  Writing it forced a measurement that had never been made: the <i>depth</i> of every
+ pilot, not just its diameter.
+ <a href="/docs/v3_hole_probe.txt"><code>tools/hole_probe_v3.py</code></a> found three of the six documented
+ screw lengths over-length &mdash; LCD <b>M2.5 &times; 12 &rarr; &times; 8</b>, reader ring
+ <b>M2.5 &times; 8 &rarr; &times; 4</b>, R307 bracket <b>M3 &times; 10 &rarr; &times; 8</b>.  The print order and
+ the design notes now carry the corrected schedule, and the STLs did not move by a micron: the screws were the
+ thing that was wrong, not the holes.  Gate reports:
+ <a href="/docs/v3_blend_build.txt">build</a> &middot;
+ <a href="/docs/v3_blend_check.txt">independent <code>.blend</code> gate</a>.</figcaption>
+ <img src="/renders/v3_blend_front.png" alt="the .blend front face, rendered by Cycles">
+</figure>
+<div class="row">
+ <figure><figcaption>assembled, 3/4 &mdash; Cycles, straight out of the saved file</figcaption><img src="/renders/v3_blend_iso.png" alt="assembled iso"></figure>
+ <figure><figcaption>frame 24: fully exploded, all 22 screws clear of the holes they belong to</figcaption><img src="/renders/v3_blend_exploded.png" alt="exploded"></figure>
+</div>
+
 <h2>2 &mdash; v2 &rarr; v3, same views, same projection, both columns rendered from shipped STLs</h2>
 <figure>
  <figcaption>this is the answer to "it looks the same": front wall, rear plate, iso and fan wall, v2 on the left in cyan, v3 on the right in green</figcaption>
