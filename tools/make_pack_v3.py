@@ -28,7 +28,7 @@ STAGE = "/tmp/pack_v3_stage"
 
 # name in the pack -> where it comes from, and what has to be true about it
 STL = ["01_MAIN_SHELL_v3.stl", "02_REAR_PLATE_v3.stl", "03_R307_BRACKET_v3.stl",
-       "04_RC522_RING_v3.stl"]
+       "04_RC522_RING_v3.stl", "05_FIT_GAUGE_v3.stl"]
 PROOF = {  # pack name -> (source, the verdict string it must contain)
     "v3_audit.txt": (os.path.join("docs", "v3_audit.txt"), "RESULT: ALL CHECKS PASS"),
     "v3_independent_verify.txt": (os.path.join("docs", "v3_independent_verify.txt"),
@@ -37,6 +37,11 @@ PROOF = {  # pack name -> (source, the verdict string it must contain)
                              "PHYSICS RESULT: no failures"),
     "v3_groove_check.txt": (os.path.join("docs", "v3_groove_check.txt"),
                             "EVERY GROOVE AND FIT MEASURES AS DESIGNED"),
+    "v3_gauge_build.txt": (os.path.join("docs", "v3_gauge_build.txt"),
+                           "GAUGE BUILD: ALL CHECKS PASS"),
+    "v3_gauge_check.txt": (os.path.join("docs", "v3_gauge_check.txt"),
+                           "GAUGE RESULT: EVERY GAUGE MEASURES AS DESIGNED, AND NONE IS BIGGER "
+                           "THAN THE WALL"),
 }
 DOCS = {
     "README_PRINT_ORDER_v3.txt": os.path.join("exports", "README_PRINT_ORDER_v3.txt"),
@@ -44,13 +49,17 @@ DOCS = {
     "master_prompt.md": os.path.join("docs", "master_prompt.md"),
 }
 FIGS = [f"v3_{n}.png" for n in ["drawing_sheet", "exploded_iso", "fixing_detail",
-                                "fixing_section", "all_views", "vs_v2", "grille_map"]]
+                                "fixing_section", "all_views", "vs_v2", "grille_map",
+                                "fit_gauge"]]
 SRC = {
     "build_v3_PARAMETRIC_generator.py": os.path.join("tools", "build_v3.py"),
     "verify_v3_INDEPENDENT.py": os.path.join("tools", "verify_v3.py"),
     "audit_v3_PHYSICS.py": os.path.join("tools", "audit_physics_v3.py"),
     "check_v3_GROOVES.py": os.path.join("tools", "check_grooves_v3.py"),
     "make_grille_map_v3.py": os.path.join("tools", "make_grille_map_v3.py"),
+    "build_gauge_v3_FIT_GAUGE.py": os.path.join("tools", "build_gauge_v3.py"),
+    "check_v3_GAUGE.py": os.path.join("tools", "check_gauge_v3.py"),
+    "make_gauge_figure_v3.py": os.path.join("tools", "make_gauge_figure_v3.py"),
     "orient_v3.py": os.path.join("tools", "orient_v3.py"),
 }
 

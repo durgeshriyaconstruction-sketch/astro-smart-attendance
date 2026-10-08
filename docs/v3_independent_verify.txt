@@ -14,6 +14,7 @@ source: cad/v3/*.stl only; no number imported from the generator
    02_REAR_PLATE_v3.stl lies on the bed min z in file +0.0000 mm (design plane was z=41.0: register frame down on the bed, outer face up) PASS
    03_R307_BRACKET_v3.stl lies on the bed min z in file +0.0000 mm (design plane was z=26.5: back face down on the bed) PASS
    04_RC522_RING_v3.stl lies on the bed min z in file -0.0000 mm (design plane was z=4.6: pad face down on the bed) PASS
+   05_FIT_GAUGE_v3.stl lies on the bed min z in file +0.0000 mm (design plane was z=0.0: card flat on the bed, engraved face up) PASS
 
 2. self-intersection / slice validity (every 0.2 mm through the shell)
    slices valid (no self-intersection) 214 slices, invalid=0 empty=0            PASS

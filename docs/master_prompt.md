@@ -585,3 +585,42 @@ re-measured like one:
 to - an opening that does not serve a path, a fastener, an antenna or a user is a defect with a
 reason attached.  And when the user says a feature is redundant, check whether the *duty* it was
 doing is redundant too; here it was not, so the duty moved and the numbers were re-run.
+
+
+## §30 v3.3 APPENDIX 2 - a fifth print, so the user can measure their own hardware
+
+The user's five `VERIFY_ACTUAL_HARDWARE` unknowns are sizes, and a size can be handed over as
+plastic.  `tools/build_gauge_v3.py` cuts `05_FIT_GAUGE_v3.stl`: a 150 x 112 x 2.60 mm card with one
+10.00 mm boss, seven stations, and no dimension typed a second time - it slices the parameter block
+out of `build_v3.py` and executes it, exactly as `check_grooves_v3.py` does, then sizes the card from
+those numbers.  A **cut is a GO gauge** (the wall has the same hole: pass here, pass there) and an
+**engraved line is a reference outline** (calipers, or a fingernail).  No standing pins or ribs: a
+gauge with a 10 mm pin needs supports, and support-free was a hard rule, so everything on the card is
+a through-cut, a blind pocket or an engraved pocket.  The digits are a hand-written 7-segment renderer
+(0.50 deep pockets) because a printed letter needs a font and this project has never put text in an
+STL before; `x` is not in the set, so sizes read `66.0-17.5` with a hyphen.
+
+`tools/check_gauge_v3.py` then measures 59 things off the shipped STLs and nothing else: the card's
+own body (150.000 x 112.000 x 12.600, 2.60 thick in three places), all 8 through-gauges to 0.02, the
+4 board holes and 6 pilot diameters and depths, the tick pitch of the rule, the engraving depth, that
+no face needs a support, and then the four fit gauges **against the wall they exist to match** -
+the front wall profiled at five planes, the median taken, the card required never to be bigger.
+It ends `GAUGE RESULT: EVERY GAUGE MEASURES AS DESIGNED, AND NONE IS BIGGER THAN THE WALL`.
+
+Three lessons worth keeping, each of them a bug the checks caught rather than a claim I made:
+
+* **watertight is not printable.** The card's first version was watertight with *inward* normals - a
+  slicer may print that hollow.  `is_volume and volume > 0` is now part of the build's own verdict,
+  and `fix_normals()` runs before the export.
+* **coplanar pockets break a boolean.** Twelve open edges came from extruding thirty engraved pockets
+  as separate prisms whose walls touched.  Union each plane's pockets in 2-D, extrude once.  It also
+  halved the triangle count.
+* **a probe must answer the question the gauge asks.** "How many void stretches are inside my search
+  window?" counted the far side of the part and the neighbouring hole; "which stretch contains the
+  centre?" is the size of the feature.  And the refinement has to start two samples back, because a
+  sample landing exactly on a surface makes the bracket contain no crossing at all - that is what a
+  d1.80 pilot reading 1.750 actually was, half a step lost at each side.
+
+Registered like any other part: `orient_v3.ORIENT["05_FIT_GAUGE_v3.stl"] = (0.0, "card flat on the
+bed, engraved face up")`, an `assembly/` copy, the pack's STL/PROOF/FIGS/SRC lists, both viewers, and
+step 0 in the print order - before the shell, because checking is what should come first.

@@ -1,5 +1,5 @@
 ASTRO SMART ATTENDANCE - ENCLOSURE v3  (complete re-design, parametric rebuild)
-outer 110 x 155 x 46 mm | 4 printed parts | no supports | 22 screw holes, every module screwed down
+outer 110 x 155 x 46 mm | 4 printed parts + 1 gauge card | no supports | 22 screw holes
 ==============================================================================
 
 WHAT THIS IS
@@ -16,6 +16,10 @@ WHAT THIS IS
                                       (docs/v3_independent_verify.txt - STL-only, re-typed dims)
     python3 tools/audit_physics_v3.py -> PHYSICS RESULT: no failures
     python3 tools/check_grooves_v3.py  ->  EVERY GROOVE AND FIT MEASURES AS DESIGNED
+    python3 tools/build_gauge_v3.py    ->  GAUGE BUILD: ALL CHECKS PASS  (the fifth print: a fit
+                                           and pilot gauge card, cut from the same parameters)
+    python3 tools/check_gauge_v3.py    ->  GAUGE RESULT: EVERY GAUGE MEASURES AS DESIGNED, AND
+                                           NONE IS BIGGER THAN THE WALL
                                       (docs/v3_groove_check.txt - 34 numbers, each walked at
                                        0.02 mm through the print files: every rebate, recess,
                                        register lip, keyhole and ring opening, as printed)
@@ -24,11 +28,30 @@ WHAT THIS IS
                                        re-measurement of every number written in this file)
 
 PRINT  (PLA or PETG, 0.2 mm layers, 3 perimeters, 15-20 % infill, NO supports)
+  0. 05_FIT_GAUGE_v3.stl        x1   flat, engraved face UP  <-- PRINT THIS ONE FIRST
+     150 x 112 x 2.60 mm with one 10.00 mm boss: 42 235 mm3 of solid model, about 26 g of PLA,
+     roughly 40 minutes at 0.2 mm.  It is not part of the box - it is how you check the box against
+     your real hardware before you commit 11 hours to the shell.  A CUT is a GO gauge: the wall has
+     the same opening, so anything that drops through the cut fits the wall.  An ENGRAVED LINE is a
+     reference outline, for calipers.  Seven stations, and each one answers a question this project
+     could not answer from here:
+       1  six blind pilots, d1.80 / 2.00 / 2.05 / 2.20 / 2.35 / 2.50, 8.00 deep - which screw your
+          bosses really take, and how much thread the plastic will give you before it splits
+       2  four through-holes, d2.00 / 2.20 / 2.50 / 2.70 - the hole in your PCB, before you buy 40
+       3  the 1602 window at 66.00 x 17.50 and the 75.10 x 31.0 pitch the front wall is drilled on
+       4  the R307 bezel relief at 21.00 x 25.00, the 19.30 x 21.20 prism window, the module body
+       5  the RC522 board with +0.40 a side, the 62.70 x 44.70 ledge it rests on, and its four pads
+       6  the USB opening as the wall has it (20.40 x 12.40) and the 15.60 x 8.00 plug that clears it
+       7  a 100 mm rule ticked every 10 - PLA shrinks, and if the scale is wrong nothing else here is
+     The card cannot tell you how TALL your module is or whether the LCD contrast survives the glass;
+     those are the box's own 1.6 mm shelf and the rebate, already measured in docs/v3_groove_check.
+     What it does settle is every SIZE question, with a vernier or the part itself, in one print.
   1. 01_MAIN_SHELL_v3.stl      x1   front face DOWN on the bed, rear opening UP
   2. 02_REAR_PLATE_v3.stl      x1   flat, register frame UP (the frame is 2 mm proud)
   3. 04_RC522_RING_v3.stl      x1   flat  (this replaces v2's two clamp bars: one part now)
   4. 03_R307_BRACKET_v3.stl    x1   flat
-  material: 169.0 cm3 of solid model -> **155 g printed PLA** at 15 % infill, 0.45 nozzle, 3
+  material (the four box parts - the gauge card above is separate): 169.0 cm3 of solid model
+  -> **155 g printed PLA** at 15 % infill, 0.45 nozzle, 3
   walls (shell 112.0 cm3 / 110 g, plate 53.8 / 41 g, ring 2.2 / 3 g, bracket 1.0 / 1 g).
   That is a layer-by-layer slicer model, not a flat "15 %" factor: a 2.6 mm wall needs 3 lines of
   0.45 = 2.7 mm, so the walls print SOLID and only the plate's faces and the big bosses carry

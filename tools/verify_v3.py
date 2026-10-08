@@ -172,7 +172,11 @@ for name, m in PARTS:
 
 add("   bed placement of the shipped files - this is what a slicer is actually handed:")
 for n, (dz, note) in orient_v3.ORIENT.items():
-    z0 = ZMIN_FILE.get(n, float("nan"))
+        # a part in ORIENT that this file never loads (the gauge card) still gets measured, straight
+    # off its shipped bytes - the bed rule is the same rule for every part in the pack
+    z0 = ZMIN_FILE.get(n)
+    if z0 is None:
+        z0 = float(trimesh.load(os.path.join(CAD, n), process=True).bounds[0][2])
     verdict(abs(z0) < 1e-6, f"{n} lies on the bed",
             f"min z in file {z0:+.4f} mm (design plane was z={dz:.1f}: {note})")
 

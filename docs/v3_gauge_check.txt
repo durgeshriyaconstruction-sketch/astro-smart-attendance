@@ -1,0 +1,96 @@
+
+05_FIT_GAUGE_v3 - the fit and pilot card, measured off the file that prints
+------------------------------------------------------------------------------------------------------------
+   file      810 kB, 16208 triangles, watertight True, sha256 4d6a9e7dac1513ff
+   envelope  150.000 x 112.000 x 12.600 mm   volume 42.23 cm3   bodies 1
+
+   the card as a piece of plastic
+   card    length x                           design  150.000   measured  150.000   delta  +0.000   PASS
+   card    length y                           design  112.000   measured  112.000   delta  +0.000   PASS
+   card    height over the bed                design   12.600   measured   12.600   delta  +0.000   PASS   card 2.60 + boss 10.00
+   card    sits flat on the plate             design    0.000   measured    0.000   delta  +0.000   PASS
+   card    thickness, left end                design    2.600   measured    2.600   delta  -0.000   PASS   also the shim / stack height unit
+   card    thickness, right of the LCD        design    2.600   measured    2.600   delta  -0.000   PASS   also the shim / stack height unit
+   card    thickness, behind the rule         design    2.600   measured    2.600   delta  -0.000   PASS   also the shim / stack height unit
+
+   the eight through-gauges: four rectangles and four holes
+   cut     RC522 cut, width                   design   60.800   measured   60.800   delta  -0.000   PASS   the board outline +0.4 a side; the board rests on the ledge, it does not go through the box
+   cut     RC522 cut, height                  design   40.800   measured   40.800   delta  +0.000   PASS
+   cut     LCD cut, width                     design   66.000   measured   66.000   delta  +0.000   PASS   the 1602 window, exactly what the wall cuts
+   cut     LCD cut, height                    design   17.500   measured   17.500   delta  +0.000   PASS
+   cut     R307 cut, width                    design   21.000   measured   21.000   delta  +0.000   PASS   the bezel relief the prism needs
+   cut     R307 cut, height                   design   25.000   measured   25.000   delta  +0.000   PASS
+   cut     USB cut, width                     design   20.400   measured   20.400   delta  +0.000   PASS   the slot as the wall has it, +1.2 a side
+   cut     USB cut, height                    design   12.400   measured   12.400   delta  -0.000   PASS
+   hole    board hole d2.00                   design    2.000   measured    2.000   delta  +0.000   PASS   a screw shank has to drop through, so these are cut, not drawn
+   hole    board hole d2.20                   design    2.200   measured    2.200   delta  -0.000   PASS   a screw shank has to drop through, so these are cut, not drawn
+   hole    board hole d2.50                   design    2.500   measured    2.500   delta  +0.000   PASS   a screw shank has to drop through, so these are cut, not drawn
+   hole    board hole d2.70                   design    2.700   measured    2.700   delta  +0.000   PASS   a screw shank has to drop through, so these are cut, not drawn
+
+   the six blind pilots - the row that decides M2, M2.5 or M3
+   pilot   pilot d1.80: depth                 design    8.000   measured    8.000   delta  +0.000   PASS   blind, with plastic under the floor
+   pilot   pilot d1.80: diameter              design    1.800   measured    1.800   delta  +0.000   PASS
+   pilot   pilot d1.80: floor left            design    4.600   measured    4.600   delta  -0.000   PASS   an M3 tap would want 4 mm, and this boss gives it
+   pilot   pilot d2.00: depth                 design    8.000   measured    8.000   delta  +0.000   PASS   blind, with plastic under the floor
+   pilot   pilot d2.00: diameter              design    2.000   measured    2.000   delta  +0.000   PASS
+   pilot   pilot d2.00: floor left            design    4.600   measured    4.600   delta  -0.000   PASS   an M3 tap would want 4 mm, and this boss gives it
+   pilot   pilot d2.05: depth                 design    8.000   measured    8.000   delta  +0.000   PASS   blind, with plastic under the floor
+   pilot   pilot d2.05: diameter              design    2.050   measured    2.050   delta  -0.000   PASS
+   pilot   pilot d2.05: floor left            design    4.600   measured    4.600   delta  -0.000   PASS   an M3 tap would want 4 mm, and this boss gives it
+   pilot   pilot d2.20: depth                 design    8.000   measured    8.000   delta  +0.000   PASS   blind, with plastic under the floor
+   pilot   pilot d2.20: diameter              design    2.200   measured    2.200   delta  -0.000   PASS
+   pilot   pilot d2.20: floor left            design    4.600   measured    4.600   delta  -0.000   PASS   an M3 tap would want 4 mm, and this boss gives it
+   pilot   pilot d2.35: depth                 design    8.000   measured    8.000   delta  +0.000   PASS   blind, with plastic under the floor
+   pilot   pilot d2.35: diameter              design    2.350   measured    2.350   delta  -0.000   PASS
+   pilot   pilot d2.35: floor left            design    4.600   measured    4.600   delta  -0.000   PASS   an M3 tap would want 4 mm, and this boss gives it
+   pilot   pilot d2.50: depth                 design    8.000   measured    8.000   delta  +0.000   PASS   blind, with plastic under the floor
+   pilot   pilot d2.50: diameter              design    2.500   measured    2.500   delta  +0.000   PASS
+   pilot   pilot d2.50: floor left            design    4.600   measured    4.600   delta  -0.000   PASS   an M3 tap would want 4 mm, and this boss gives it
+
+   the rule, and how deep the marks are
+   rule    tick marks                         design   11.000   measured   11.000   delta  +0.000   PASS   nought to a hundred, every 10 mm
+   rule    pitch of the ticks                 design   10.000   measured   10.000   delta  +0.000   PASS   a printer 1 % short is 1 mm off by the end
+   rule    width of a tick                    design    0.500   measured    0.500   delta  +0.000   PASS   0.5 wide and 0.5 deep: readable on paper, and with a fingernail
+   eng     engraving depth, the 1602 outline  design    0.500   measured    0.500   delta  +0.000   PASS   deep enough to read and to feel, shallow enough not to weaken anything
+   eng     engraving depth, the RC522 recess line design    0.500   measured    0.500   delta  +0.000   PASS   deep enough to read and to feel, shallow enough not to weaken anything
+
+   printing it
+   print   faces needing a support            design    0.000   measured    0.000   delta  +0.000   PASS   vertical walls, flat bottom: none
+   print   watertight                         design    1.000   measured    1.000   delta  +0.000   PASS
+   print   single body                        design    1.000   measured    1.000   delta  +0.000   PASS
+   print   longest side, bed 220              design  150.000   measured  150.000   delta  +0.000   PASS   and 12.60 mm tall, so it shares a bed with the enclosure
+
+   the same dimensions on the wall they exist to match (01_MAIN_SHELL_v3.stl)
+   front wall band: z 0.000 .. 3.000 = 3.000 mm thick, design 3.00 mm   probed at (x, y) = (-40.0, -70.0), a spot with nothing but wall behind it
+   probed at z = 0.55 / 1.50 / 2.45 - rebate sink, mid thickness and the inner face - and the narrowest section of the three is the one kept
+   profiled at z = 0.55, 1.05, 1.55, 2.05, 2.45 across the wall - 0.55 in from each face, so the rebate sink stays out of the averaging
+   wall    LCD width prism spread             design    0.000   measured    0.000   delta  +0.000   PASS   over 5 planes (66.000 to 66.000) - a grazing ray on one plane is noise, a taper here would be a real defect
+   wall    LCD opening, width                 card   66.000   wall   66.000   slack  +0.000   PASS   the median of those planes; the card is no bigger, so a part that passes the card clears the wall
+   wall    LCD height prism spread            design    0.000   measured    0.000   delta  +0.000   PASS   over 5 planes (17.500 to 17.500) - a grazing ray on one plane is noise, a taper here would be a real defect
+   wall    LCD opening, height                card   17.500   wall   17.500   slack  +0.000   PASS   the median of those planes; the card is no bigger, so a part that passes the card clears the wall
+   wall    R307 width prism spread            design    0.000   measured    0.000   delta  +0.000   PASS   over 5 planes (21.000 to 21.000) - a grazing ray on one plane is noise, a taper here would be a real defect
+   wall    R307 opening, width                card   21.000   wall   21.000   slack  +0.000   PASS   the median of those planes; the card is no bigger, so a part that passes the card clears the wall
+   wall    R307 height prism spread           design    0.000   measured    0.000   delta  +0.000   PASS   over 5 planes (25.000 to 25.000) - a grazing ray on one plane is noise, a taper here would be a real defect
+   wall    R307 opening, height               card   25.000   wall   25.000   slack  -0.000   PASS   the median of those planes; the card is no bigger, so a part that passes the card clears the wall
+   bottom wall (normal -y): band y -77.500 .. -74.500 = 3.000 mm thick, design 3.00; probe plane y = -76.000
+   wall    USB opening, width                 card   20.400   wall   20.400   slack  -0.000   PASS   hole centre found at x -39.00, z 27.25
+   wall    USB opening, height                card   12.400   wall   12.400   slack  +0.000   PASS   
+   wall    RC522 recess, the short way        card   44.700   wall   44.700   slack  +0.000   PASS   0.60 mm off the face the board rests on
+   wall    RC522 recess, the long way         card   62.700   wall   62.700   slack  +0.000   PASS   0.60 mm off the face the board rests on
+   RC522 aperture mid-wall: 38.0 x 44.0 - the card's 60.80 x 40.80 cut is deliberately larger, because the board sits ON the ledge: the gauge proves the ledge takes the board,
+   and the aperture is what the loop antenna looks through. Those are two different questions and the card answers the first.
+   wall    RC522 cut vs wall aperture                                 PASS   the cut clears the aperture the short way by 2.80 mm, and the board itself never goes through at all
+
+============================================================================================================
+   card  : 7/7 measured values agree with the design
+   cut   : 8/8 measured values agree with the design
+   hole  : 4/4 measured values agree with the design
+   pilot : 18/18 measured values agree with the design
+   rule  : 3/3 measured values agree with the design
+   eng   : 2/2 measured values agree with the design
+   print : 4/4 measured values agree with the design
+   wall  : 13/13 measured values agree with the design
+
+   59 things measured, every one of them off the triangles: the card, the wall, and the 0.5 mm of engraving between them
+
+GAUGE RESULT: EVERY GAUGE MEASURES AS DESIGNED, AND NONE IS BIGGER THAN THE WALL

@@ -18,6 +18,8 @@ ORIENT = {
     "02_REAR_PLATE_v3.stl": (41.0, "register frame down on the bed, outer face up"),
     "03_R307_BRACKET_v3.stl": (26.5, "back face down on the bed"),
     "04_RC522_RING_v3.stl": (4.6, "pad face down on the bed"),
+    # the gauge card is designed in its own printing frame, so nothing is lowered
+    "05_FIT_GAUGE_v3.stl": (0.0, "card flat on the bed, engraved face up"),
 }
 
 

@@ -182,6 +182,10 @@ shell 110.0 x 155.0 x 43.0 mm  |  assembly 110 x 155 x 46 mm  |  walls front 3.0
    04_RC522_RING_v3.stl: first-layer contact  883 mm2 in 1 contour(s)                                PASS
    04_RC522_RING_v3.stl: first layer is one closed contour 1 loop(s) - islands on the first layer lift and shed debris PASS
    04_RC522_RING_v3.stl: inside a 220x220x250 mm bed 43.6 x 76.0 x 2.6 mm                                   PASS
+   05_FIT_GAUGE_v3.stl: sits on the bed       min z +0.0000 mm, printed flat: card flat on the bed, engraved face up PASS
+   05_FIT_GAUGE_v3.stl: first-layer contact   12369 mm2 in 1 contour(s)                              PASS
+   05_FIT_GAUGE_v3.stl: first layer is one closed contour 1 loop(s) - islands on the first layer lift and shed debris PASS
+   05_FIT_GAUGE_v3.stl: inside a 220x220x250 mm bed 150.0 x 112.0 x 12.6 mm                                PASS
    total print volume for all four parts: 110 x 155 mm of bed, no part needs a raft and only the
    shell needs a brim if your bed is not perfectly flat (its rim is 436 mm long).
    slicer settings assumed for the mass: 0.45 mm nozzle, 3 walls, 0.28 mm layers, 3 top/bottom skins, 15 % infill

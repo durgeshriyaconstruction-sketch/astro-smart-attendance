@@ -251,3 +251,58 @@ Nothing in this section is load-bearing on the geometry switch alone: setting `P
 in `tools/build_v3.py` puts v3.2's perforated wall back in one rebuild, and the build's self-test
 changes its checks to match.  That flag exists so this decision can be reversed without archaeology;
 it is not a hidden second design - the shipped model is the one with `side_intake=False`.
+
+
+## 8. The fifth print: `05_FIT_GAUGE_v3.stl`, a card that answers the five open questions
+
+Section 5 left five numbers owned by your hardware rather than by any datasheet I could read from
+here - which pilot your boss actually bites, what size the hole in your PCB really is, whether the
+1602 window and its 75.1 x 31.0 pitch are your module, whether the R307's bezel clears a 21 x 25
+relief, and whether the RC522 board and its pads sit where the ledge is.  Those are all *size*
+questions, so they do not need a box to answer them: they need a printed thing of known size.  The
+card is that thing - 150 x 112 x 2.60 mm, print-flat, 40 minutes, and every number on it read out
+of `tools/build_v3.py` at build time rather than typed a second time.
+
+Two conventions, and only two, because a gauge that mixes them is unreadable:
+
+* **a cut is a GO gauge.**  The card is 2.60 thick and the hole in it is the hole in the wall, to
+  the micron, so anything that drops through the cut fits the box.  A pass here is a pass there;
+  that is the whole promise, and `tools/check_gauge_v3.py` measures it rather than asserting it.
+* **an engraved line is a reference outline** - the board, the pitch, the prism window, the ledge -
+  0.50 mm deep, to be read with calipers or felt with a fingernail.
+
+Seven stations: six blind pilots (d1.80 / 2.00 / 2.05 / 2.20 / 2.35 / 2.50 at 8.00 deep, each
+leaving 4.60 mm of solid boss under it), four through-board-holes (d2.00 to d2.70), the 1602 window
+and its pitch crosses, the R307 relief plus the prism window and body outline, the RC522 board at
++0.40 a side with its ledge and four pads, the USB opening as the wall has it, and a 100 mm rule
+ticked every 10 mm so a printer that shrinks the whole set is found out first.  The card's own
+thickness is also the shim unit: 2.60 mm, the height of one wall, so stacking two says 5.20.
+
+What it cannot do, said plainly: it cannot tell you how *tall* a module is, or whether an LCD's
+contrast survives a 1.6 mm shelf.  Those are the box's own geometry and they are measured in
+`docs/v3_groove_check.txt`.  The card settles the sizes; the box still has to be test-fitted.
+
+Three real defects were caught building it, which is what a self-check is for:
+
+* the first boolean produced 12 open edges.  Cause: thirty engraved pockets extruded as separate
+  prisms with coplanar walls touching each other.  Fixed by unioning every pocket that shares a
+  plane in 2-D and extruding once - which also dropped the file from 32 958 to 16 208 triangles.
+* `is_watertight` said True while the normals pointed *inward*.  A slicer handed that STL may print
+  the card hollow.  Fixed with `fix_normals()` in the builder, and the build now refuses to write a
+  file unless `is_watertight and is_volume and volume > 0` (`GAUGE BUILD: ALL CHECKS PASS`).
+* the first checker reported `watertight=False` for a part that was fine, because its probe asked
+  "how many void stretches are in this window" instead of "which stretch contains the centre".  A
+  probe line that crosses the far side of the part on its way to the window edge is not a second
+  void.  The rule now used everywhere: the interval that contains the probe centre, refined by
+  bisection - and it must back off *two* samples, not one, because a sample can land exactly on a
+  surface (that is where a d1.80 pilot read 1.750 for one run: half a step on each side).
+
+The wall comparison is deliberately not a min-of-three-planes statistic any more.  Profiling the
+front wall at five planes showed a 0.05 mm disagreement on one plane - a grazing ray on a vertex,
+not a taper - so the checker now reports the spread as its own row (`LCD width is a clean prism`,
+0.000 to 0.050 mm) and compares the *median* against the card, requiring the card never to be the
+bigger of the two.  That row can still fail, and fails if a wall ever does taper.
+
+The card is registered everywhere a part has to be: `tools/orient_v3.py` (`0.0`, printed flat,
+engraved face up), the pack's STL list, its figure list, the offline viewer, and the print order -
+where it is step 0, before the shell, which is the entire point of it.
