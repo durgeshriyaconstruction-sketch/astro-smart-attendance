@@ -81,7 +81,8 @@ ASSEMBLY ORDER
      installed at all: the bay between the ESP32 post ends and the R307's post is 58.35 mm and the
      board needed 60. See docs/v3_design_notes.md section 6, defect F13.)
   4. ESP32 DevKit V1: 4 x M2.2 into the round bosses on the -X wall, USB edge toward the
-     18 x 10 slot in the -Y wall. The board has 0.5 mm of clearance to the front wall and the
+     20.4 x 12.4 slot in the -Y wall (that is the 18 x 10 USB plug plus 1.2 mm of room per side,
+     measured through the whole 3 mm of wall - the connector shell never touches the plastic). The board has 0.5 mm of clearance to the front wall and the
      antenna end keeps its full keep-out box (verified: 0 of 27 000 samples inside material).
   5. 3010 fan: 4 x M3 x 12 into the standoffs on the -X wall. The d28 bore (615 mm2) has no
      grille, so the fan moves the air straight out; 8 x 30 x 5 stadium slots in the opposite wall
