@@ -304,7 +304,7 @@ Report as a table with `measured`, `target`, `verdict ∈ {PASS, FAIL, VERIFY_AC
 **Delivered revision result (all lines measured, none assumed):**
 
 ```
-shell     : watertight=True, bodies=1, volume 116.1 cm3
+shell     : watertight=True, bodies=1, volume 116.1 cc
 shell size: [110.0, 155.0, 45.0] (depth 45 + 3 mm plate = 48)  plate 110 x 155 x 7
 volume    : shell 116.1 / plate 79.6 / bracket 0.75 / clamp 1.58 x2 cm3  ~123 g PLA (15 % infill)
 A  shell<->plate 0.00 PASS   shell<->bracket 0.00 PASS
@@ -312,8 +312,8 @@ B  LCD glass / PCB+backpack / bezel / R307 / RC522 board+components+scan zone /
    ESP32 board+components / ESP32 RF keep-out / USB plug / Fan 3010   ALL 0.00 PASS
 C  LCD window, R307 window, RFID scan window, USB slot, fan grille,
    exhaust slot, top vent                               open=True wall_ok=True PASS
-D  rear plate 110 x 155 x 7 watertight 79.6 cm3 ; R307 bracket 33.5 x 12 x 2 watertight ;
-   RC522 clamp 62 x 15 x 2.5 watertight 1.58 cm3 (print 2, second rotated 180 deg)
+D  rear plate 110 x 155 x 7 watertight 79.6 cc ; R307 bracket 33.5 x 12 x 2 watertight ;
+   RC522 clamp 62 x 15 x 2.5 watertight 1.58 cc (print 2, second rotated 180 deg)
 E  front 2.90 / RFID ledge ring 1.95 / stiffener bar 1.90 / side 2.35 / top 2.90 /
    bottom 2.90 / LCD boss 11.50 / R307 post 23.50 / fan ring 1.35                 PASS
 F  all model dims match the reference table (2 items VERIFY_ACTUAL_HARDWARE)
@@ -327,7 +327,7 @@ J  12/12 polish + assembly probes PASS
 K  independent STL-only re-verification: 12 sections, 0 failures
    (docs/v2_independent_verify.txt) - incl. thinnest wall 1.20 mm (fan ring),
    0 of 11100 samples of the 12 mm RF scan volume inside material, 240/240 valid
-   slices, 22/22 pilot radii measured to +-0.05 mm, 198.0 cm3 total material
+   slices, 22/22 pilot radii measured to +-0.05 mm, 198.0 cc total material
 RESULT: ALL CHECKS PASS
 ```
 
@@ -430,14 +430,16 @@ measurement, never silently revert them:
    2.6 ring + heads) + the ESP32 bay + 3.0 cover. v2's 48 mm was 2 mm of solid rear plug.
 2. **Side walls 2.6 mm** (v2: 2.4) and a flat 3.0 mm fan wall; the thinnest *sheet* in the print
    is the 2.2 mm band the RC522 lies on.
-3. **The scan aperture is one opening**: 56 x 38, R5 corners, no bars, no floor, no recess
+3. **The scan aperture is one opening**: 38 x 56 (portrait, since v3.2), R5 corners, no bars,
+   no floor, no recess
    material inside it. Proof: `K1` ray-scans 8269 points masked to the same rounded rectangle
    the geometry uses - 0 blocked. A rectangular grid over a rounded opening reports a false
    failure at its own corners; a rectangular metric over a rounded feature reports a false pass.
 4. **The RC522 is held by one flat ring**, printed once: its inner lip stands 0.5 mm inside the
    aperture, its 4 corner tabs land on 4 pads whose tops are coplanar with the board's front
-   face (z = 4.6), and 4 x M2.5 pull it down into blind d2.2 x 3.8 pilots with 1.4 mm of wall
-   left under them. No clamp bar crosses the antenna, no reliance on the module's own hole pitch.
+   face (z = 4.6), and 4 x M2.5 pull it down into blind d2.05 x 3.8 pilots (the thread's minor,
+   not nominal) with 1.4 mm of wall left under them. The tabs are generated FROM the pad offsets
+   `(rc522_post_off)`, never typed - v3.0 typed them and 22 mm of tab hung in air after the swap. No clamp bar crosses the antenna, no reliance on the module's own hole pitch.
 5. **Rebate rings, not flush cuts**: 0.45 x 3.0 mm sunk around the LCD and fingerprint openings,
    so each module's bezel registers on the rebate floor (2.55 mm of wall remains under the ring).
    The fingerprint opening is the *bezel relief* footprint (21 x 25) with the 19.3 x 21.2 optical
@@ -447,10 +449,12 @@ measurement, never silently revert them:
    zone cut out by ONE clearance box. Per-boss notches and rib-splitting both failed: the ESP32
    has 4 bosses *and* 2 locating tabs, and the -Y rib's end collided too. Build the frame
    continuous, then subtract one generous box; 90 of 148 mm of register remains, plenty for
-   4 screws. 52.8 cm3 instead of 79.6 cm3.
-7. **Air path**: 6 x d5.0 intake holes at two heights on the wall opposite the fan, staggered so
-   no hole breaks a boss; d28 fan bore with no grille and no seat lip; 4 x (20 x 4) exhaust slots
-   and 3 x (16 x 3) top vents. v2's 3 grille bars left 50 % of the bore closed.
+   4 screws. 53.8 cm3 instead of a 79.6 cc solid plug (v3.1 added the relief cut through the
+   skin, which is +2.4 cc of frame and -0 mm of interference).
+7. **Air path**: 8 x 30 x 5 mm stadium slots (1157 mm2) on the wall opposite the fan - never
+   round holes there, a d5.0 hole 5.5 mm from a 3 mm wall leaves a 2.0 mm ligament and splits on
+   the spool's own tension. d28 bore with no grille and no seat lip, 4 x (20 x 4) exhaust slots and
+   3 x (16 x 3) top vents. v2's 3 grille bars left 50 % of the bore closed.
 8. **Everything is measured twice.** `build_v3.py` sections A-K (interference, envelopes,
    openings, other parts, probes, printability, STL re-read, the 22-hole pilot census, the
    bed envelope, the measured v2->v3 deltas) and `verify_v3.py`, which imports nothing from the
@@ -480,3 +484,62 @@ measurement, never silently revert them:
 `v3_all_views.png`, `v3_vs_v2.png`. The two fixing panels are cut from the shipped STLs with
 `mesh.section()`, so they cannot drift; `v3_vs_v2.png` renders both versions with the same
 `projection()` call, which is what makes "it looks unchanged" impossible to argue with.
+
+## §28 v3.1 / v3.2 APPENDIX - the physics round (a third checker, and what it caught)
+
+After both CAD checkers said PASS the box was still not *physically* checked, so
+`tools/audit_physics_v3.py` was written: 10 sections, no re-use of the generator's numbers, each
+one re-measured off `cad/v3/*.stl`. It is now the third gate and has to say
+`PHYSICS RESULT: no failures` before a pack is cut.
+
+| section | question it answers | verdict on the shipped model |
+|---|---|---|
+| 1 fasteners | is each pilot at the thread's minor, and will the thread pull out? | play 0.01-0.05 mm; 75-362 N per screw vs the 0.15-0.88 N it actually holds |
+| 2 clamping | is anything crushed, and is any head too tall for the gap behind it? | LCD bezel and R307 shoulder in compression; every head clears the plate |
+| 3 kinematics | can each part actually be *installed*, straight in, no tilting? | all 6 modules + the plate descend with 0 blocked samples |
+| 4 airflow | does the fan get air on both sides of the loop? | 615 mm2 bore in series with 1609 mm2 of grille-free path = 2.6x the bore; 0.86 L/s = 86 % of free air; dT 1.6 K; box changed every 0.9 s |
+| 5 optics | can the sensor see a finger, and can a human read the display? | 1815 of 1815 cone samples clear of the ring; LCD visible to 113 deg |
+| 6-7 RF | does plastic or metal sit in front of an antenna? | RC522 0 of 4350 points in material (aperture 100 % open), ESP32 keep-out 0 of 4350, no copper within 6 mm of the trace |
+| 8 plastic stress | plate peel, hook shear, wall ligaments, countersink edge distance | 289x peel reserve; hooks 0.16 MPa vs 8.5; RFID<->R307 ligament 22.50 mm; countersink wall 2.25 mm |
+| 9 slicer reality | first layer, overhangs, thin sheets, density, thermal | 11 396 mm2 single contour, 0.40 % of faces steeper than 60 deg, all >= 2.2 mm, 154 g, PETG note |
+| 10 doc truth | does every sentence in the pack match the triangles? | re-greps the docs, checks the required strings AND every `cm3` figure against the mesh volumes |
+
+**Four real defects it found, all fixed in the geometry - not in the text:**
+* **F11 (v3.1) - the plate's countersinks opened onto a corner round.** A d6.6 x 90 deg cone at
+  (+/-50, +/-71) left 0.08 mm of plastic on one side: it would print as a lip that shears off, and
+  the flat head would sit on air. Fixed by moving the 4 plate screws to (+/-46.5, +/-67.5) and
+  keeping the corner rounds; measured wall now 2.25-3.80 mm.
+* **F12 (v3.1) - the ESP32 fit relief was cut *through* the plate skin.** v3.0's "clearance" was a
+  hole: the board saw 0 mm of gap but rain and dust had a 34 x 20 mm doorway. Fixed by reliefs on
+  the frame's 4 vertical ribs and the +/-X ribs only, so the 3 mm skin stays continuous; the mid-
+  thickness slice of the skin must show **exactly 6 voids** (2 keyholes + 4 countersinks) - the
+  verifier fails if a 7th appears. Plate 51.4 -> 53.8 cm3 (+4.9 g) for a closure that closes.
+* **F13 (v3.2) - the RC522 could not be installed.** Landscape, the board is 59.6 mm wide and the
+  front-wall bay between the ESP32 post ends (x -42.4) and the R307's -X post (x +15.95) is
+  **58.35 mm**; every dodge path is closed by the fan standoffs (y 1..7 and 27..33). Rotated to
+  portrait: 40.6 across, 58.4 along, drops straight in with 6.4 mm to spare, and it lengthened the
+  thin RFID<->R307 ligament from 17.50 to 22.50 mm as a bonus. Side effect the user wanted: the
+  front face now visibly differs from v2 (portrait swipe window).
+* **F14 (v3.2) - the two checkers disagreed on mass by 50 g.** `verify_v3` applied a blanket 0.62
+  factor; the shell is a thin-walled box where 3 perimeters x 0.45 mm fill a 2.6 mm wall *solid*.
+  Both now use the same model - walls solid, 3 skins, 15 % core -> 154 g, 1 kg spool = 6.5 sets.
+
+**Accepted by design (recorded as notes, not failures):** the M2.5 pan head ends 0.90 mm proud of
+the ring's inner face (it sits in the recess, on the PCB side - it never touches the rear plate);
+and if the unit is mounted on an unshaded outside wall, print in PETG because the top surface of a
+black-ish PLA box in Indian sun passes PLA's 55-60 deg heat-deflection point.
+
+**Rules a rebuild must keep from this round:**
+1. Every module must enter by **descending along one axis** with 0 blocked samples at every
+   intermediate position - check kinematics, not just the final assembled overlap.
+2. Intact area of an intake/exhaust must be **>= 1.5x the fan bore**, and slots (not round holes)
+   within 3 mm of a wall.
+3. Countersink edge distance >= half the cone diameter, measured to the *real* outline.
+4. A closure plate gets no through-holes for clearance; relieve the register instead.
+5. Any feature that reaches a mounting pad is **generated from the pad's offset**, never typed.
+6. Pilots are at the thread's minor (2.05 / 2.50 / 1.80), never nominal.
+7. Reader header over the pads must be <= ~6 mm (the channel under the ESP32 posts is 9.8 mm) or
+   fit the reader before the ESP32; no M3 at the ESP32's antenna end, and no steel or brass
+   washers under those heads.
+8. A claim in a doc is a measurement the third checker re-runs: when geometry changes, the doc
+   edit is part of the fix (`docs/v3_physics_audit.txt` section 10 refuses a stale number).

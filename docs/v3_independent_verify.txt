@@ -3,20 +3,27 @@ source: cad/v3/*.stl only; no number imported from the generator
 ==============================================================================
 
 1. mesh integrity of the exported files
-   01 main shell                    open=0 nonmanifold=0 bodies=1 vol=112.42 cm3 micro=8 PASS
+   01 main shell                    open=0 nonmanifold=0 bodies=1 vol=110.86 cm3 micro=8 PASS
       (8 sub-micron sliver triangles, all inside x=-54.3..54.3 y=-76.8..76.8 -> rim/chamfer junctions, each < 1 um2, slicers ignore them)
-   02 rear plate                    open=0 nonmanifold=0 bodies=1 vol=52.83 cm3 micro=6 PASS
+   02 rear plate                    open=0 nonmanifold=0 bodies=1 vol=53.80 cm3 micro=6 PASS
       (6 sub-micron sliver triangles, all inside x=-54.3..54.3 y=-76.8..76.8 -> rim/chamfer junctions, each < 1 um2, slicers ignore them)
    03 R307 bracket                  open=0 nonmanifold=0 bodies=1 vol=1.01 cm3 micro=0 PASS
-   04 RC522 ring                    open=0 nonmanifold=0 bodies=1 vol=3.04 cm3 micro=0 PASS
+   04 RC522 ring                    open=0 nonmanifold=0 bodies=1 vol=2.19 cm3 micro=0 PASS
+   bed placement of the shipped files - this is what a slicer is actually handed:
+   01_MAIN_SHELL_v3.stl lies on the bed min z in file +0.0000 mm (design plane was z=0.0: front face down on the bed, rear opening up - no supports) PASS
+   02_REAR_PLATE_v3.stl lies on the bed min z in file +0.0000 mm (design plane was z=41.0: register frame down on the bed, outer face up) PASS
+   03_R307_BRACKET_v3.stl lies on the bed min z in file +0.0000 mm (design plane was z=26.5: back face down on the bed) PASS
+   04_RC522_RING_v3.stl lies on the bed min z in file -0.0000 mm (design plane was z=4.6: pad face down on the bed) PASS
 
 2. self-intersection / slice validity (every 0.2 mm through the shell)
    slices valid (no self-intersection) 214 slices, invalid=0 empty=0            PASS
 
 3. wall thickness map (rays cast in from outside each face, 4 mm grid)
-   samples with material: 2852 of 3310 rays (458 pass straight through openings)
-   thinnest wall found: 1.40 mm at [-43.0, 2.5, -4.0]
-   thickness histogram (mm -> count): 1:3, 2:33, 3:2332, 4:13, 5:141, 6:9, 7:8, 8:29, 9:10, 10:7, 11:83, 12:2, 13:22, 14:17, 17:16, 18:1, 22:8, 24:2, 26:8, 34:14, 35:1, 36:1, 40:6, 41:5, 43:14, 47:2, 48:1, 50:1, 83:3, 84:1, 89:3, 102:1, 110:46, 121:5, 155:4
+   samples with material: 2826 of 3310 rays (484 pass straight through openings)
+   samples below 1.6 mm: 5 re-probed, 1 of them were tangential grazes off a feature face (a 4 mm grid can land exactly on one).  A real thin wall is thin from every direction; a graze is not, so the widest re-probe wins.
+      graze at [-51.0, -65.5, 50.0]: 0.97 mm raw -> 10.00 mm confirmed
+   thinnest wall found: 1.40 mm at [1.0, -57.5, -4.0]
+   thickness histogram (mm -> count): 1:5, 2:33, 3:2368, 4:20, 5:124, 6:6, 8:23, 9:18, 10:7, 11:21, 12:3, 13:23, 14:18, 17:16, 18:1, 20:12, 21:2, 22:8, 24:2, 25:7, 26:10, 30:1, 34:2, 40:2, 41:5, 43:22, 52:6, 53:1, 54:1, 78:1, 89:3, 102:1, 110:38, 121:6, 155:10
    no wall thinner than 1.2 mm      min 1.40 mm                              PASS
 
 4. component clearance (envelopes re-typed here; 0 samples inside material required)
@@ -25,9 +32,9 @@ source: cad/v3/*.stl only; no number imported from the generator
    LCD I2C backpack                 0 of 1890 samples inside material        PASS
    R307 body 44.1x20x23.5           0 of 5280 samples inside material        PASS
    R307 optical path                0 of 990 samples inside material         PASS
-   RC522 pcb 60x40                  0 of 1200 samples inside material        PASS
+   RC522 pcb 40x60                  0 of 1200 samples inside material        PASS
    RC522 components                 0 of 2464 samples inside material        PASS
-   RC522 hold-down ring             0 of 2976 samples inside material        PASS
+   RC522 hold-down ring             0 of 2508 samples inside material        PASS
    ESP32 pcb 51.45x28.33            0 of 754 samples inside material         PASS
    ESP32 components 16 mm           0 of 6032 samples inside material        PASS
    USB plug 15.6x8                  0 of 448 samples inside material         PASS
@@ -35,33 +42,33 @@ source: cad/v3/*.stl only; no number imported from the generator
    fan M3 head (on the fan's inner face) 0 of 900 samples inside material         PASS
 
 5. screw pilot holes - diameter measured from the mesh (8 rays at 3 depths)
-   LCD1602 M2.5                     measured d=2.50 mm (design 2.5) at (-37.5, 36.5) PASS
-   LCD1602 M2.5                     measured d=2.50 mm (design 2.5) at (37.5, 36.5) PASS
-   LCD1602 M2.5                     measured d=2.50 mm (design 2.5) at (-37.5, 67.5) PASS
-   LCD1602 M2.5                     measured d=2.50 mm (design 2.5) at (37.5, 67.5) PASS
+   LCD1602 M2.5                     measured d=2.05 mm (design 2.05) at (-37.5, 36.5) PASS
+   LCD1602 M2.5                     measured d=2.05 mm (design 2.05) at (37.5, 36.5) PASS
+   LCD1602 M2.5                     measured d=2.05 mm (design 2.05) at (-37.5, 67.5) PASS
+   LCD1602 M2.5                     measured d=2.05 mm (design 2.05) at (37.5, 67.5) PASS
    R307 bracket M3                  measured d=2.50 mm (design 2.5) at (22.0, -24.1) PASS
    R307 bracket M3                  measured d=2.50 mm (design 2.5) at (50.0, -24.1) PASS
-   RC522 ring M2.5                  measured d=2.20 mm (design 2.2) at (-42.0, -51.0) PASS
-   RC522 ring M2.5                  measured d=2.20 mm (design 2.2) at (1.9, -51.0) PASS
-   RC522 ring M2.5                  measured d=2.20 mm (design 2.2) at (-42.0, 2.9) PASS
-   RC522 ring M2.5                  measured d=2.20 mm (design 2.2) at (1.9, 2.9) PASS
-   ESP32 standoff M2.2              measured d=2.20 mm (design 2.2) at (-66.5, 16.8) PASS
-   ESP32 standoff M2.2              measured d=2.20 mm (design 2.2) at (-66.5, 38.2) PASS
-   ESP32 standoff M2.2              measured d=2.20 mm (design 2.2) at (-22.0, 16.8) PASS
-   ESP32 standoff M2.2              measured d=2.20 mm (design 2.2) at (-22.0, 38.2) PASS
-   rear plate M3                    measured d=2.50 mm (design 2.5) at (-46.5, -71.0) PASS
-   rear plate M3                    measured d=2.50 mm (design 2.5) at (46.5, -71.0) PASS
-   rear plate M3                    measured d=2.50 mm (design 2.5) at (-46.5, 71.0) PASS
-   rear plate M3                    measured d=2.50 mm (design 2.5) at (46.5, 71.0) PASS
+   RC522 ring M2.5                  measured d=2.05 mm (design 2.05) at (-33.0, -58.0) PASS
+   RC522 ring M2.5                  measured d=2.05 mm (design 2.05) at (0.9, -58.0) PASS
+   RC522 ring M2.5                  measured d=2.05 mm (design 2.05) at (-33.0, 9.9) PASS
+   RC522 ring M2.5                  measured d=2.05 mm (design 2.05) at (0.9, 9.9) PASS
+   ESP32 standoff M2.2              measured d=1.80 mm (design 1.8) at (-66.5, 16.8) PASS
+   ESP32 standoff M2.2              measured d=1.80 mm (design 1.8) at (-66.5, 38.2) PASS
+   ESP32 standoff M2.2              measured d=1.80 mm (design 1.8) at (-22.0, 16.8) PASS
+   ESP32 standoff M2.2              measured d=1.80 mm (design 1.8) at (-22.0, 38.2) PASS
+   rear plate M3                    measured d=2.50 mm (design 2.5) at (-46.5, -67.5) PASS
+   rear plate M3                    measured d=2.50 mm (design 2.5) at (46.5, -67.5) PASS
+   rear plate M3                    measured d=2.50 mm (design 2.5) at (-46.5, 67.5) PASS
+   rear plate M3                    measured d=2.50 mm (design 2.5) at (46.5, 67.5) PASS
    Fan M3                           measured d=2.50 mm (design 2.5) at (5.0, 12.0) PASS
    Fan M3                           measured d=2.50 mm (design 2.5) at (5.0, 36.0) PASS
    Fan M3                           measured d=2.50 mm (design 2.5) at (29.0, 12.0) PASS
    Fan M3                           measured d=2.50 mm (design 2.5) at (29.0, 36.0) PASS
    the hold-down ring's own clearance holes (measured on 04):
-   ring hole (-42.0, -51.0)         through=True beside=True head-recess=True PASS
-   ring hole (-42.0, 2.9)           through=True beside=True head-recess=True PASS
-   ring hole (1.9, -51.0)           through=True beside=True head-recess=True PASS
-   ring hole (1.9, 2.9)             through=True beside=True head-recess=True PASS
+   ring hole (-33.0, -58.0)         through=True beside=True head-recess=True PASS
+   ring hole (-33.0, 9.9)           through=True beside=True head-recess=True PASS
+   ring hole (0.9, -58.0)           through=True beside=True head-recess=True PASS
+   ring hole (0.9, 9.9)             through=True beside=True head-recess=True PASS
 
 6. openings - a ray from inside must escape to the outside
    LCD window                       9/9 sample rays escape                   PASS
@@ -71,14 +78,14 @@ source: cad/v3/*.stl only; no number imported from the generator
    fan bore                         9/9 sample rays escape                   PASS
    bottom exhaust                   9/9 sample rays escape                   PASS
    top vent                         9/9 sample rays escape                   PASS
-   intake hole +X                   9/9 sample rays escape                   PASS
-   RFID aperture has no bar         8428 probes inside the rounded 56 x 38 window, 0 blocked   (v2: 190 mm2 of that area was stiffener bar) PASS
+   intake slot +X                   9/9 sample rays escape                   PASS
+   RFID aperture has no bar         8428 probes inside the rounded 38 x 56 window, 0 blocked   (v2: 190 mm2 of that area was stiffener bar) PASS
    fan bore 100 % open              616 of 616 mm2 clear (100.0 %); v2 passed 50 % PASS
 
 7. layer-by-layer printability (front face down, 0.2 mm slices)
    first layer area                 11469 mm2 (bed adhesion)                 PASS
-   worst layer jump cantilevers little 1261.6 mm2 newly added at z=10.2; its farthest point is 0.00 mm beyond the layer below (bridging span; <= 3.0 mm prints without support) PASS
-   total newly-added area over 43.0 mm of print: 4320 mm2 (0.79 % of the layer sum)
+   worst layer jump cantilevers little 1045.6 mm2 newly added at z=10.2; its farthest point is 0.00 mm beyond the layer below (bridging span; <= 3.0 mm prints without support) PASS
+   total newly-added area over 43.0 mm of print: 4618 mm2 (0.85 % of the layer sum)
 
 8. driver access - a 6 mm wide x 25 mm long tool cylinder must be empty
    rear plate M3 x4                 0 blocked samples over 25 mm             PASS
@@ -89,30 +96,37 @@ source: cad/v3/*.stl only; no number imported from the generator
 
 9. RF path in front of the scan window
    no material in the 12 mm scan volume 0 of 11100 samples inside                PASS
-   board footprint (60 x 40) with an unobstructed forward path: 82.6 %  (417 of 2400 columns blocked, all of them by the ledge ring outside the window)
-   in front of the PCB there is 2.20 mm of printed wall where the recess leaves it (v2: 2.00 mm), and inside the 56 x 38 aperture exactly 0 mm - measured above
-   88.7 % of the board sits behind the open window and nothing at all is in front of that part of it; v2 put 2 x 2.5 mm bars across the same window (7.9 % of the board), which is the difference this re-design makes
+   board footprint (60 x 40) with an unobstructed forward path: 63.3 %  (880 of 2400 columns blocked, all of them by the ledge ring outside the window)
+   in front of the PCB there is 2.20 mm of printed wall where the recess leaves it (v2: 2.00 mm), and inside the 38 x 56 aperture exactly 0 mm - measured above
+   88.7 % of the board sits behind the open window and nothing at all is in front of that part of it; v2 put 2 x 2.5 mm bars across the same window (11.7 % of the board), which is the difference this re-design makes
 
 10. printed-part fits
    plate register frame fits the shell opening opening 104.80 x 149.00, frame 104.30 x 148.50 -> gap 0.50 / 0.50 per side PASS
-   register is a frame, not a solid plug 3019 mm2 of material at z=42 inside a 15615 mm2 opening (19.3 %); v2 filled it with a 2 mm slab PASS
+   register is a frame, not a solid plug 2997 mm2 of material at z=42 inside a 15615 mm2 opening (19.2 %); v2 filled it with a 2 mm slab PASS
    ring holes over the shell pads   4/4 pad seats free above the pads        PASS
    shell is flat under the ring     0 of 3844 probes proud of z=4.60         PASS
 
 11. dimensions re-measured from the meshes
    shell outer size                 [110.0, 155.0, 43.0] (design 110 x 155 x 43) PASS
-   rear plate size                  [110.0, 155.0, 7.0] (3 mm cover + 2 mm register frame) PASS
-   plate cover over the cavity >= 2.5 mm min 2.70 mm over 383 columns (25 are openings/keyholes); thin: none PASS
+   rear plate size                  [110.0, 155.0, 5.0] (3 mm cover + 2 mm register frame; v3.1 deleted the 2 mm stand-off hang rails, so nothing else stands proud) PASS
+   plate countersink +X+Y keeps a wall 2.25 mm of plastic between the d6.6 x 90 deg cone and the part outline PASS
+   plate countersink +X-Y keeps a wall 2.25 mm of plastic between the d6.6 x 90 deg cone and the part outline PASS
+   plate countersink -X+Y keeps a wall 2.25 mm of plastic between the d6.6 x 90 deg cone and the part outline PASS
+   plate countersink -X-Y keeps a wall 2.25 mm of plastic between the d6.6 x 90 deg cone and the part outline PASS
+   plate skin has exactly 6 voids at mid-thickness 6: ['keyhole', 'screw clearance / countersink'] PASS
+   plate skin area at mid-thickness 15983 mm2 of a 110 x 155 slab (17050 mm2); v3.0 measured 14897 - the relief bug PASS
+   plate cover over the cavity >= 2.5 mm min 2.70 mm over 400 columns (8 are openings/keyholes); thin: none PASS
    LCD window measured              66.0 x 17.5 vs design 66.0 x 17.5        PASS
    R307 opening                     21.0 x 25.0 mm open, optical window 19.3 x 21.2 inside it, relief cut 21.0 x 25.0 PASS
-   RFID aperture is ONE opening     1 hole(s) of that size: 56.0 x 38.0 mm, area 2106 mm2 PASS
-   all through-openings seen in the front wall slice: 66.0x17.5, 56.0x38.0, 21.0x25.0, 2.2x2.2, 2.2x2.2, 2.2x2.2, 2.2x2.2
-   holes crossing z=42 (rear boss pilots): [(np.float64(-51.7), np.float64(-60.0)), (np.float64(-46.5), np.float64(-58.8)), (np.float64(-46.5), np.float64(12.2)), (np.float64(0.0), np.float64(11.0)), (np.float64(46.5), np.float64(-12.2)), (np.float64(46.5), np.float64(58.8))]
+   RFID aperture is ONE opening     1 hole(s) of that size: 38.0 x 56.0 mm, area 2106 mm2 PASS
+   all through-openings seen in the front wall slice: 66.0x17.5, 38.0x56.0, 21.0x25.0, 2.1x2.0, 2.1x2.1, 2.0x2.1, 2.0x2.0
+   holes crossing z=42 (rear boss pilots): [(np.float64(-46.5), np.float64(-57.0)), (np.float64(-46.5), np.float64(10.5)), (np.float64(0.0), np.float64(11.0)), (np.float64(46.5), np.float64(-10.5)), (np.float64(46.5), np.float64(57.0))]
 
 12. material estimate
-   solid volume of all 4 printed parts: 169.3 cm3
-   shell 112.4 + plate 52.8 + bracket 1.01 + ring 3.04 cm3
-   expected mass: ~105 g PLA at 15 % infill (shell 70 g, plate 33 g)
+   solid volume of all 4 printed parts: 167.9 cm3
+   shell 110.9 + plate 53.8 + bracket 1.01 + ring 2.19 cm3
+   printed PLA (0.45 nozzle, 3 walls, 3 skins, 15 % infill, no supports): shell 109 g / plate 41 g / bracket 1 g / ring 3 g  = TOTAL 154 g
+   filament 100 cm3 of 1.75 mm (1 kg spool = 6.5 sets); the blanket 0.62 factor above understates the shell by 23 g because a 2.6 mm wall prints solid
 
 ==============================================================================
 INDEPENDENT RESULT: ALL CHECKS PASS

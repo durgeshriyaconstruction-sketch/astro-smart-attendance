@@ -13,7 +13,7 @@ v3 is a RE-DESIGN, not a polish of v2.  Architectural changes vs v2:
      protection), R307 bracket redrawn as a dog-bone with two stiffening ribs
   6  ESP32 on 4 round d7 bosses with 0.5 spotfaces + a 3 x 2 locating rail
   7  rear plate: 2 strain-relief slots in line with 2 tie posts, register lip tightened to
-     0.55 mm, 6 x d5.0 staggered intake holes in the +X wall
+     0.55 mm, 8 x 30 x 5 intake slots in the +X wall sized to the d28 fan bore
 
 Axes:   X = width (110)   Y = height (155)   Z = depth (48)
         z = 0  -> device FRONT (user) face
@@ -49,7 +49,7 @@ P = dict(
     # ---- LCD1602 + I2C backpack -----------------------------------------
     lcd_window=(66.0, 17.5), lcd_centre=(0.0, 51.95),        # [V1] window pos
     lcd_hole_pitch=(75.1, 31.0),                             # [V1] == 1602 std
-    lcd_boss=6.0, lcd_pilot=2.5, lcd_glass_t=11.5,           # [REF] 18-25 mm deep
+    lcd_boss=6.0, lcd_pilot=2.05, lcd_glass_t=11.5,       # v3.1: pilot at M2.5 minor dia  # [REF] 18-25 mm deep
 
     # ---- R307 fingerprint -----------------------------------------------
     r307_window=(19.3, 21.2), r307_centre=(35.95, -24.1),   # [V1]
@@ -60,16 +60,20 @@ P = dict(
     r307_bracket_holes=(-13.95, 14.05), r307_bracket_w=52.2,
 
     # ---- RC522 RFID ------------------------------------------------------
-    rc522_board=(60.0, 40.0, 1.6),                          # [REF]
-    rc522_centre=(-20.05, -24.05),                          # [V1] recess centre
+    rc522_board=(40.0, 60.0, 1.6),                          # [REF] v3.2: portrait, see below
+    rc522_centre=(-16.05, -24.05),                          # [V1] recess centre
     rc522_components=6.0,                                   # [REF] 3-8 mm
-    rc522_pocket=(64.0, 44.0),                              # 2 mm clearance
-    rfid_recess=(62.7, 44.7), rfid_recess_deep=0.8,         # v3: 2.2 mm ledge ring, no bars
+    rc522_pocket=(44.0, 64.0),                              # 2 mm clearance
+    rfid_recess=(44.7, 62.7), rfid_recess_deep=0.8,         # v3: 2.2 mm ledge ring, no bars
     rfid_board_fit=0.35, rfid_seat_rib=(1.2, 1.0),          # locating ribs (w x h)
-    rfid_window=(56.0, 38.0), rfid_bars=(0, 0.0),           # v3: NO bars, clear aperture
-    rc522_post_off=(22.0, 27.0), rc522_post=8.0,                      # screw pads
-    rc522_pilot_d=2.2,
-    rc522_ring=(62.4, 43.6, 2.6), rc522_ring_open=(55.0, 37.0, 3.0),   # v3 hold-down ring
+    rfid_window=(38.0, 56.0), rfid_bars=(0, 0.0),           # v3: NO bars, clear aperture
+    rc522_post_off=(17.0, 34.0), rc522_post=8.0,                      # screw ears, beyond board
+    #  ^ the ear centres must clear THREE things at once: the board's outline (|y| > 30), the
+    #    ring's own opening (|y| > 27.5), and the through-window cut in the wall (|y| > 28) - 34
+    #    does all three with >= 6 mm to spare, exactly as v3.0's (22, 27) did for the landscape
+    #    board (it cleared |x| 30 / opening 27.5 / window 28 in the other axis).
+    rc522_pilot_d=2.05,
+    rc522_ring=(43.6, 62.4, 2.6), rc522_ring_open=(37.0, 55.0, 3.0),   # v3 hold-down ring
     rc522_post_h=1.6,                          # pad top = board back face (zero-lip clamp)
 
     # ---- ESP32 DevKit V1 -------------------------------------------------
@@ -77,7 +81,7 @@ P = dict(
     esp32_comp_h=16.0,                                      # [REF] 8-12 + USB
     esp32_post_len=10.0, esp32_usb_edge=-70.0,               # USB edge Y
     esp32_z_centre=27.5,                                     # keeps it clear of the RC522
-    esp32_pad=8.0, esp32_pilot=2.2, esp32_inset=3.5,        # inset VERIFY_ACTUAL_HARDWARE
+    esp32_pad=8.0, esp32_pilot=1.8, esp32_inset=3.5,        # inset VERIFY_ACTUAL_HARDWARE
     usb_slot=(18.0, 10.0), usb_plug=(15.6, 8.0),
 
     # ---- 3010 fan --------------------------------------------------------
@@ -87,10 +91,10 @@ P = dict(
     # ---- ventilation -----------------------------------------------------
     vent_slot=(20.0, 4.0), vent_rows=(-16.0, 16.0), vent_z=(6.0, 12.0),
     top_vent=(16.0, 3.0), top_vent_x=(-18.0, 0.0, 18.0), top_vent_z=26.0,
-    intake=(5.0, (-36.0, -12.0, 12.0), (20.0, 36.0)),  # v3: d5.0 holes, +X wall fresh air
+    intake=(30.0, 5.0, (-52.5, -17.5, 17.5, 52.5), (18.0, 32.0), 2.5),  # 8 slots = 1157 mm2
 
     # ---- hardware --------------------------------------------------------
-    plate_boss=9.0, plate_boss_xy=(46.5, 71.0), lip_fit=0.25, lip_w=8.0,
+    plate_boss=9.0, plate_boss_xy=(46.5, 67.5), lip_fit=0.25, lip_w=8.0,   # v3.1: 3.5 mm inboard
     plate_pilot=2.5, plate_screw=3.4,
     keyhole_d=7.5, keyhole_slot=4.6, keyhole_span=50.0,
     corner_r=3.0, corner_eps=0.12, rim_chamfer=1.0, m3_csk=6.6,   # polish + flush screws
@@ -117,6 +121,21 @@ def rr(cx, cy, w, h, r):
 def ext_z(poly, z0, z1):
     m = trimesh.creation.extrude_polygon(poly, z1 - z0)
     m.apply_translation([0, 0, z0])
+    return m
+
+
+def ext_x(poly, x0, x1):
+    """polygon given in (y, z) -> prism spanning x0..x1.
+
+    extrude_polygon works along local Z, so the frame is permuted cyclically
+    (local x -> world y, local y -> world z, local z -> world x): det = +1, no mirroring.
+    """
+    x0, x1 = sorted((x0, x1))
+    m = trimesh.creation.extrude_polygon(poly, x1 - x0)
+    T = np.eye(4)
+    T[:3, :3] = [[0.0, 0.0, 1.0], [1.0, 0.0, 0.0], [0.0, 1.0, 0.0]]
+    m.apply_transform(T)
+    m.apply_translation([x0, 0, 0])
     return m
 
 
@@ -333,10 +352,10 @@ def build_shell():
         cut.append(ext_y(rr(vx, P["top_vent_z"], w2, h2, 1.2), H / 2 + 2, hi - 0.1))
 
     # --------------------------------------------- v3 intake holes (+X wall)
-    idia, iys, izs = P["intake"]
+    iw, ih, iys, izs, ir = P["intake"]
     for iy in iys:
         for iz in izs:
-            cut.append(cyl_x(wi - 0.1, W / 2 + 2, iy, iz, idia))
+            cut.append(ext_x(rr(iy, iz, iw, ih, ir), wi - 0.1, W / 2 + 2))
 
     # ---------------------------------------------------- cable tie posts
     for (zx, zy) in (P["zip_post"], P["zip_post2"], P["zip_post3"], P["zip_post4"]):
@@ -404,8 +423,20 @@ def build_plate():
     wi2 = P["W"] / 2 - P["wall_side"]
     ezc, ebw, ebl = P["esp32_z_centre"], P["esp32_board"][0], P["esp32_board"][1]
     ey0 = P["esp32_usb_edge"]
+    # v3.2 LAYOUT: the RC522 is mounted PORTRAIT (its 60 mm dimension along Y, not X).  With the
+    # board's 60 mm side along X it could not be installed at all: the front wall's bay between the
+    # ESP32's stand-off posts (which end at x = -42.4) and the R307's -X post (which starts at
+    # x = 15.95) is 58.35 mm, and the reader's own hold-down ring is 62.4 mm - a 4 mm shortfall, so
+    # no vertical or tilted path existed (audit section 3 F13).  Turned through 90 deg the whole
+    # stack is 43.6 mm wide and drops straight down with 6.4 mm to the ESP32 posts, 10.2 mm to the
+    # R307 post and 3.25 mm to the fan bosses; a card is portrait anyway, and the swipe area lands
+    # nearer the centre of the front face.
+    # v3.1 BUGFIX: this relief used to run to z = D + 2, i.e. THROUGH THE WHOLE PLATE, so the
+    # shipped v3.0 rear plate had a 15.6 x 63 mm hole in its -X-Y corner (found by the physics
+    # audit, invisible to the interference test because the frame is cut there anyway).  The
+    # relief only has to remove register-frame material, so it now stops at the frame's own top.
     plate = DIFF([plate, bx(-ox_ - 2.0, -wi2 + P["esp32_post_len"] + 3.0,
-                            ey0 - 6.0, ey0 + ebl + 6.0, z0 - 2.5, D + 2)], engine="manifold")
+                            ey0 - 6.0, ey0 + ebl + 6.0, z0 - 2.5, z0 + 0.16)], engine="manifold")
 
     cut = []
     bx0, by0 = P["plate_boss_xy"]
@@ -440,10 +471,12 @@ def build_plate():
         cut.append(bx(kx - ks / 2, kx + ks / 2, -kd / 2, 12.0, z0 - 1, D + 1))
     plate = DIFF([plate, UNION(cut, engine="manifold")], engine="manifold")
 
-    ribs = [bx(-span / 2, span / 2, -1.5, 1.5, z0 - 4.0, z0 - 2.0)]
-    for kx in (-span / 2, span / 2):
-        ribs.append(bx(kx - 1.5, kx + 1.5, -H / 2 + 8, span / 2, z0 - 4.0, z0 - 2.0))
-    return UNION([plate] + ribs, engine="manifold")
+    # v3.1: the two 3 x 2 mm hang rails that used to be unioned here are gone.  They stood
+    # 2 mm in FRONT of the plate, touched nothing but the register frame's bottom face, and
+    # bridged 50 mm between their legs - they carried no load (the hooks see 1.7 N each against
+    # 8.5 MPa of shear area, a 70x reserve) and they were the one feature in the whole model a
+    # slicer would have to print as a long thin bridge.
+    return plate
 
 
 def build_rc522_ring():
@@ -462,10 +495,16 @@ def build_rc522_ring():
     opw, oph, opr = P["rc522_ring_open"]
     z0 = P["wall_front"] + P["rc522_board"][2]        # board back face = pad top = 4.6
     body = [bx(fcx - ow / 2, fcx + ow / 2, fcy - oh / 2, fcy + oh / 2, z0, z0 + ot)]
-    for sx in (-1, 1):                                  # 4 tabs, 2 mm overlap onto the frame
+    # v3.2: the 4 screw tabs used to be hard-coded (x 15..29, y 20..31.5) for the landscape
+    # reader; they are now generated from rc522_post_off so they always carry the ears that sit on
+    # the shell's pads, whichever way round the module is mounted.  The opening cut that follows
+    # trims their inner ends, so the overlap onto the frame is self-limiting.
+    tab_in = max(ow, oh) / 2.0 - 8.0
+    for sx in (-1, 1):
         for sy in (-1, 1):
-            body.append(bx(fcx + sx * 15.0, fcx + sx * 29.0,
-                           fcy + sy * 20.0, fcy + sy * 31.5, z0, z0 + ot))
+            xa, xb = fcx + sx * (pox - 4.0), fcx + sx * (pox + 4.0)
+            ya, yb = fcy + sy * tab_in, fcy + sy * (poy + 4.0)
+            body.append(bx(min(xa, xb), max(xa, xb), min(ya, yb), max(ya, yb), z0, z0 + ot))
     frame = UNION(body, engine="manifold")
     opening = ext_z(rr(fcx, fcy, opw, oph, opr), z0 - 1, z0 + ot + 1)
     frame = DIFF([frame, opening], engine="manifold")
@@ -559,14 +598,16 @@ def opening_test(shell):
     lcx, lcy = P["lcd_centre"]
     rcx, rcy = P["r307_centre"]
     fcx, fcy = P["rc522_centre"]
-    lane = fcx - 24.0                       # inside the aperture, away from the bearing band
+    # v3.2: the reader is portrait, so the lane the card is presented in runs along Y
+    lane = fcy - 24.0                       # inside the aperture, away from the bearing band
     usx = -wi + P["esp32_post_len"] + 3.5
     ezc = P["esp32_z_centre"]
     fy, fz = P["fan_centre_yz"]
     cases = [
         ("LCD window",        (lcx, lcy, zi - 1.5), (lcx + P["lcd_window"][0] / 2 + 4, lcy, zi - 1.5)),
         ("R307 window",       (rcx, rcy, zi - 1.5), (rcx + P["r307_window"][0] / 2 + 4, rcy, zi - 1.5)),
-        ("RFID scan window",  (lane, fcy, (deep + zi) / 2), (fcx - P["rfid_window"][0] / 2 - 2, fcy, (deep + zi) / 2)),
+        ("RFID scan window",  (fcx, lane, (deep + zi) / 2),
+         (fcx, fcy - P["rfid_window"][1] / 2 - 2, (deep + zi) / 2)),
         ("USB slot",          (usx, -P["H"] / 2 + 1.5, ezc), (usx + P["usb_slot"][0] / 2 + 4, -P["H"] / 2 + 1.5, ezc)),
         ("fan bore (no grille)", (-P["W"] / 2 + 1.5, fy, fz), (-P["W"] / 2 + 1.5, fy, fz + P["fan_open_d"] / 2 + 4)),
         ("exhaust slot",      (P["vent_rows"][0], -P["H"] / 2 + 1.5, P["vent_z"][0]),
@@ -684,7 +725,7 @@ def audit(shell, plate, r307b, ring=None):
         ("R307 body", f"{P['r307_body']}", "44.1 x 20 x 23.5", True),
         ("R307 window", f"{P['r307_window']}", "19 x 21", True),
         ("ESP32 pcb", f"{P['esp32_board']}", "51.45 x 28.33", True),
-        ("RC522 pcb", f"{P['rc522_board'][:2]}", "60 x 40", True),
+        ("RC522 pcb", f"{P['rc522_board'][:2]}", "40 x 60", True),
         ("LCD pcb", "80 x 36 (window pattern 75.1 x 31)", "80 x 36", True),
         ("LCD visible", f"{P['lcd_window']} window", "64 x 16", True),
         ("Fan", f"{P['fan']}", "30 x 30 x 10", True),
@@ -727,7 +768,7 @@ def audit(shell, plate, r307b, ring=None):
     holes = []
     for sx in (-1, 1):                                        # LCD 1602 : 4 x M2.5
         for sy in (-1, 1):
-            holes.append(("LCD1602", "M2.5", 2.5, 8.5,
+            holes.append(("LCD1602", "M2.5", 2.05, 8.5,
                           (lcx + sx * P["lcd_hole_pitch"][0] / 2, lcy + sy * P["lcd_hole_pitch"][1] / 2),
                           "z", zi + 4.5, zi + P["lcd_glass_t"] + 1.5))
     for dx in P["r307_bracket_holes"]:                        # R307 : 2 x M3
@@ -735,11 +776,11 @@ def audit(shell, plate, r307b, ring=None):
                       zi + P["r307_post_h"] - 7.0, zi + P["r307_post_h"] + 1))
     for sx in (-1, 1):                                        # RC522 : 4 x M2.5
         for sy in (-1, 1):
-            holes.append(("RC522 ring", "M2.5", 2.2, 3.8,
+            holes.append(("RC522 ring", "M2.5", 2.05, 3.8,
                           (fcx + sx * pox, fcy + sy * poy), "z", 1.4, zi + P["rc522_post_h"] + 0.6))
     for py in (ey0 + P["esp32_inset"], ey0 + ebl - P["esp32_inset"]):      # ESP32 : 4 x M2.2
         for pz in (ez0 + P["esp32_inset"], ez1 - P["esp32_inset"]):
-            holes.append(("ESP32 standoff", "M2.2", 2.2, 7.0, (py, pz), "x",
+            holes.append(("ESP32 standoff", "M2.2", 1.8, 7.0, (py, pz), "x",
                           ex_face - 7.0, ex_face + 0.6))
     for dy in (-P["fan_pitch"] / 2, P["fan_pitch"] / 2):       # fan : 4 x M3
         for dz in (-P["fan_pitch"] / 2, P["fan_pitch"] / 2):
@@ -763,7 +804,7 @@ def audit(shell, plate, r307b, ring=None):
         good = empty and solid
         bad += 0 if good else 1
         counts[name] = counts.get(name, 0) + 1
-        pstr = f"{d:.1f} x {depth:.1f}"
+        pstr = f"{d:.2f} x {depth:.1f}"
         add(f"   {name:14s}{sc:7s}{pstr:9s}{'':8s}{str(empty):>11s}{str(solid):>10s}  "
             f"{'PASS' if good else 'FAIL'}   at ({pos[0]:.1f}, {pos[1]:.1f})")
     ok = ok and bad == 0
@@ -778,7 +819,12 @@ def audit(shell, plate, r307b, ring=None):
     plate_m = build_plate()
     checks = [
         ("corner rounded",     not bool(shell.contains([[W_ / 2 - 0.3, H_ / 2 - 0.3, 20.0]])[0])),
-        ("corner material kept", bool(shell.contains([[W_ / 2 - r - 1.2, H_ / 2 - r - 1.2, 20.0]])[0])),
+        ("corner material kept", all(bool(shell.contains([[W_ / 2 - dx, H_ / 2 - dy, 20.0]])[0])
+                                      for dx, dy in ((1.3, 1.3), (0.8, 2.2), (2.2, 0.8)))),
+        # v3.1 note: this used to probe one point at (W/2-r-1.2, H/2-r-1.2) which happened to
+        # land on a rear-plate boss, so it was not measuring the corner at all.  Three points
+        # inside the wall band, none of them on a boss, is.
+
         ("front rim chamfered", not bool(shell.contains([[W_ / 2 - 0.2, 0.0, 0.2]])[0])),
         ("rim material below",  bool(shell.contains([[W_ / 2 - 0.2, 0.0, 2.0]])[0])),
         ("plate rear chamfer",  not bool(plate_m.contains([[W_ / 2 - 0.2, 0.0, D_ - 0.2]])[0])),
@@ -787,9 +833,10 @@ def audit(shell, plate, r307b, ring=None):
                                                             P["plate_boss_xy"][1], D_ - 0.4]])[0])),
         ("plate csk wall kept", bool(plate_m.contains([[P["plate_boss_xy"][0] + 5.0,
                                                         P["plate_boss_xy"][1], D_ - 0.4]])[0])),
-        ("RC522 seat rib",      bool(shell.contains([[fcx - 30.0 - P["rfid_board_fit"] - 0.6,
-                                                      fcy, zi + 0.5]])[0])),
-        ("RC522 ledge ring",    bool(shell.contains([[fcx - 30.0 + 1.0, fcy, zi - 0.05]])[0])),
+        ("RC522 seat rib",      bool(shell.contains(
+            [[fcx - (P["rc522_board"][0] / 2 + P["rfid_board_fit"]) - 0.6, fcy, zi + 0.5]])[0])),
+        ("RC522 ledge ring",    bool(shell.contains(
+            [[fcx - (P["rfid_window"][0] + P["rfid_recess"][0]) / 4.0, fcy, zi - 0.05]])[0])),
         ("R307 seat rib",       bool(shell.contains([[rcx + 10.0 + P["r307_seat_fit"] + 0.6,
                                                       rcy + 16.0, zi + 0.5]])[0])),
         ("strain-relief post",  bool(shell.contains([[P["zip_post4"][0] + 3.0, P["zip_post4"][1], zi + 3.0]])[0])),
@@ -800,20 +847,23 @@ def audit(shell, plate, r307b, ring=None):
     eyf_ = P["esp32_usb_edge"]; ezf_ = P["esp32_z_centre"]; ebw_ = P["esp32_board"][0]
     exf_ = -wi_ + P["esp32_post_len"]
     fyv, fzv = P["fan_centre_yz"]
-    idia, iys, izs = P["intake"]
+    iw, ih, iys, izs, ir = P["intake"]
     checks += [
         ("RFID aperture centre clear", not bool(shell.contains([[fcx, fcy, zi - 1.5]])[0])),
         ("no bar in the aperture",
          not bool(shell.contains([[fcx - 9.33, fcy, zi - 1.5]])[0]) and
          not bool(shell.contains([[fcx + 9.33, fcy, zi - 1.5]])[0])),
         ("fan bore centre clear", not bool(shell.contains([[-P["W"] / 2 + 1.0, fyv, fzv]])[0])),
-        ("intake hole open (+X)",  not bool(shell.contains([[W_ / 2 - 1.0, iys[0], izs[0]]])[0])),
-        ("intake wall beside",      bool(shell.contains([[W_ / 2 - 1.0, iys[0] + 5.0, izs[0]]])[0])),
+        ("intake slot open (+X)",  not bool(shell.contains([[W_ / 2 - 1.0, iys[0], izs[0]]])[0])),
+        ("intake wall beside",      bool(shell.contains([[W_ / 2 - 1.0, iys[0] - iw / 2 - 2.0,
+                                                           izs[0]]])[0])),
         # pad top must be exactly the board's back face (4.6) - probe OFF the pilot axis
-        ("ring pad coplanar",       bool(shell.contains([[fcx - 22.0 + 2.6, fcy + 27.0 + 2.6,
-                                                           zi + P["rc522_post_h"] - 0.2]])[0]) and
-                                    not bool(shell.contains([[fcx - 22.0 + 2.6, fcy + 27.0 + 2.6,
-                                                              zi + P["rc522_post_h"] + 0.3]])[0])),
+        ("ring pad coplanar",       bool(shell.contains(
+            [[fcx - P["rc522_post_off"][0] + 2.6, fcy + P["rc522_post_off"][1] - 2.6,
+              zi + P["rc522_post_h"] - 0.2]])[0]) and
+                                    not bool(shell.contains(
+            [[fcx - P["rc522_post_off"][0] + 2.6, fcy + P["rc522_post_off"][1] - 2.6,
+              zi + P["rc522_post_h"] + 0.3]])[0])),
         ("LCD rebate ring cut",    not bool(shell.contains([[lcx_, lcy_ + lh_ / 2 + 1.4, 0.2]])[0])),
         ("wall under LCD rebate",   bool(shell.contains([[lcx_, lcy_ + lh_ / 2 + 1.4, 1.6]])[0])),
         ("rebate at the other side", not bool(shell.contains([[lcx_ + lw_ / 2 + 1.4, lcy_, 0.2]])[0])),
@@ -916,10 +966,19 @@ def main():
     plate = build_plate()
     bracket = build_r307_bracket()
     ring = build_rc522_ring()
-    shell.export(os.path.join(OUT, "01_MAIN_SHELL_v3.stl"))
-    plate.export(os.path.join(OUT, "02_REAR_PLATE_v3.stl"))
-    bracket.export(os.path.join(OUT, "03_R307_BRACKET_v3.stl"))
-    ring.export(os.path.join(OUT, "04_RC522_RING_v3.stl"))
+    # the assembly-frame copies are what the checkers were written against; the SHIPPED files are
+    # the same meshes lowered onto the bed (tools/orient_v3.py), which is what a slicer needs.
+    assy = os.path.join(OUT, "assembly")
+    os.makedirs(assy, exist_ok=True)
+    parts = [("01_MAIN_SHELL_v3.stl", shell), ("02_REAR_PLATE_v3.stl", plate),
+             ("03_R307_BRACKET_v3.stl", bracket), ("04_RC522_RING_v3.stl", ring)]
+    import orient_v3
+    for fn, m in parts:
+        m.export(os.path.join(assy, fn))
+        # to_print must not touch the in-memory mesh: the A-K audit below runs in assembly coords
+        orient_v3.to_print(m.copy(), fn).export(os.path.join(OUT, fn))
+        print(f"   {fn:26s} shipped bed-aligned (was at z {orient_v3.ORIENT[fn][0]:.1f} in "
+              f"assembly coords)")
     txt, ok = audit(shell, plate, bracket, ring)
     with open(os.path.join(ROOT, "docs", "v3_audit.txt"), "w") as fh:
         fh.write(txt + "\n")

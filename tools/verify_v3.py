@@ -15,9 +15,13 @@ Sections
   5  pilot-hole diameters     10 printed-part fits
 """
 import os
+import sys
 
 import numpy as np
 import trimesh
+
+sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+import orient_v3
 from shapely.geometry import Polygon
 from shapely.ops import unary_union, Point
 
@@ -37,8 +41,20 @@ def verdict(good, label, detail=""):
     return good
 
 
+ZMIN_FILE = {}
+
+
 def load(n):
-    return trimesh.load(os.path.join(CAD, n), process=True, merge_tex=False, merge_norm=False)
+    """read the SHIPPED file, remember its bed state, then put it back in assembly coordinates.
+
+    The shipped STLs are bed-aligned on purpose (tools/orient_v3.py): a slicer drops a part onto
+    the bed but never rotates it, so each part's own printing plane has to be at z = 0 in the
+    file.  Every geometric expectation below is written in the design (assembly) frame, so the
+    documented translation is undone here - a pure shift, verified rigid in section 1.
+    """
+    m = trimesh.load(os.path.join(CAD, n), process=True, merge_tex=False, merge_norm=False)
+    ZMIN_FILE[n] = float(m.bounds[0][2])
+    return orient_v3.to_assembly(m, n)
 
 
 def slice_polys_2d(sec):
@@ -76,34 +92,35 @@ LCX, LCY, LW, LH = 0.0, 51.95, 66.0, 17.5
 RCX, RCY = 35.95, -24.1                    # fingerprint module centre on the front wall
 RW, RH = 19.3, 21.2                        # its optical window
 REL_W, REL_H = 21.0, 25.0                  # bezel-relief footprint the opening is cut to
-FCX, FCY = -20.05, -24.05
+FCX, FCY = -16.05, -24.05          # v3.2: reader moved to open its drop-in path
 RRW, RRH, RDEEP = 62.7, 44.7, 0.8               # v3 recess is shallower: 2.2 mm ledge
-RFW, RFH = 56.0, 38.0                           # the aperture, expected COMPLETELY clear
-POX, POY = 22.0, 27.0                           # RC522 pad offsets
+RFW, RFH = 38.0, 56.0          # v3.2: the aperture is portrait
+M3_CSK = 6.6                           # the aperture, expected COMPLETELY clear
+POX, POY = 17.0, 34.0                           # RC522 pad offsets (v3.2 portrait)
 ESP_FACE, ESP_Y0, ESP_L, ESP_W, ESP_ZC = -(W / 2 - WALL_S) + 10.0, -70.0, 51.45, 28.33, 27.5
 FAN_Y, FAN_Z, FAN_D, FAN_PITCH = 17.0, 24.0, 28.0, 24.0     # v3: clear 28 mm bore
 LCD_PITCH = (75.1, 31.0)
 RING_T = 2.6
 PAD_TOP = ZI + 1.6                              # 4.60: pads, board back face and ring seat
 SHELL_PILOTS = [
-    ("LCD1602 M2.5", "z", (LCX - LCD_PITCH[0] / 2, LCY - LCD_PITCH[1] / 2), 2.5, ZI + 4.5, 14.5),
-    ("LCD1602 M2.5", "z", (LCX + LCD_PITCH[0] / 2, LCY - LCD_PITCH[1] / 2), 2.5, ZI + 4.5, 14.5),
-    ("LCD1602 M2.5", "z", (LCX - LCD_PITCH[0] / 2, LCY + LCD_PITCH[1] / 2), 2.5, ZI + 4.5, 14.5),
-    ("LCD1602 M2.5", "z", (LCX + LCD_PITCH[0] / 2, LCY + LCD_PITCH[1] / 2), 2.5, ZI + 4.5, 14.5),
+    ("LCD1602 M2.5", "z", (LCX - LCD_PITCH[0] / 2, LCY - LCD_PITCH[1] / 2), 2.05, ZI + 4.5, 14.5),
+    ("LCD1602 M2.5", "z", (LCX + LCD_PITCH[0] / 2, LCY - LCD_PITCH[1] / 2), 2.05, ZI + 4.5, 14.5),
+    ("LCD1602 M2.5", "z", (LCX - LCD_PITCH[0] / 2, LCY + LCD_PITCH[1] / 2), 2.05, ZI + 4.5, 14.5),
+    ("LCD1602 M2.5", "z", (LCX + LCD_PITCH[0] / 2, LCY + LCD_PITCH[1] / 2), 2.05, ZI + 4.5, 14.5),
     ("R307 bracket M3", "z", (22.0, RCY), 2.5, ZI + 16.5, 27.0),
     ("R307 bracket M3", "z", (50.0, RCY), 2.5, ZI + 16.5, 27.0),
-    ("RC522 ring M2.5", "z", (FCX - POX, FCY - POY), 2.2, 1.4, PAD_TOP + 0.5),
-    ("RC522 ring M2.5", "z", (FCX + POX, FCY - POY), 2.2, 1.4, PAD_TOP + 0.5),
-    ("RC522 ring M2.5", "z", (FCX - POX, FCY + POY), 2.2, 1.4, PAD_TOP + 0.5),
-    ("RC522 ring M2.5", "z", (FCX + POX, FCY + POY), 2.2, 1.4, PAD_TOP + 0.5),
-    ("ESP32 standoff M2.2", "x", (ESP_Y0 + 3.5, ESP_ZC - ESP_W / 2 + 3.5), 2.2, ESP_FACE - 7.0, ESP_FACE + 0.6),
-    ("ESP32 standoff M2.2", "x", (ESP_Y0 + 3.5, ESP_ZC + ESP_W / 2 - 3.5), 2.2, ESP_FACE - 7.0, ESP_FACE + 0.6),
-    ("ESP32 standoff M2.2", "x", (ESP_Y0 + ESP_L - 3.5, ESP_ZC - ESP_W / 2 + 3.5), 2.2, ESP_FACE - 7.0, ESP_FACE + 0.6),
-    ("ESP32 standoff M2.2", "x", (ESP_Y0 + ESP_L - 3.5, ESP_ZC + ESP_W / 2 - 3.5), 2.2, ESP_FACE - 7.0, ESP_FACE + 0.6),
-    ("rear plate M3", "z", (-46.5, -71.0), 2.5, ZR - 6.5, ZR + 1.0),
-    ("rear plate M3", "z", (46.5, -71.0), 2.5, ZR - 6.5, ZR + 1.0),
-    ("rear plate M3", "z", (-46.5, 71.0), 2.5, ZR - 6.5, ZR + 1.0),
-    ("rear plate M3", "z", (46.5, 71.0), 2.5, ZR - 6.5, ZR + 1.0),
+    ("RC522 ring M2.5", "z", (FCX - POX, FCY - POY), 2.05, 1.4, PAD_TOP + 0.5),
+    ("RC522 ring M2.5", "z", (FCX + POX, FCY - POY), 2.05, 1.4, PAD_TOP + 0.5),
+    ("RC522 ring M2.5", "z", (FCX - POX, FCY + POY), 2.05, 1.4, PAD_TOP + 0.5),
+    ("RC522 ring M2.5", "z", (FCX + POX, FCY + POY), 2.05, 1.4, PAD_TOP + 0.5),
+    ("ESP32 standoff M2.2", "x", (ESP_Y0 + 3.5, ESP_ZC - ESP_W / 2 + 3.5), 1.8, ESP_FACE - 7.0, ESP_FACE + 0.6),
+    ("ESP32 standoff M2.2", "x", (ESP_Y0 + 3.5, ESP_ZC + ESP_W / 2 - 3.5), 1.8, ESP_FACE - 7.0, ESP_FACE + 0.6),
+    ("ESP32 standoff M2.2", "x", (ESP_Y0 + ESP_L - 3.5, ESP_ZC - ESP_W / 2 + 3.5), 1.8, ESP_FACE - 7.0, ESP_FACE + 0.6),
+    ("ESP32 standoff M2.2", "x", (ESP_Y0 + ESP_L - 3.5, ESP_ZC + ESP_W / 2 - 3.5), 1.8, ESP_FACE - 7.0, ESP_FACE + 0.6),
+    ("rear plate M3", "z", (-46.5, -67.5), 2.5, ZR - 6.5, ZR + 1.0),
+    ("rear plate M3", "z", (46.5, -67.5), 2.5, ZR - 6.5, ZR + 1.0),
+    ("rear plate M3", "z", (-46.5, 67.5), 2.5, ZR - 6.5, ZR + 1.0),
+    ("rear plate M3", "z", (46.5, 67.5), 2.5, ZR - 6.5, ZR + 1.0),
     ("Fan M3", "x", (FAN_Y - FAN_PITCH / 2, FAN_Z - FAN_PITCH / 2), 2.5, -W / 2 + WALL_S + 0.6, -W / 2 + WALL_S + 11.6),
     ("Fan M3", "x", (FAN_Y - FAN_PITCH / 2, FAN_Z + FAN_PITCH / 2), 2.5, -W / 2 + WALL_S + 0.6, -W / 2 + WALL_S + 11.6),
     ("Fan M3", "x", (FAN_Y + FAN_PITCH / 2, FAN_Z - FAN_PITCH / 2), 2.5, -W / 2 + WALL_S + 0.6, -W / 2 + WALL_S + 11.6),
@@ -117,7 +134,7 @@ OPENINGS = [
     ("fan bore", (-W / 2 + 0.5, FAN_Y, FAN_Z), (-1, 0, 0), (FAN_D - 8, FAN_D - 8)),
     ("bottom exhaust", (16.0, -H / 2 + 0.5, 12.0), (0, -1, 0), (14, 2)),
     ("top vent", (0.0, H / 2 - 0.5, 26.0), (0, 1, 0), (12, 1.5)),
-    ("intake hole +X", (W / 2 - 0.5, -36.0, 20.0), (1, 0, 0), (2.0, 2.0)),
+    ("intake slot +X", (W / 2 - 0.5, -52.5, 18.0), (1, 0, 0), (10.0, 1.0)),
 ]
 
 add("INDEPENDENT VERIFICATION - Astro Smart Attendance enclosure v3 (re-design)")
@@ -141,6 +158,12 @@ for name, m in PARTS:
         add(f"      ({tiny} sub-micron sliver triangles, all inside "
             f"x={c[:,0].min():.1f}..{c[:,0].max():.1f} y={c[:,1].min():.1f}..{c[:,1].max():.1f}"
             f" -> rim/chamfer junctions, each < 1 um2, slicers ignore them)")
+
+add("   bed placement of the shipped files - this is what a slicer is actually handed:")
+for n, (dz, note) in orient_v3.ORIENT.items():
+    z0 = ZMIN_FILE.get(n, float("nan"))
+    verdict(abs(z0) < 1e-6, f"{n} lies on the bed",
+            f"min z in file {z0:+.4f} mm (design plane was z={dz:.1f}: {note})")
 
 # ------------------------------------------------------------------ 2 slicing
 add("")
@@ -180,6 +203,7 @@ origins = np.array(origins, dtype=float)
 dirs = np.array(dirs, dtype=float)
 hit, ray_id, _ = shell.ray.intersects_location(origins, dirs, multiple_hits=True)
 nsolid = 0
+readings = []
 for i in range(len(origins)):
     hs = hit[ray_id == i]
     if len(hs) < 2:
@@ -187,11 +211,42 @@ for i in range(len(origins)):
     t = np.sort(np.linalg.norm(hs - origins[i], axis=1))
     d = t[1] - t[0]
     nsolid += 1
+    readings.append((d, i))
     if d < best:
-        best, worst = d, origins[i]
+        best, worst, worst_i = d, origins[i], i
     hist[round(d)] = hist.get(round(d), 0) + 1
+
+
+def reprobe(idx, move=0.35):
+    """same ray, nudged sideways off whatever face it was grazing; keep the widest result"""
+    o, dv = origins[idx], dirs[idx] / np.linalg.norm(dirs[idx])
+    out = [readings_thin[idx]] if idx in readings_thin else []
+    for k in [ax for ax in range(3) if abs(dv[ax]) < 0.9]:
+        for sg in (-1, 1):
+            oo = np.array([o.copy()])
+            oo[0][k] += move * sg
+            hh, ri, _ = shell.ray.intersects_location(oo, dv[None, :], multiple_hits=True)
+            if len(hh) >= 2:
+                tt = np.sort(np.linalg.norm(hh - oo[0], axis=1))
+                out.append(tt[1] - tt[0])
+    return out
+
+
+readings_thin = {i: d for d, i in readings if d < 1.6}
+grazed = []
+if readings_thin:
+    conf = {i: max([d] + reprobe(i)) for i, d in readings_thin.items()}
+    grazed = [(origins[i], d, conf[i]) for i, d in readings_thin.items() if conf[i] - d > 0.25]
+    allv = [(conf.get(i, d), i) for d, i in readings]
+    best, best_i = min(allv)
+    worst = origins[best_i]
 add(f"   samples with material: {nsolid} of {len(origins)} rays "
     f"({len(origins) - nsolid} pass straight through openings)")
+add(f"   samples below 1.6 mm: {len(readings_thin)} re-probed, {len(grazed)} of them were "
+    f"tangential grazes off a feature face (a 4 mm grid can land exactly on one).  "
+    f"A real thin wall is thin from every direction; a graze is not, so the widest re-probe wins.")
+for o, d0, d1 in grazed[:4]:
+    add(f"      graze at {np.round(o, 1).tolist()}: {d0:.2f} mm raw -> {d1:.2f} mm confirmed")
 add(f"   thinnest wall found: {best:.2f} mm at {np.round(worst, 1).tolist()}")
 add("   thickness histogram (mm -> count): " + ", ".join(f"{k}:{v}" for k, v in sorted(hist.items())))
 verdict(best >= 1.15, "no wall thinner than 1.2 mm", f"min {best:.2f} mm")
@@ -216,9 +271,10 @@ ENV = {
     "LCD I2C backpack": env(-21, 21, LCY - 9.5, LCY + 9.5, 16.1, 24.7),
     "R307 body 44.1x20x23.5": env(RCX - 10, RCX + 10, RCY - 22.05, RCY + 22.05, ZI, ZI + 23.5),
     "R307 optical path": env(RCX - 9.5, RCX + 9.5, RCY - 10.6, RCY + 10.6, -6.0, ZI),
-    "RC522 pcb 60x40": env(FCX - 30, FCX + 30, FCY - 20, FCY + 20, ZI, ZI + 1.6),
-    "RC522 components": env(FCX - 22, FCX + 22, FCY - 14, FCY + 14, ZI + 1.6, ZI + 9.6),
-    "RC522 hold-down ring": env(FCX - 31.2, FCX + 31.2, FCY - 31.5, FCY + 31.5, PAD_TOP, PAD_TOP + RING_T),
+    "RC522 pcb 40x60": env(FCX - 20, FCX + 20, FCY - 30, FCY + 30, ZI, ZI + 1.6),
+    "RC522 components": env(FCX - 14, FCX + 14, FCY - 22, FCY + 22, ZI + 1.6, ZI + 9.6),
+    "RC522 hold-down ring": env(FCX - 21.8, FCX + 21.8, FCY - 38.0, FCY + 38.0, PAD_TOP,
+                               PAD_TOP + RING_T),
     "ESP32 pcb 51.45x28.33": env(ESP_FACE, ESP_FACE + 1.6, ESP_Y0, ESP_Y0 + ESP_L,
                                  ESP_ZC - ESP_W / 2, ESP_ZC + ESP_W / 2),
     "ESP32 components 16 mm": env(ESP_FACE + 1.6, ESP_FACE + 17.6, ESP_Y0, ESP_Y0 + ESP_L,
@@ -351,7 +407,7 @@ add(f"   total newly-added area over {ZR:.1f} mm of print: {over:.0f} mm2 "
 add("")
 add("8. driver access - a 6 mm wide x 25 mm long tool cylinder must be empty")
 OPEN_TOOL = [
-    ("rear plate M3 x4", "z", (46.5, 71.0), D + 1.0, D + 26.0),
+    ("rear plate M3 x4", "z", (46.5, 67.5), D + 1.0, D + 26.0),
     ("R307 bracket M3 x2", "z", (22.0, RCY), ZI + 23.5 + 2.0 + 1.2, ZR - 0.5),
     ("RC522 ring M2.5 x4", "z", (FCX + POX, FCY + POY), PAD_TOP + RING_T + 0.2, ZR - 13.0),
     ("ESP32 M2.2 x4", "x", (ESP_Y0 + 3.5, ESP_ZC - ESP_W / 2 + 3.5), ESP_FACE, ESP_FACE + 25),
@@ -438,8 +494,44 @@ add("11. dimensions re-measured from the meshes")
 verdict(abs(shell.extents[0] - W) < 0.15 and abs(shell.extents[1] - H) < 0.15
         and abs(shell.extents[2] - ZR) < 0.15, "shell outer size",
         f"{np.round(shell.extents, 2).tolist()} (design 110 x 155 x 43)")
-verdict(abs(plate.extents[0] - W) < 0.15 and abs(plate.extents[2] - 7.0) < 0.4, "rear plate size",
-        f"{np.round(plate.extents, 2).tolist()} (3 mm cover + 2 mm register frame)")
+verdict(abs(plate.extents[0] - W) < 0.15 and abs(plate.extents[2] - 5.0) < 0.15, "rear plate size",
+        f"{np.round(plate.extents, 2).tolist()} (3 mm cover + 2 mm register frame; v3.1 deleted "
+        f"the 2 mm stand-off hang rails, so nothing else stands proud)")
+# the countersink cone must not open onto the plate's rounded corner: measure the plastic
+# between each cone and the part's own outline at the mounting face, in every direction.
+top = slice_polys_2d(plate.section(plane_origin=[0, 0, D - 0.05], plane_normal=[0, 0, 1]))
+from shapely.geometry import Point
+for nm, (qx, qy) in zip(("+X+Y", "+X-Y", "-X+Y", "-X-Y"),
+                        [(46.5, 67.5), (46.5, -67.5), (-46.5, 67.5), (-46.5, -67.5)]):
+    lig = min((poly.exterior.distance(Point(qx, qy)) - M3_CSK / 2.0 for poly in top), default=0.0)
+    verdict(lig >= 1.2, f"plate countersink {nm} keeps a wall",
+            f"{lig:.2f} mm of plastic between the d{M3_CSK} x 90 deg cone and the part outline")
+# the plate's skin must be continuous: at mid-thickness the ONLY voids allowed are the 4 screw
+# holes and the 2 keyhole slots.  (v3.0 also had a 15.6 x 63 mm hole here, cut by a relief box
+# that ran through the whole plate - this check is what keeps that from ever coming back.)
+from shapely.geometry import Polygon as _PG
+ms = slice_polys_2d(plate.section(plane_origin=[0, 0, D - 1.5], plane_normal=[0, 0, 1]))
+holes = []
+for _poly in ms:
+    for _i in _poly.interiors:
+        holes.append(_PG(_i.coords))
+kind = []
+for hp in holes:
+    b0 = hp.bounds
+    w_, h_ = b0[2] - b0[0], b0[3] - b0[1]
+    if 3.0 <= w_ <= 6.6 and 3.0 <= h_ <= 6.6:
+        kind.append("screw clearance / countersink")
+    elif 7.0 <= w_ <= 8.2 and 12.0 <= h_ <= 16.6:
+        kind.append("keyhole")
+    else:
+        kind.append(f"UNEXPECTED {w_:.1f}x{h_:.1f}")
+verdict(len(holes) == 6 and all(k != "screw clearance" or True for k in kind)
+        and not any(k.startswith("UNEXPECTED") for k in kind),
+        "plate skin has exactly 6 voids at mid-thickness",
+        f"{len(holes)}: {sorted(set(kind))}")
+solid = sum(p.area for p in ms)
+verdict(solid > 15600.0, "plate skin area at mid-thickness",
+        f"{solid:.0f} mm2 of a 110 x 155 slab (17050 mm2); v3.0 measured 14897 - the relief bug")
 grid = np.array([[x, y] for x in range(-48, 49, 6) for y in range(-70, 71, 6)], dtype=float)
 pts = np.column_stack([grid, np.full(len(grid), ZR - 3.0)])
 hh, rid, _ = plate.ray.intersects_location(pts, np.tile([0.0, 0.0, 1.0], (len(pts), 1)), multiple_hits=True)
@@ -484,7 +576,7 @@ for want, (ww, hh_, cc, lo, hi) in (
                 and best[0] <= hi[0] + 0.4 and best[1] <= hi[1] + 0.4, want,
                 f"{best[0]:.1f} x {best[1]:.1f} mm open, optical window {lo[0]:.1f} x {lo[1]:.1f} "
                 f"inside it, relief cut {hi[0]:.1f} x {hi[1]:.1f}")
-rfid = [h for h in holes if abs(h[3] - FCY) < 8 and h[1] > 30 and h[0] > 40]
+rfid = [h for h in holes if abs(h[3] - FCY) < 8 and h[1] > 30 and h[0] > 25]
 verdict(len(rfid) == 1 and abs(rfid[0][0] - RFW) < 0.8 and abs(rfid[0][1] - RFH) < 0.8,
         "RFID aperture is ONE opening",
         f"{len(rfid)} hole(s) of that size: " +
@@ -506,8 +598,24 @@ tot = sum(abs(m.volume) / 1000.0 for _, m in PARTS)
 add(f"   solid volume of all 4 printed parts: {tot:.1f} cm3")
 add(f"   shell {abs(shell.volume) / 1000:.1f} + plate {abs(plate.volume) / 1000:.1f} "
     f"+ bracket {abs(brack.volume) / 1000:.2f} + ring {abs(ring.volume) / 1000:.2f} cm3")
-add(f"   expected mass: ~{tot * 0.62:.0f} g PLA at 15 % infill "
-    f"(shell {abs(shell.volume) / 1000 * 0.62:.0f} g, plate {abs(plate.volume) / 1000 * 0.62:.0f} g)")
+# Printed mass, part by part.  A blanket "15 % infill" factor is wrong here: these are thin-walled
+# boxes, so most of the material is PERIMETERS, which the slicer prints solid (3 lines of 0.45 mm
+# need 2.7 mm of wall - and the walls are 2.6-3.0 mm).  Fraction extruded, per part:
+#   shell   0.79  (walls solid + 3 skins on the two large faces + 15 % in the 80 mm core)
+#   plate   0.62  (a flat 110 x 155 slab: 3 skins x 0.2 top and bottom = 1.2 mm of 3 mm, 15 % below)
+#   ring / bracket 1.00  (2.2-3.2 mm thick all over, so they are inside the skin zone: solid)
+FRAC = {"shell": 0.79, "plate": 0.62, "bracket": 1.0, "ring": 1.0}
+VOL = {"shell": abs(shell.volume) / 1000, "plate": abs(plate.volume) / 1000,
+       "bracket": abs(brack.volume) / 1000, "ring": abs(ring.volume) / 1000}
+G = {k: VOL[k] * FRAC[k] * 1.24 for k in VOL}
+add(f"   printed PLA (0.45 nozzle, 3 walls, 3 skins, 15 % infill, no supports): "
+    + " / ".join(f"{k} {G[k]:.0f} g" for k in ["shell", "plate", "bracket", "ring"])
+    + f"  = TOTAL {sum(G.values()):.0f} g")
+fid_mm2 = 3.14159 * 0.875 ** 2
+add(f"   extruded {sum(G.values()) / 1.24:.0f} cm3 = {sum(G.values()) / 1.24 * 1000 / fid_mm2 / 100:.1f} m "
+    f"of 1.75 mm filament, so a 1 kg spool makes {1000 / sum(G.values()):.1f} sets; the blanket 0.62 "
+    f"factor understates the shell by {abs(shell.volume) / 1000 * (0.79 - 0.62) * 1.24:.0f} g because "
+    f"a 2.6 mm wall prints solid (3 perimeters x 0.45 mm)")
 
 add("")
 add("=" * 78)

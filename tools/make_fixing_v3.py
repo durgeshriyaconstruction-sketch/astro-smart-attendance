@@ -255,8 +255,8 @@ extraB = [
     ("head", xB - 2.3, xB + 2.3, PADT + 1.15, PADT + 2.65, INK,
      "M2.5 x 6 pan head,\nseated 1.15 mm below\nthe ring's outer face", xB + 6.5, 12.4),
     ("pcb", fcx - bw / 2, fcx + bw / 2, zi, zi + bt, GRN,
-     "the PCB's edge stops 7.0 mm short of this line, so no screw\never passes through the "
-     "board - it is held by the ring's lip only", xB + 12.0, 6.6),
+     f"the PCB's edge stops {poy - bl / 2:.1f} mm short of this line, so no screw ever passes "
+     f"through the board - it is held by the ring's lip only", xB + 12.0, 6.6),
 ]
 imB, SB, dB = rfid_section(
     yB, "B   SECTION at y = %.2f mm - through one of the ring's four screws" % yB,

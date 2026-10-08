@@ -142,7 +142,8 @@ dr.text((10, 8), "ASTRO SMART ATTENDANCE - ENCLOSURE v3 (complete re-design)   u
                  f"{P['wall_side']:.1f} / top-bottom 3.0   print fit {P['fit']:.2f}", fill=WHT)
 dr.text((10, 28), f"4 printed parts | front face DOWN | no supports | {22} self-tapping screw "
                   "holes, every one measured out of the STL | rear plate hangs on keyholes + "
-                  "4 x M3 | total print volume 169.2 cm3 (~105 g PLA at 15 %)", fill=CYA)
+                  f"4 x M3 | total print volume {sum(abs(m.volume) for m in MESH.values()) / 1e3:.1f} cm3 "
+                  f"(~140 g PLA printed, walls solid + 15 % infill)", fill=CYA)
 dr.line([0, 48, TILE[0] * 2, 48], fill=(60, 64, 74))
 
 front_marks = [
@@ -290,7 +291,7 @@ PW2, PH2 = 620, 620
 rows = [
     ("FRONT WALL - seen from the cavity side", "front", [
         ("v2  RFID window crossed by 2 x 4 mm stiffener bars", V2P["shell"], CYA),
-        ("v3  one R5-cornered aperture, 56 x 38, nothing across it", PARTS["shell"], GRN)]),
+        ("v3  one R5-cornered aperture, 38 x 56 portrait, nothing across it", PARTS["shell"], GRN)]),
     ("REAR PLATE - the face that looks into the cavity", "back", [
         ("v2  a solid 2 mm plug fills the whole opening", V2P["plate"], CYA),
         ("v3  register frame only + the ESP32 zone cut clear", PARTS["plate"], GRN)]),
