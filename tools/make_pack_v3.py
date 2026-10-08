@@ -134,6 +134,10 @@ for f in STL:
     m = trimesh.load(os.path.join(CAD, f), process=False)
     vols[f] = abs(m.volume) / 1000.0
 tot = sum(vols.values())
+# ... and the four *box* parts on their own.  05_FIT_GAUGE is a separate print, so the docs'
+# "169.0 cm3 -> 155 g of PLA" must stay the box's figure and must not be allowed to drift into
+# the pack total; if a part is ever added that IS part of the assembly, it belongs in this sum.
+box = sum(v for f, v in vols.items() if not f.startswith("05_"))
 for pack_name, rel in DOCS.items():
     p = os.path.join(ROOT, rel)
     if not os.path.exists(p):
@@ -141,10 +145,12 @@ for pack_name, rel in DOCS.items():
     for line in open(p, encoding="utf-8", errors="replace"):
         for m in re.finditer(r"(\d+\.\d+) cm3", line):
             v = float(m.group(1))
-            ok = abs(v - tot) < 0.06 or min(abs(v - x) for x in vols.values()) < 0.06
+            ok = (min(abs(v - x) for x in vols.values()) < 0.06
+                  or abs(v - tot) < 0.06 or abs(v - box) < 0.06)
             if not ok:
                 die(f"{rel}: '{m.group(0)}' matches no part volume "
-                    f"({'/'.join(f'{x:.1f}' for x in vols.values())} or {tot:.1f} total)")
+                    f"({'/'.join(f'{x:.1f}' for x in vols.values())}, {box:.1f} box total, "
+                    f"{tot:.1f} everything)")
 # ---------------------------------------------------------------- 2. regenerate the viewer
 print("regenerating exports/viewer_offline.html from the shipped STLs ...")
 r = subprocess.run([PY, os.path.join(ROOT, "tools", "make_offline_viewer.py")],
