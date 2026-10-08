@@ -210,9 +210,14 @@ for pack_name, (rel, floor) in MODEL.items():
         die(f"{rel} is {sz:,} bytes, under the {floor:,}-byte floor for a file holding {pack_name}'s meshes")
     if not (stl_locked and in_head(rel)) and os.path.getmtime(mp) < t_stl - 1:
         die(f"{rel} is OLDER than the STLs - it was built from geometry that has since moved")
+    # the builder saves the .blend, exports the .glb, THEN renders and writes its report, so the
+    # report is legitimately the newer file by a minute.  What must never happen is the other way
+    # round: a report older than the model it claims to describe.  (v3.6 shipped this gate inverted
+    # and it refused a pack that was correct.)
     rep = os.path.join(ROOT, "docs", "v3_blend_build.txt")
-    if os.path.exists(rep) and os.path.getmtime(mp) < os.path.getmtime(rep) - 1:
-        die(f"{rel} is older than docs/v3_blend_build.txt - the report describes a newer model")
+    if os.path.exists(rep) and os.path.getmtime(rep) < os.path.getmtime(mp) - 2:
+        die(f"docs/v3_blend_build.txt is older than {rel} - the model was rebuilt after the report "
+            f"was written; re-run tools/make_blend_v3.py")
     stage(mp, pack_name)
 stage(os.path.join(ROOT, "exports", "viewer_offline.html"), "viewer_offline.html")
 
