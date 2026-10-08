@@ -46,7 +46,7 @@ repeats the aperture, the bore, the frame fit and the wall map from the STLs alo
 
 | file | print | notes |
 |---|---|---|
-| `01_MAIN_SHELL_v3.stl` | x1 | 112.4 cm3, 14 834 triangles, watertight, 1 body, 0 open edges |
+| `01_MAIN_SHELL_v3.stl` | x1 | 112.4 cm3, 14 290 triangles, watertight, 1 body, 0 open edges |
 | `02_REAR_PLATE_v3.stl` | x1 | 52.8 cm3, 3 mm plate + 2 mm register frame |
 | `03_R307_BRACKET_v3.stl` | x1 | 1.0 cm3, flat, 36.8 x 14.0 x 3.2 |
 | `04_RC522_RING_v3.stl` | x1 | 3.0 cm3, flat, 62.4 x 63.0 x 2.6 (tabs to y +/-31.5) |
