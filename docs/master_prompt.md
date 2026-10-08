@@ -674,3 +674,31 @@ judged it has to be replaced by a check that judges what is left - a green gate 
 old geometry is a green light for a design that no longer exists.  That is why §4 of the audit was
 rewritten in the same commit as the geometry, and why both the builder and the verifier gained
 assertions that can only pass on a wall with nothing in it.
+
+---
+
+## 32. v3.5 (2026-10-08): four files in the pack, sizes closed from vendor data
+
+Requested: drop `05_FIT_GAUGE_v3.stl` from the pack ("let there only those 4"), make the dimensions
+exact by searching for the real component data instead of asking the user to measure, and state the
+screw sizes definitively.
+
+* **Pack**: `tools/make_pack_v3.py` now ships 4 STLs and no gauge — the gauge entry in `STL`, its two
+  `PROOF` entries, the `fit_gauge` figure filter and its three `SRC` tools were removed.  The gauge
+  chain still exists and still passes in the repo, so this is reversible by adding one filename back.
+* **Geometry unchanged, deliberately.**  Every module was looked up (design notes §10 carries the
+  sources and the table) and the model already matched: R307 44.1 × 20 × 23.5 with a 19 × 21 window;
+  1602 + backpack 13.2–20.0 deep against 24.0 reserved; 3010 30 × 30 × 10 on 24 ± 0.3 with ⌀3.2 holes;
+  ESP32 51.45 × 28.33 and 52 × 28 × 14 with headers against `esp32_comp_h=16.0`.  What changed is the
+  *labels*: the `[REF]` comments on those blocks in `tools/build_v3.py` are now `[WEB 2026-10-08]`
+  citations, so no triangle moved and the four STLs are byte-identical to v3.4.
+* **New fact that rewrote a document rather than a model**: the R307 has no mounting holes — the stock
+  kits clamp it with a bracket and two long screws.  The old advice "measure the R307 bracket pitch
+  (assumed 28.0)" was therefore wrong in the harmless direction: that pitch is ours, and free.
+* **Still open, and it stays open**: DOIT never published the DevKit V1 pad-hole diameter (⌀2.5
+  reported by owners, ⌀3.0 on the nearest same-family drawing).  Both M2.2 and M2 pass it, so the box
+  cannot break on it; the print order names the substitute and the forbidden substitution (no M2.5
+  there, never M3).
+* **Rules added**: a `[REF]` dimension must name the vendor page that supports it.  "Ask the user to
+  measure" is allowed only after the published data has been exhausted, and vendor data for a generic
+  module is labelled as *vendor data for a generic module* — never as the buyer's own unit.

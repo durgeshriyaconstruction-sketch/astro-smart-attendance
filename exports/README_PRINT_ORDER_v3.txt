@@ -1,5 +1,5 @@
 ASTRO SMART ATTENDANCE - ENCLOSURE v3  (complete re-design, parametric rebuild)
-outer 110 x 155 x 46 mm | 4 printed parts + 1 gauge card | no supports | 22 screw holes
+outer 110 x 155 x 46 mm | 4 printed parts | no supports | 22 screw holes
 ==============================================================================
 
 WHAT THIS IS
@@ -20,10 +20,6 @@ WHAT THIS IS
                                       (docs/v3_independent_verify.txt - STL-only, re-typed dims)
     python3 tools/audit_physics_v3.py -> PHYSICS RESULT: no failures
     python3 tools/check_grooves_v3.py  ->  EVERY GROOVE AND FIT MEASURES AS DESIGNED
-    python3 tools/build_gauge_v3.py    ->  GAUGE BUILD: ALL CHECKS PASS  (the fifth print: a fit
-                                           and pilot gauge card, cut from the same parameters)
-    python3 tools/check_gauge_v3.py    ->  GAUGE RESULT: EVERY GAUGE MEASURES AS DESIGNED, AND
-                                           NONE IS BIGGER THAN THE WALL
                                       (docs/v3_groove_check.txt - 34 numbers, each walked at
                                        0.02 mm through the print files: every rebate, recess,
                                        register lip, keyhole and ring opening, as printed)
@@ -32,29 +28,35 @@ WHAT THIS IS
                                        re-measurement of every number written in this file)
 
 PRINT  (PLA or PETG, 0.2 mm layers, 3 perimeters, 15-20 % infill, NO supports)
-  0. 05_FIT_GAUGE_v3.stl        x1   flat, engraved face UP  <-- PRINT THIS ONE FIRST
-     150 x 112 x 2.60 mm with one 10.00 mm boss: 42 235 mm3 of solid model, about 26 g of PLA,
-     roughly 40 minutes at 0.2 mm.  It is not part of the box - it is how you check the box against
-     your real hardware before you commit 11 hours to the shell.  A CUT is a GO gauge: the wall has
-     the same opening, so anything that drops through the cut fits the wall.  An ENGRAVED LINE is a
-     reference outline, for calipers.  Seven stations, and each one answers a question this project
-     could not answer from here:
-       1  six blind pilots, d1.80 / 2.00 / 2.05 / 2.20 / 2.35 / 2.50, 8.00 deep - which screw your
-          bosses really take, and how much thread the plastic will give you before it splits
-       2  four through-holes, d2.00 / 2.20 / 2.50 / 2.70 - the hole in your PCB, before you buy 40
-       3  the 1602 window at 66.00 x 17.50 and the 75.10 x 31.0 pitch the front wall is drilled on
-       4  the R307 bezel relief at 21.00 x 25.00, the 19.30 x 21.20 prism window, the module body
-       5  the RC522 board with +0.40 a side, the 62.70 x 44.70 ledge it rests on, and its four pads
-       6  the USB opening as the wall has it (20.40 x 12.40) and the 15.60 x 8.00 plug that clears it
-       7  a 100 mm rule ticked every 10 - PLA shrinks, and if the scale is wrong nothing else here is
-     The card cannot tell you how TALL your module is or whether the LCD contrast survives the glass;
-     those are the box's own 1.6 mm shelf and the rebate, already measured in docs/v3_groove_check.
-     What it does settle is every SIZE question, with a vernier or the part itself, in one print.
+WHAT IS SETTLED, SO THAT YOU DO NOT HAVE TO MEASURE ANYTHING
+  Checked 2026-10-08 against published vendor outlines, module by module (design notes
+  section 10 carries the sources).  Where the box and a vendor number disagreed, the box
+  would move - today none of them did.
+    R307         44.1 x 20 x 23.5 mm body, 19 x 21 mm glass - modelled exactly: a 21.0 x 25.0
+                 relief in a 25.3 x 27.2 rebate with a 0.35 seat fit.  The module has NO
+                 mounting holes of its own - stock R305/R307 kits clamp it with a bracket and two
+                 long screws - which is exactly what 03_R307_BRACKET does, so there is no hole
+                 pitch of yours to match and nothing on the sensor to measure.
+    LCD1602+I2C  80 x 36 outline; stack depth 13.2 / 18.24 / 20.0 mm depending on the backpack -
+                 the pocket reserves 24.0 behind the glass, so the deepest one sold still fits
+                 with 4 mm spare, and the visible text area (64.5 x 16.2) clears the 66 x 17.5
+                 window.
+    RC522        60 x 40 with a 1.6 PCB and a header 6 mm or less - a 62.7 x 44.7 x 2.9 recess,
+                 a 1.0 mm shelf and 4 ribs.  The board's own hole pitch is deliberately unused:
+                 the ring clamps the edges, so any brand of that size fits.
+    3010 fan     30 x 30 x 10, mounting pattern 24 +/- 0.3, four 3 mm holes - modelled exactly,
+                 and its bore is the only air opening in the box.
+    ESP32        51.45 x 28.33 outline, 52 x 28 x 14 mm with headers - 16.0 of height reserved
+                 inside a 40.0 cavity, and the audit proves the plate still closes over the heads.
+  The one number still open is the ESP32 pad-hole diameter (users report 2.5 mm, the closest
+  published drawing says 3.0).  It moves no geometry: it decides only whether M2.2 or M2 is the
+  easier screw to find, and both pass the d8 boss and bite the d1.8 pilot.
+
   1. 01_MAIN_SHELL_v3.stl      x1   front face DOWN on the bed, rear opening UP
   2. 02_REAR_PLATE_v3.stl      x1   flat, register frame UP (the frame is 2 mm proud)
   3. 04_RC522_RING_v3.stl      x1   flat  (this replaces v2's two clamp bars: one part now)
   4. 03_R307_BRACKET_v3.stl    x1   flat
-    material (the four box parts - the gauge card above is separate): 172.2 cm3 of solid model
+    material, all four parts together: 172.2 cm3 of solid model
     -> **159 g printed PLA** at 15 % infill, 0.45 nozzle, 3
   walls (shell 115.2 cm3 / 114 g, plate 53.8 / 42 g, ring 2.2 / 3 g, bracket 1.0 / 1 g; the
   independent verifier's typed fractions land on 158 g - the same model, sampled differently).
@@ -83,6 +85,9 @@ SCREWS  (every fixing is a real circular self-tapping pilot; each one was found 
                                     (v2's list said M3 x 20; that bottoms out - the pilot is
                                     12 deep and the fan's lug 2.5 mm, so use M3 x 12-14)
   4 x M2.2 x 8    ESP32 DevKit   -> 4 round d8 bosses with d3.2 x 0.7 exit reliefs so the plate
+                                    (no M2.2 in the drawer?  M2 x 8 self-tapping bites the same
+                                    pilot and still clears a 2.5 mm board hole.  Do NOT substitute
+                                    M2.5 - it may not pass that hole.  Never M3.)
                                     still closes over the heads (pilot d1.8 x 5.7). M2.2 x 8 ONLY
                                     at the antenna end: the heads are 10.7 mm from the trace and a
                                     long shank beside it pulls the 2.4 GHz match. No steel or brass
@@ -140,11 +145,16 @@ ASSEMBLY ORDER
      the two keyhole hooks (d7.5 + 4.6 slot, 50 mm span) - the plate carries 4 screws, so the
      hooks are not structural.
 
-BEFORE YOU PRINT - MEASURE YOUR OWN PARTS (docs/master_prompt.md section 23)
-  - ESP32 DevKit V1 pad-hole inset from the board edge (assumed 3.5 mm)
-  - R307 bracket hole pitch (assumed 28.0 mm) and the module's front-bezel size
-  - LCD + I2C backpack total depth (assumed 18.24 mm)
-  - fan thickness and its hole diameter (assumed 10 mm thick, d3.2 / M3)
+BEFORE YOU PRINT - NOTHING (design notes section 10 closed this list)
+  - fan 10 mm thick, 24 mm pattern, d3.2 holes for M3        CONFIRMED against vendor listings
+  - R307 44.1 x 20 x 23.5 with a 19 x 21 window              CONFIRMED three times over, and it
+    is clamped rather than drilled, so the 28.0 bracket pitch is ours, not yours
+  - LCD + backpack depth 13.2-20.0 in the wild               the pocket reserves 24.0
+  - ESP32 51.45 x 28.33 x 14 with headers                    16.0 reserved
+  - ESP32 pad-hole 2.5 or 3.0                                the only one DOIT never published:
+    either way M2.2 or M2 x 8 fits and nothing about the box moves
+  If you want a sanity check anyway, a steel rule across the LCD window (66 x 17.5) and the fan
+  bore (d28) takes a minute and needs no print at all.
   The RC522's own hole pitch is deliberately NOT used by this design - the ring holds the
   board by its edges, so a 60 x 40 board of any brand fits. The four ribs, the 0.5 mm ring
   overlap and the spotfaced bosses absorb +/- 0.5 mm of error in the other numbers.
@@ -170,16 +180,21 @@ FILES IN THIS PACK
   v3_groove_check.txt              the fourth gate: measured size of every groove and the fit of
                                    every mating part, so the print order's tolerances are numbers
     v3_design_notes.md               why each change was made + measured before/after - section 7 is
-                                   the v3.3 air path, 8 the fit gauge, 9 the v3.4 decision to close
-                                   every grille and what it costs in cooling
-  master_prompt.md                 the full spec (31 sections: 0-26 the rules, 27 the v3 decisions,
-                                   28 what the physics round changed, 29 v3.3, 30 the gauge card,
-                                   31 v3.4 - one hole, not twelve)
-  8 x .png                         every figure drawn from these STLs: drawing sheet, exploded,
+                                   the v3.3 air path, 8 the fit gauge (built, and now kept
+                                   out of the pack), 9 the v3.4 decision to close every grille
+                                   and what it cost in cooling, 10 the vendor data that closed
+                                   the measuring list
+  master_prompt.md                 the full spec (32 sections: 0-26 the rules, 27 the v3
+                                   decisions, 28 the physics round, 29 v3.3, 30 the gauge
+                                   card, 31 v3.4 - one hole, not twelve, 32 v3.5 - four
+                                   files and a checked size list)
+  7 x .png                         every figure drawn from these STLs: drawing sheet, exploded,
                                    fixing detail, fixing sections, all views, v2-vs-v3, the fit
-                                   gauge card, and the v3.4 opening inventory (each side wall sliced
-                                   at mid-thickness, every void labelled at the size it measured -
-                                   and it refuses to render 1 / 0 / 0 / 1 as anything else)
+                                   v3.4 opening inventory (each side wall sliced at
+                                   mid-thickness, every void labelled at the size it
+                                   measured - it refuses to render 1 / 0 / 0 / 1 as
+                                   anything else).  The fit-gauge figure is in the repo
+                                   at renders/v3_fit_gauge.png, not in this pack.
   build_v3_PARAMETRIC_generator.py the whole model in one file (params at the top)
   verify_v3_INDEPENDENT.py         run it against any future export to catch a bad STL
   audit_v3_PHYSICS.py              the physics auditor (slow: it slices at 0.01 mm and models the

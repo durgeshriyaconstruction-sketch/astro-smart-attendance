@@ -74,17 +74,10 @@ and the second one reads only the STL triangles.</p>
  <img src="/renders/v3_grille_map.png" alt="opening map">
 </figure>
 
-<h2>1c &mdash; the fifth print: the fit and pilot gauge card (05_FIT_GAUGE_v3.stl)</h2>
+<h2>1c &mdash; four files, and what the vendor drawings settled</h2>
 <figure>
- <figcaption>150 x 112 x 2.60 mm plus one 10 mm boss, printed flat with no supports, about 40 minutes.
- A cut is a GO gauge (the wall has the same hole, so anything that passes here passes there); an
- engraved line is a reference outline. It carries the six pilot diameters d1.80-2.50 at 8.00 deep,
- four board holes d2.00-2.70, the 1602 window and its 75.10 x 31.0 pitch, the R307 bezel relief, the
- RC522 board and its ledge, the USB opening, and a 100 mm rule. Plan, section and 3D view are cut out
- of the shipped STL; <code>tools/check_gauge_v3.py</code> then measures 59 things off that STL and
- off the enclosure, and the run ends
- <em>GAUGE RESULT: EVERY GAUGE MEASURES AS DESIGNED, AND NONE IS BIGGER THAN THE WALL</em>.</figcaption>
- <img src="/renders/v3_fit_gauge.png" alt="the fit and pilot gauge card">
+ <figcaption>The pack is <b>4 printed parts</b>: shell, plate, R307 bracket, RC522 ring. The fit<br> gauge card that shipped from v3.2 to v3.4 was dropped, because every number it existed to<br> check has now been checked against published vendor data instead of against your calipers<br> (design notes &sect;10 has the sources).  <b>R307</b> 44.1 &times; 20 &times; 23.5 mm body, 19<br> &times; 21 mm glass &mdash; modelled exactly, and it has <i>no mounting holes of its own</i>:<br> the stock kits clamp it with a bracket and two long screws, which is what part 03 does, so the<br> 28.0 mm bracket pitch is ours and free.  <b>1602 + I2C</b> depth is sold between 13.2 and 20.0<br> mm; the pocket reserves 24.0.  <b>3010 fan</b> 30 &times; 30 &times; 10, pattern 24 &plusmn;<br> 0.3, four 3 mm holes, as modelled, and its bore is the only air opening.  <b>ESP32 DevKit<br> V1</b> 51.45 &times; 28.33, 52 &times; 28 &times; 14 with headers, against 16.0 reserved.<br> The only number still open is the ESP32 pad-hole diameter (2.5 reported, 3.0 on the nearest<br> drawing) and it moves no geometry: it decides whether <b>M2.2 &times; 8</b> or M2 &times; 8 is<br> the easier screw to find.  <i>The four STLs are byte-identical to v3.4 &mdash; the search found<br> nothing that needed moving.</i>  Full screw schedule: <code>README_PRINT_ORDER_v3.txt</code>,<br> SCREWS section.</figcaption>
+ <img src="/renders/v3_all_views.png" alt="the four parts, from the shipped STLs">
 </figure>
 
 <h2>2 &mdash; v2 &rarr; v3, same views, same projection, both columns rendered from shipped STLs</h2>

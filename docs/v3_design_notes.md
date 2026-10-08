@@ -128,16 +128,24 @@ got its own 2-4 screws.
 * the 10 sub-micron sliver triangles left by the boolean rim chamfers are inside the mesh, are
   under 1 um2 each, and are reported (not hidden) by the verifier.
 
-## 5. Four numbers that still need your calipers
+## 5. The four numbers that used to need your calipers  *(all four closed 2026-10-08 -> section 10)*
 
-The model is built to the reference data in `docs/master_prompt.md`; those four are the ones
-where a wrong number would cost you a print, and the geometry is deliberately forgiving
-(+/- 0.35 mm seat fit, 0.5 mm ring overlap, spotfaced bosses) so small errors are absorbed:
+These were the ones where a wrong number would cost a print, and the geometry is deliberately
+forgiving (+/- 0.35 mm seat fit, 0.5 mm ring overlap, spotfaced bosses) so small errors are
+absorbed.  Every line below is now checked against published vendor data instead of against your
+drawer - what each one turned out to be:
 
-1. ESP32 DevKit V1 - pad-hole inset from the board edge (assumed 3.5 mm).
-2. R307 - bracket hole pitch (assumed 28.0 mm between the two M3 holes).
-3. LCD1602 + I2C backpack - total depth from the glass to the back of the backpack (assumed 18.24).
-4. 3010 fan - thickness and screw-hole diameter (assumed 10 mm thick, d3.2 / M3).
+1. ESP32 DevKit V1 - pad-hole inset from the board edge: 3.5 mm, still the modelled value, and
+   corroborated by the closest published drawing in the family (wESP32 puts its 3.0 mm pad holes
+   3.5 mm from the edge).  DOIT's own hole *diameter* is the one number that stays unpublished
+   (2.5 mm reported by owners, 3.0 mm on that drawing): it decides M2.2 vs M2 and nothing else.
+2. R307 - bracket hole pitch: there is no such pitch.  The module has no mounting holes; the stock
+   kits clamp it with a bracket and two long screws, so the 28.0 mm between our posts is a choice
+   we made to clear the antenna end and the corner posts, and it cannot be wrong.
+3. LCD1602 + I2C backpack depth: 13.2 / 18.24 / 20.0 mm depending on whose backpack - the pocket
+   reserves 24.0 behind the glass, so the deepest one on sale fits with 4 mm to spare.
+4. 3010 fan - thickness and hole size: 30 x 30 x 10 with a 24 +/- 0.3 mm pattern and four 3 mm
+   holes, exactly as modelled; the +/- 0.3 is taken up by the M3 shank inside the lug hole.
 
 If any one of them is more than 0.5 mm out, change the number in `tools/build_v3.py` and re-run
 `python3 tools/build_v3.py` (about 1 minute, it re-exports the STLs and re-runs every check, and
@@ -264,7 +272,7 @@ flags exist so these decisions can be reversed without archaeology; they are not
 designs - the shipped model is the one with `side_intake=False, grilles=False`.
 
 
-## 8. The fifth print: `05_FIT_GAUGE_v3.stl`, a card that answers the five open questions
+## 8. The fifth print: `05_FIT_GAUGE_v3.stl`, a card that answers the five open questions  *(kept in the repo, out of the pack from v3.5)*
 
 Section 5 left five numbers owned by your hardware rather than by any datasheet I could read from
 here - which pilot your boss actually bites, what size the hole in your PCB really is, whether the
@@ -381,3 +389,51 @@ Reversible in one line, like every other aesthetic decision on this model: `P["g
 `tools/build_v3.py` brings all twelve slots back, and the builder's self-checks, section 6b of the
 verifier and the opening map all switch their expectations with the flag rather than being edited to
 match.
+
+
+---
+
+## 10. v3.4 → v3.5: the pack is four files, and the open sizes were closed from vendor data
+
+Asked for the exact sizes and a final screw list — and not willing to print a gauge or measure
+anything — the only honest way to answer was to go and look.  Every module in this box was checked
+against published outlines on 2026-10-08.  **Nothing in the geometry moved**, and that is the result
+rather than a shrug: the model was built from the same numbers the vendors publish, so the audit, the
+verifier and the four STLs you already have still refer to these exact bytes.
+
+| part | what the vendor data says | what the box has | verdict |
+|---|---|---|---|
+| R307 | 44.1 × 20 × 23.5 body, 19 × 21 window — makerselectronics, robokits and the Grow/NEWTECH manual all publish the same numbers | `r307_body=(20.0, 44.1, 23.5)`, window 19.3 × 21.2, relief 21.0 × 25.0 in a 25.3 × 27.2 rebate | **exact**, 0.3–0.6 mm clear around the glass, 0.35 seat fit |
+| R307 mounting | the module has no mounting holes at all: the four Phillips screws on its back close the housing, and the stock kits (ArduGeek, sensorembedded, Grow) clamp it with a bracket plus two long M3 | a printed dog-bone bracket over the housing, 2 × M3 × 10 into ⌀2.5 × 8.0 posts | **the same method as the kit**, so the 28.0 mm pitch is our bracket's and not a tolerance to match |
+| 1602 + I2C | 80 × 36 outline; depth 13.2 (displaymodule.com, slim), 18.24 (addicore), 20.0 (einstronic); 72 × 25 of bezel, 64.5 × 16.2 of visible text | window 66.0 × 17.5, rebate 72.0 × 23.5 × 0.45, cavity reserved to `zi+24.0` | **every depth sold fits with ≥4 mm to spare**, and the audit's envelope check proved the pocket collides with nothing |
+| RC522 | 60 × 40, 1.6 PCB, header ≤ 6 mm | 62.7 × 44.7 × 2.9 recess, 1.0 shelf, 4 ribs, the ring clamps the edges | **fits any brand of that size**; the board's own hole pitch is deliberately unused |
+| 3010 fan | 30 × 30 × 10, "mounting dimensions 24 ± 0.3 mm", "4 holes 3 mm"; 5 V parts flow 1.9–2.5 CFM | `fan=(30,30,10)`, `fan_pitch=24.0`, ⌀3.2 lugs, ⌀28 bore, flow modelled 3.6 m³/h | **exact**; the modelled flow is inside the published 3.2–4.2 m³/h band and the audit runs the low end |
+| ESP32 DevKit V1 | 51.45 × 28.33 (espboards.dev draws it to that outline), 52 × 28 × **14** with headers (einstronic); pad holes ⌀2.5 reported by owners, ⌀3.0 on the wESP32 drawing with 3.5 inset | `esp32_board=(28.33, 51.45, 1.6)`, `esp32_comp_h=16.0`, inset 3.5, M2.2 into ⌀1.8 | outline **exact**, height **2 mm over the real stack**, pad-hole diameter still unpublished — it decides M2.2 vs M2 and nothing else |
+
+Two near-misses that turned out to be fine.  The ESP32's real 14 mm stack looked like it needed
+`esp32_comp_h` raised from 12: it was already 16.0, and the audit proves the plate still closes over it.
+And the fan's ±0.3 mm pattern tolerance is absorbed by the M3 shank having 0.1 mm per side inside the
+lug hole — which is precisely why the wall holes are ⌀2.5 pilots rather than threads cut to 24.0.
+
+**Screws, final.**  Same table as the print order's SCREWS section, which the audit measured hole by
+hole (22 of them):
+
+| where | screw | into | evidence |
+|---|---|---|---|
+| rear plate | 4 × M3 × 10 | ⌀2.48 × 9.0 blind pilots; plate holes ⌀3.4 clearance; 90° countersink ⌀6.40 | pull-out 291 N each vs 0.59 N of load |
+| LCD1602 | 4 × M2.5 × 12 | ⌀2.05 × 8.5 | the pilot is the thread's minor ⌀2.06, so it bites |
+| RC522 ring | 4 × M2.5 × 8 | ⌀2.05 (2.5 through the ring + 3.8 blind in the pad) | × 6 works too; heads sink in the ring's ⌀5.6 × 1.5 recesses |
+| R307 bracket | 2 × M3 × 10 | ⌀2.50 × 8.0 | and the stock R307 kit ships the same length |
+| fan | 4 × M3 × 12 (12–14) | ⌀2.50 × 12.0 | a 3010 usually ships **two** screws — you need four, pan head, not countersunk |
+| ESP32 | 4 × M2.2 × 8 | ⌀1.80 × 5.7 | **M2.2 only** at the antenna end; M2 × 8 self-tapping is the fallback (it clears a 2.5 mm board hole and bites the same pilot); **not M2.5**, which may not pass that hole; never M3 |
+
+M2.2 × 8 is the only line a Mirzapur hardware shop might not stock — it is a precision size, sold
+online in packs.  M2 × 8 from any M2 kit is the substitute.  Everything else here is loose-change
+stock.
+
+And the fifth file is gone from the pack: `tools/build_gauge_v3.py`, `tools/check_gauge_v3.py`,
+`tools/make_gauge_figure_v3.py`, `cad/v3/05_FIT_GAUGE_v3.stl`, `docs/v3_gauge_build.txt`,
+`docs/v3_gauge_check.txt` and `renders/v3_fit_gauge.png` all stay in the repo and still run, and none
+of them ships any more — `tools/make_pack_v3.py` lists four STLs.  If a vendor number ever turns out to
+be a lie about *your* module, `python3 tools/build_gauge_v3.py` prints the card again in 20 seconds of
+slicing time and the pack takes the line back.

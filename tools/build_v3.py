@@ -50,12 +50,20 @@ P = dict(
     # ---- LCD1602 + I2C backpack -----------------------------------------
     lcd_window=(66.0, 17.5), lcd_centre=(0.0, 51.95),        # [V1] window pos
     lcd_hole_pitch=(75.1, 31.0),                             # [V1] == 1602 std
-    lcd_boss=6.0, lcd_pilot=2.05, lcd_glass_t=11.5,       # v3.1: pilot at M2.5 minor dia  # [REF] 18-25 mm deep
+    # [WEB 2026-10-08] published stack depths: 13.2 mm (displaymodule.com, the slim I2C
+    # version), 18.24 mm (addicore), 20.0 mm (einstronic).  The pocket reserves 24.0
+    # behind the glass, so the deepest one sold still fits with 4 mm to spare.
+    lcd_boss=6.0, lcd_pilot=2.05, lcd_glass_t=11.5,       # v3.1: pilot at M2.5 minor dia
 
     # ---- R307 fingerprint -----------------------------------------------
     r307_window=(19.3, 21.2), r307_centre=(35.95, -24.1),   # [V1]
     r307_relief=(21.0, 25.0), r307_relief_deep=1.6,         # clears the M3 posts
-    r307_body=(20.0, 44.1, 23.5),                           # [REF]
+    # [WEB 2026-10-08] 44.1 x 20 x 23.5 with a 19 x 21 window, confirmed three times over
+    # (makerselectronics, robokits, the Grow/NEWTECH manual).  One finding changed a note
+    # rather than the geometry: the module has NO mounting holes of its own - stock kits
+    # for R305/R307 clamp it with a bracket and two long screws - so the 28.0 mm below is
+    # OUR bracket pitch and there is nothing on the sensor to measure.
+    r307_body=(20.0, 44.1, 23.5),
     r307_post=6.0, r307_post_h=23.5, r307_pilot=2.5,
     r307_seat=(1.2, 1.5), r307_seat_fit=0.35,               # locating seat (w x h)
     r307_bracket_holes=(-13.95, 14.05), r307_bracket_w=52.2,
@@ -78,15 +86,30 @@ P = dict(
     rc522_post_h=1.6,                          # pad top = board back face (zero-lip clamp)
 
     # ---- ESP32 DevKit V1 -------------------------------------------------
-    esp32_board=(28.33, 51.45, 1.6),                        # [REF] Y x Z when flat on wall
-    esp32_comp_h=16.0,                                      # [REF] 8-12 + USB
+    # [WEB 2026-10-08] espboards.dev publishes the DOIT DevKit V1 outline drawing and the
+    # board measures to it at 51.45 x 28.33 mm, so that pair is data rather than memory.
+    # einstronic lists the envelope as 52 x 28 x 14 mm WITH headers, so 16.0 of height is
+    # the real 14.0 stack plus 2.0 margin, and the audit proves 16 + the 3.0 wall still
+    # clears the plate.
+    esp32_board=(28.33, 51.45, 1.6),                        # Y x Z when flat on wall
+    esp32_comp_h=16.0,                                      # real stack 14.0 + 2.0
     esp32_post_len=10.0, esp32_usb_edge=-70.0,               # USB edge Y
     esp32_z_centre=27.5,                                     # keeps it clear of the RC522
-    esp32_pad=8.0, esp32_pilot=1.8, esp32_inset=3.5,        # inset VERIFY_ACTUAL_HARDWARE
+    # inset 3.5 is corroborated by the closest published drawing in the family (wESP32 puts
+    # its 3.0 mm pad holes 3.5 mm from the edge).  DOIT's own pad-hole diameter is still
+    # unpublished: 2.5 mm reported by users, 3.0 mm on the drawing, so M2.2 and M2 both
+    # pass the hole and both bite the d1.8 pilot.
+    esp32_pad=8.0, esp32_pilot=1.8, esp32_inset=3.5,
     usb_slot=(18.0, 10.0), usb_plug=(15.6, 8.0),
 
     # ---- 3010 fan --------------------------------------------------------
-    fan=(30.0, 30.0, 10.0), fan_pitch=24.0, fan_open_d=28.0,  # v3: clear bore, no grille
+    # [WEB 2026-10-08] 3010 confirmed from vendor listings: 30 x 30 x 10 body, mounting
+    # dimensions 24 +/- 0.3 mm, four 3 mm holes - so the 24.0 pitch and the 3.2 bore in
+    # the lugs are vendor numbers now, not assumptions.  The +/- 0.3 is taken up by the M3
+    # shank having 0.1 mm per side in its own hole, which is why the wall holes are pilots.
+    # Airflow stays [EST] at 3.6 m3/h: 5V 3010s are sold between 1.9 and 2.5 CFM, i.e.
+    # 3.2-4.2 m3/h, and the audit models the low end.
+    fan=(30.0, 30.0, 10.0), fan_pitch=24.0, fan_open_d=28.0,  # clear bore, no grille
     fan_centre_yz=(17.0, 24.0), fan_post=8.0, fan_pilot=2.5,
 
     # ---- ventilation -----------------------------------------------------
