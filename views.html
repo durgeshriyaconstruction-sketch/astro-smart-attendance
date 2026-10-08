@@ -26,7 +26,7 @@
 </style>
 </head>
 <body>
-<h1>Astro Smart Attendance &mdash; enclosure <span style="color:#68d391">v3, the complete re-design</span></h1>
+<h1>Astro Smart Attendance &mdash; enclosure <span style="color:#68d391">v3.3, the complete re-design</span></h1>
 <p class="sub">110 &times; 155 &times; <b>46</b> mm &middot; 4 printed parts (the RFID hold-down is now <b>one</b>
 ring instead of two clamp bars) &middot; no supports &middot; 22 circular self-tapping pilots &middot;
 167.9 cm<sup>3</sup> of plastic (154 g printed PLA at 15&nbsp;% infill) &middot; three checkers say ALL CHECKS PASS,
@@ -36,20 +36,31 @@ and the second one reads only the STL triangles.</p>
   <li><b>100&nbsp;% open</b> RFID scan aperture &mdash; 56 &times; 38 mm, R5 corners, 0 of 8269 probe rays blocked (v2 lost 190 mm<sup>2</sup> to stiffener bars)</li>
   <li><b>d28 fan bore with nothing across it</b> &mdash; no grille, and the 1.4 mm seat lip v2 left standing around the bore is gone; the thinnest sheet anywhere in the print is now the 2.2 mm band the RC522 lies on</li>
   <li><b>0.45 &times; 3.0 mm rebate rings</b> sunk around the LCD and fingerprint openings &mdash; each module's own bezel registers in them, so the openings read as a shadow line instead of a cut edge</li>
-  <li><b>rear plate: register frame, not a plug</b> &mdash; 52.8 cm<sup>3</sup> instead of 79.6 cm<sup>3</sup>, with the whole ESP32 zone cut clear so its bosses and locating tabs have room</li>
-  <li><b>fresh intake wall</b> &mdash; 6 &times; d5.0 holes at two heights on the side opposite the fan, staggered so no hole breaks an ESP32 boss</li>
+  <li><b>rear plate: register frame, not a plug</b> &mdash; 53.8 cm<sup>3</sup> instead of 79.6 cm<sup>3</sup>, with the whole ESP32 zone cut clear so its bosses and locating tabs have room</li>
+  <li><b>v3.3: the fan does the work</b> &mdash; the 8 slots that had been cut in the right-hand wall are gone (that wall is now plain, checked as 0 voids at mid-thickness). The <b>d28 bore is the inlet</b>, the fan is mounted blowing IN, and air leaves through an 8-slot bottom grille + 4-slot top grille: 1069&nbsp;mm<sup>2</sup>, 1.74&times; the bore</li>
   <li><b>every module screwed down</b>, RC522 included: 4 &times; M2.5 into blind pilots, heads sunk in the ring, no glue, no clips, no snap-fits</li>
 </ul>
 
 <a class="big" href="/viewer.html">Interactive 3D viewer &mdash; v3 / v2 / v1 in one canvas</a>
 <a class="big alt" href="/exports/viewer_offline.html">Self-contained viewer (the same file that ships in the ZIP)</a>
-<a class="big zip" href="/exports/ASTRO_SMART_ATTENDANCE_v3.zip">Download v3 ZIP &mdash; 4 STLs + 6 figures + both reports + both scripts</a>
+<a class="big zip" href="/exports/ASTRO_SMART_ATTENDANCE_v3.zip">Download v3 ZIP &mdash; 4 STLs + 7 figures + 4 reports + the generators</a>
 <a class="big zip" style="background:#4a5568" href="/exports/ASTRO_SMART_ATTENDANCE_v2.zip">v2 ZIP (previous, still verified)</a>
 
 <h2>1 &mdash; the whole re-design on one page</h2>
 <figure>
- <figcaption>v3 assembly: front / rear / fan wall / intake wall / top / bottom, every part coloured, drawn from the four shipped STLs</figcaption>
+ <figcaption>v3 assembly: front / rear / inlet wall (-X, the fan bore) / <b>plain right wall (+X, nothing cut in it since v3.3)</b> / top / bottom, every part coloured, drawn from the four shipped STLs</figcaption>
  <img src="/renders/v3_all_views.png" alt="overview">
+</figure>
+
+<h2>1b &mdash; v3.3: every opening in the four side walls, sliced out of the shipped mesh</h2>
+<figure>
+ <figcaption>each wall cut by one plane at its own mid-thickness and every closed void drawn at the
+ size it <i>measured</i>: bottom 8&nbsp;&times;&nbsp;21&nbsp;&times;&nbsp;4.5&nbsp;mm grille + the USB opening,
+ top 4&nbsp;&times;&nbsp;21&nbsp;&times;&nbsp;4&nbsp;mm, right wall <b>0 voids</b> (v3.2 had 8 slots there),
+ left wall the d28 bore, which is now the inlet. Redrawn by
+ <code>tools/make_grille_map_v3.py</code>, which exits non-zero if an opening count is not 9&nbsp;/&nbsp;4&nbsp;/&nbsp;0&nbsp;/&nbsp;1
+ &mdash; so this picture cannot be left behind by a rebuild.</figcaption>
+ <img src="/renders/v3_grille_map.png" alt="opening map">
 </figure>
 
 <h2>2 &mdash; v2 &rarr; v3, same views, same projection, both columns rendered from shipped STLs</h2>

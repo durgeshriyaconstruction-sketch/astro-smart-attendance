@@ -13,6 +13,7 @@ Sections
   3  wall thickness map       8  driver access for screws
   4  component clearance       9  RF path in front of the window
   5  pilot-hole diameters     10 printed-part fits
+  6b grille inventory (v3.3)
 """
 import os
 import sys
@@ -132,9 +133,19 @@ OPENINGS = [
     ("RFID scan window", (FCX, FCY, 1.5), (0, 0, -1), (RFW - 4, RFH - 4)),
     ("USB slot", (ESP_FACE + 3.5, -H / 2 + 0.5, ESP_ZC), (0, -1, 0), (14, 6)),
     ("fan bore", (-W / 2 + 0.5, FAN_Y, FAN_Z), (-1, 0, 0), (FAN_D - 8, FAN_D - 8)),
-    ("bottom exhaust", (16.0, -H / 2 + 0.5, 12.0), (0, -1, 0), (14, 2)),
-    ("top vent", (0.0, H / 2 - 0.5, 26.0), (0, 1, 0), (12, 1.5)),
-    ("intake slot +X", (W / 2 - 0.5, -52.5, 18.0), (1, 0, 0), (10.0, 1.0)),
+    ("bottom exhaust", (12.5, -H / 2 + 0.5, 7.0), (0, -1, 0), (14, 3)),
+    ("top vent", (12.5, H / 2 - 0.5, 26.0), (0, 1, 0), (14, 1.5)),
+    ("bottom grille, far row", (-37.5, -H / 2 + 0.5, 15.0), (0, -1, 0), (14, 3)),
+    ("top grille, last slot", (37.5, H / 2 - 0.5, 26.0), (0, 1, 0), (14, 2)),
+]
+# v3.3: the right-hand (+X) wall carries NO openings at all - the fan's own bore is the
+# inlet.  Same ray test, opposite verdict: none of these may escape.
+SOLID_WALLS = [
+    ("+X wall, where a slot used to be", (W / 2 - 0.5, -52.5, 18.0), (1, 0, 0)),
+    ("+X wall, mid height", (W / 2 - 0.5, -17.5, 25.0), (1, 0, 0)),
+    ("+X wall, top corner", (W / 2 - 0.5, 52.5, 33.0), (1, 0, 0)),
+    ("+X wall, bottom corner", (W / 2 - 0.5, 52.5, 5.0), (1, 0, 0)),
+    ("+X wall, above the USB", (W / 2 - 0.5, -60.0, 5.0), (1, 0, 0)),
 ]
 
 add("INDEPENDENT VERIFICATION - Astro Smart Attendance enclosure v3 (re-design)")
@@ -326,17 +337,35 @@ for sx in (-1, 1):
 # ------------------------------------------------------------------ 6 openings
 add("")
 add("6. openings - a ray from inside must escape to the outside")
-for name, (x, y, z), (dx, dy, dz), (ew, eh) in OPENINGS:
+def _escape(x, y, z, d, ew, eh):
+    """9 rays from a 3x3 patch of sample points.
+
+    ew/eh are spread IN THE PLANE of the surface (the two axes at right angles to d), not
+    along x and y - a probe meant to sit in a wall has to stay inside it.
+    """
+    d = np.asarray(d, dtype=float)
+    a1, a2 = [i for i in range(3) if i != int(np.argmax(np.abs(d)))]
+    base = np.array([x, y, z], dtype=float)
     esc = tot = 0
     for u in (-0.35, 0.0, 0.35):
         for v in (-0.35, 0.0, 0.35):
-            o = np.array([x + u * ew, y + v * eh, z])
-            hh, _, _ = shell.ray.intersects_location(o[None, :], np.array([[dx, dy, dz]]),
+            o = base.copy()
+            o[a1] += u * ew
+            o[a2] += v * eh
+            hh, _, _ = shell.ray.intersects_location(o[None, :], d[None, :],
                                                      multiple_hits=False)
             tot += 1
             if len(hh) == 0:
                 esc += 1
+    return esc, tot
+
+
+for name, (x, y, z), (dx, dy, dz), (ew, eh) in OPENINGS:
+    esc, tot = _escape(x, y, z, (dx, dy, dz), ew, eh)
     verdict(esc == tot, name, f"{esc}/{tot} sample rays escape")
+for name, (x, y, z), (dx, dy, dz) in SOLID_WALLS:
+    esc, tot = _escape(x, y, z, (dx, dy, dz), 3.0, 3.0)
+    verdict(esc == 0, name, f"{esc}/{tot} rays escape (all must be blocked)")
 
 # v3 claim 1: the RFID aperture carries NO bars.  Dense ray scan of the whole opening.
 xs = np.arange(FCX - RFW / 2 + 0.25, FCX + RFW / 2, 0.5)
@@ -367,6 +396,85 @@ area = np.pi * (FAN_D / 2) ** 2
 free = area * (1 - blocked.sum() / len(o))
 verdict(blocked.sum() == 0, "fan bore 100 % open",
         f"{free:.0f} of {area:.0f} mm2 clear ({100 * free / area:.1f} %); v2 passed 50 %")
+
+# ------------------------------------------------------------- 6b the v3.3 grilles
+# v3.3 moved the whole air path: the +X wall is PLAIN, the fan bore in the -X wall is the
+# inlet (the fan is mounted blowing INTO the box), and the air leaves through a grille of
+# slots in the bottom wall and one in the top wall.  Every number below is measured off the
+# mesh by slicing the wall at mid-thickness - the sizing rule (outlet >= 1.5 x inlet) is
+# re-run here, not copied from the generator.
+add("")
+add("6b. grilles: what the walls actually contain at mid-thickness")
+
+
+def wall_voids(axis, at):
+    """voids in a wall sliced at mid-thickness, as (area, dx, dz, cx, cz) world mm."""
+    nrm = [0.0, 1.0, 0.0] if axis == "y" else [1.0, 0.0, 0.0]
+    org = [0.0, float(at), 0.0] if axis == "y" else [float(at), 0.0, 0.0]
+    sec = shell.section(plane_origin=org, plane_normal=nrm)
+    if sec is None or not len(sec.entities):
+        return []
+    path, T = sec.to_2D()
+    T = np.asarray(T, dtype=float)
+    out = []
+    for Q in path.polygons_full:
+        for ipoly in Q.interiors:
+            g = np.asarray(ipoly.coords)[:, :2]
+            w3 = np.column_stack([g, np.zeros(len(g)), np.ones(len(g))]) @ T.T
+            pts = w3[:, [0, 2]] if axis == "y" else w3[:, [1, 2]]
+            q = Polygon(pts)
+            b0, b1, b2, b3 = q.bounds
+            out.append((q.area, b2 - b0, b3 - b1, (b0 + b2) / 2, (b1 + b3) / 2))
+    return sorted(out, key=lambda r: (round(r[4], 1), r[3]))
+
+
+WT = 3.0                                          # top/bottom wall thickness
+bot = wall_voids("y", -H / 2 + WT / 2)
+slots = [r for r in bot if r[4] < 20.0]
+usbs = [r for r in bot if r[4] >= 20.0]
+verdict(len(slots) == 8, "bottom grille slots", f"{len(slots)} found, 4 x z=7 + 4 x z=15")
+verdict(len(usbs) == 1, "bottom wall: exactly one USB opening",
+        f"{len(usbs)} void above the grille: {usbs[0][1]:.1f} x {usbs[0][2]:.1f} mm"
+        if len(usbs) == 1 else f"{len(usbs)} found")
+ws = max(abs(r[1] - 21.0) for r in slots)
+hs = max(abs(r[2] - 4.5) for r in slots)
+verdict(ws < 0.25 and hs < 0.25, "bottom slot size",
+        f"{[f'{r[1]:.2f}x{r[2]:.2f}' for r in slots[:2]]} worst off by {max(ws, hs):.2f} mm")
+rowx = sorted(round(r[3], 2) for r in slots)
+verdict(rowx == [-37.5, -37.5, -12.5, -12.5, 12.5, 12.5, 37.5, 37.5], "bottom slot columns",
+        f"{sorted(set(rowx))}")
+zs = sorted(round(r[4], 2) for r in slots)
+verdict(set(zs) == {7.0, 15.0}, "bottom slot rows", f"{sorted(set(zs))} mm above the bed")
+top = wall_voids("y", H / 2 - WT / 2)
+verdict(len(top) == 4, "top grille slots", f"{len(top)} found, 21 x 4 at z=26")
+verdict(max(max(abs(r[1] - 21.0) for r in top), max(abs(r[2] - 4.0) for r in top)) < 0.25,
+        "top slot size", f"{[f'{r[1]:.2f}x{r[2]:.2f}' for r in top[:2]]}")
+verdict(sorted(round(r[3], 2) for r in top) == [-37.5, -12.5, 12.5, 37.5],
+        "top slot columns", f"{sorted(round(r[3], 1) for r in top)}")
+pl = wall_voids("x", W / 2 - 1.3)
+verdict(len(pl) == 0, "+X wall is plain (no openings)",
+        f"{len(pl)} voids in the right wall at mid-thickness")
+inl = wall_voids("x", -W / 2 + 2.6 / 2)
+verdict(len(inl) == 1 and abs(inl[0][0] - np.pi * (FAN_D / 2) ** 2) < 8,
+        "-X wall: the fan bore is the only opening",
+        f"{len(inl)} void, {inl[0][0]:.0f} mm2 of a {np.pi * (FAN_D / 2) ** 2:.0f} mm2 bore"
+        if inl else "no opening found")
+a_out = sum(r[0] for r in slots) + sum(r[0] for r in top)
+a_in = np.pi * (FAN_D / 2) ** 2
+verdict(a_out >= 1.5 * a_in, "outlet >= 1.5 x inlet area",
+        f"{a_out:.0f} mm2 of grille vs {a_in:.0f} mm2 bore (needs {1.5 * a_in:.0f})")
+low = min(r[4] - r[2] / 2 for r in slots)
+verdict(low >= 3.0 + 1.5 - 0.05, "grille stays clear of the front wall",
+        f"lowest slot edge {low:.2f} mm, i.e. {low - 3.0:.2f} mm clear of that wall's inner face")
+# centre-to-centre is not the web: the plastic that matters is edge to edge.
+hsh = slots[0][2]
+zr = sorted({round(r[4], 2) for r in slots})
+web = min([b - a - hsh for a, b in zip(zr, zr[1:])], default=9e9)
+xr = sorted({r[3] for r in slots})
+web_x = min(b - a - slots[0][1] for a, b in zip(xr, xr[1:]))
+verdict(web >= 3.0 - 0.05 and web_x >= 3.0 - 0.05, "webs between the slots",
+        f"{web:.2f} mm of plastic between the rows, {web_x:.2f} mm between the columns "
+        f"(rule: never thinner than the 3.0 mm wall)")
 
 # ------------------------------------------------------------------ 7 layers
 add("")

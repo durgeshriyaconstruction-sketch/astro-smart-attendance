@@ -1,10 +1,10 @@
 ASTRO SMART ATTENDANCE - v3 enclosure audit  (RE-DESIGN)
 ============================================================================
 axis frame: X width 110, Y height 155, Z depth 46 mm
-shell     : 15308 tris, watertight=True, winding_ok=True, bodies=1
+shell     : 14426 tris, watertight=True, winding_ok=True, bodies=1
 shell size: [110.0, 155.0, 43.0] (depth 43 + 3 mm plate = 46)
 assembly  : 110.0 x 155.0 x 46.0 mm  (v2 was 48 deep)
-volume    : 110.9 cm3  ~69 g PLA (15 % infill, estimate)
+volume    : 112.0 cm3  ~69 g PLA (15 % infill, estimate)
 
 A. printed-part interference
    shell <-> rear plate                    0.00 mm3   PASS
@@ -40,9 +40,10 @@ D. other printed parts
    R307 bracket : size [36.8, 14.0, 3.2], watertight=True
 
 E. wall / feature thickness probe (ray through the material)
-   front wall, plain          measured  1.30 mm   design 2.90   CHECK
-   RFID ledge ring            measured  2.95 mm   design 2.20   CHECK
-   RFID bearing band (board edge) measured  0.00 mm   design 2.20   CHECK
+   front wall, plain          measured  2.90 mm   design 2.90   PASS
+   front-wall skin under an RC522 pilot measured  1.30 mm   design 1.40   PASS
+   RFID recess floor sheet    measured  2.15 mm   design 2.20   PASS
+   front wall beside the recess measured  2.95 mm   design 3.00   PASS
    side wall                  measured  2.50 mm   design 2.60   PASS
    top wall                   measured  2.90 mm   design 2.90   PASS
    bottom wall                measured  2.90 mm   design 2.90   PASS
@@ -64,7 +65,7 @@ F. dimensional audit against the supplied component references
 
 
 G. printability (orientation: front face down, rear opening up)
-   >60 deg overhang area: 325 mm2 (0.40 % of surface) - SUPPORT_REQUIRED = NO
+   >60 deg overhang area: 296 mm2 (0.36 % of surface) - SUPPORT_REQUIRED = NO
    designed walls: front 3.0 mm, locally 2.2 mm at the RFID ledge ring, sides 2.6 mm, top/bottom 3.0 mm, plate 3.0 mm, part fit 0.35 mm, plate register lip 0.25 mm/side, rebate ring 0.45 x 3.0 mm around the LCD + fingerprint openings
    outer polish: vertical corners R3.0 mm, 1.0 mm x 45 deg front rim, plate rear rim chamfered, plate screws countersunk 6.6 mm / 90 deg (flush flat head)
 
@@ -110,8 +111,10 @@ J. outer polish / assembly features (probed)
    RFID aperture centre clear PASS
    no bar in the aperture     PASS
    fan bore centre clear      PASS
-   intake slot open (+X)      PASS
-   intake wall beside         PASS
+   +X wall plain (no side openings) PASS
+   bottom grille open         PASS
+   top grille open            PASS
+   wall between grille rows   PASS
    ring pad coplanar          PASS
    LCD rebate ring cut        PASS
    wall under LCD rebate      PASS
@@ -128,7 +131,7 @@ K. v3 design deltas - measured, not asserted
    K5 front face      3.0 mm plate, 0.45 x 3.0 mm rebate sunk around LCD + fingerprint; 2.0 mm of the rim was chamfered away, 2.55 mm is left under each rebate
 
 H. STL file re-read verification (what the slicer will actually see)
-   shell        edges open=0 non-manifold=0 bodies=1 micro-faces=8 vol=110.9 cm3   PASS
+   shell        edges open=0 non-manifold=0 bodies=1 micro-faces=10 vol=112.0 cm3   PASS
    rear plate   edges open=0 non-manifold=0 bodies=1 micro-faces=6 vol=53.8 cm3   PASS
    R307 bracket edges open=0 non-manifold=0 bodies=1 micro-faces=0 vol=1.0 cm3   PASS
    RC522 ring   edges open=0 non-manifold=0 bodies=1 micro-faces=0 vol=2.2 cm3   PASS

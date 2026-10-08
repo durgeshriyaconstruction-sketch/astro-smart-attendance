@@ -13,7 +13,7 @@ v3 is a RE-DESIGN, not a polish of v2.  Architectural changes vs v2:
      protection), R307 bracket redrawn as a dog-bone with two stiffening ribs
   6  ESP32 on 4 round d7 bosses with 0.5 spotfaces + a 3 x 2 locating rail
   7  rear plate: 2 strain-relief slots in line with 2 tie posts, register lip tightened to
-     0.55 mm, 8 x 30 x 5 intake slots in the +X wall sized to the d28 fan bore
+     0.55 mm, plain side walls - the d28 fan bore is the inlet and the 8 + 4 grilles the outlet
 
 Axes:   X = width (110)   Y = height (155)   Z = depth (48)
         z = 0  -> device FRONT (user) face
@@ -89,8 +89,20 @@ P = dict(
     fan_centre_yz=(17.0, 24.0), fan_post=8.0, fan_pilot=2.5,
 
     # ---- ventilation -----------------------------------------------------
-    vent_slot=(20.0, 4.0), vent_rows=(-16.0, 16.0), vent_z=(6.0, 12.0),
-    top_vent=(16.0, 3.0), top_vent_x=(-18.0, 0.0, 18.0), top_vent_z=26.0,
+    # v3.3: the side walls are plain, by request ("remove the right-side grooves - I have a
+    # fan").  The fan in the -X wall therefore becomes the INLET: air is drawn in through the
+    # d28 bore and leaves through the bottom + top grilles.  The physics rule did not move, only
+    # the openings: the passive set must stay >= 1.5x the bore, which the 8 bottom + 4 top slots
+    # below give (measured, see docs/v3_physics_audit.txt section 4).  side_intake=True restores
+    # the v3.2 arrangement (8 x 30 x 5 in +X, fan exhausting) in one rebuild.
+    side_intake=False,
+    # the pitch is 25 mm and the slot 21 wide, which leaves 4.0 mm of web - thicker than the
+    # 3.0 mm wall itself.  Two rows of 5 mm at 7 / 14.5 left a 2.5 mm web between the rows,
+    # i.e. a ligament thinner than the wall it sits in, and the physics audit (section 8)
+    # failed it; 4.5 tall at 7 / 15 gives 3.5 mm and still keeps 1.75 mm clear of the front
+    # wall's inner face and 4.6 mm clear of the USB opening.
+    vent_slot=(21.0, 4.5), vent_rows=(-37.5, -12.5, 12.5, 37.5), vent_z=(7.0, 15.0),
+    top_vent=(21.0, 4.0), top_vent_x=(-37.5, -12.5, 12.5, 37.5), top_vent_z=26.0,
     intake=(30.0, 5.0, (-52.5, -17.5, 17.5, 52.5), (18.0, 32.0), 2.5),  # 8 slots = 1157 mm2
 
     # ---- hardware --------------------------------------------------------
@@ -353,9 +365,10 @@ def build_shell():
 
     # --------------------------------------------- v3 intake holes (+X wall)
     iw, ih, iys, izs, ir = P["intake"]
-    for iy in iys:
-        for iz in izs:
-            cut.append(ext_x(rr(iy, iz, iw, ih, ir), wi - 0.1, W / 2 + 2))
+    if P["side_intake"]:
+        for iy in iys:
+            for iz in izs:
+                cut.append(ext_x(rr(iy, iz, iw, ih, ir), wi - 0.1, W / 2 + 2))
 
     # ---------------------------------------------------- cable tie posts
     for (zx, zy) in (P["zip_post"], P["zip_post2"], P["zip_post3"], P["zip_post4"]):
@@ -611,9 +624,11 @@ def opening_test(shell):
         ("USB slot",          (usx, -P["H"] / 2 + 1.5, ezc), (usx + P["usb_slot"][0] / 2 + 4, -P["H"] / 2 + 1.5, ezc)),
         ("fan bore (no grille)", (-P["W"] / 2 + 1.5, fy, fz), (-P["W"] / 2 + 1.5, fy, fz + P["fan_open_d"] / 2 + 4)),
         ("exhaust slot",      (P["vent_rows"][0], -P["H"] / 2 + 1.5, P["vent_z"][0]),
-                              (P["vent_rows"][0] + P["vent_slot"][0] / 2 + 6, -P["H"] / 2 + 1.5, P["vent_z"][0])),
+                              ((P["vent_rows"][0] + P["vent_rows"][1]) / 2,
+                               -P["H"] / 2 + 1.5, P["vent_z"][0])),
         ("top vent",          (P["top_vent_x"][0], P["H"] / 2 - 1.5, P["top_vent_z"]),
-                              (P["top_vent_x"][0], P["H"] / 2 - 1.5, P["top_vent_z"] + P["top_vent"][1] / 2 + 5)),
+                              (P["top_vent_x"][0], P["H"] / 2 - 1.5,
+                               P["top_vent_z"] + P["top_vent"][1] / 2 + 5)),
     ]
     res = []
     for name, p_open, p_wall in cases:
@@ -646,9 +661,17 @@ def wall_probe(shell):
     fcx, fcy = P["rc522_centre"]
     deep = P["rfid_recess_deep"]
     probes = [
-        ("front wall, plain",        (0.0, 10.0, 0.1), (0, 0, 1),  2.90),
-        ("RFID ledge ring",          (fcx + 30.0, fcy + 5.0, -1.0), (0, 0, 1), 2.20),
-        ("RFID bearing band (board edge)", (fcx, fcy + 19.6, -1.0), (0, 0, 1), 2.20),
+        ("front wall, plain",        (0.0, 20.0, 0.1), (0, 0, 1),  2.90),
+        # this one DOES stand on a hole: the RC522 corner pilot is blind from the
+        # inside, so what is left is the skin the screw threads into.
+        ("front-wall skin under an RC522 pilot", (0.95, 9.95, 0.1), (0, 0, 1), 1.40),
+        # these two used to stand outside the recess and read nonsense (2.95 /
+        # 0.00 against a 2.20 expectation).  Floor first: 0.8 of shelf, then the
+        # sheet that is left of the 3.0 wall.  Then full wall just outside it.
+        # the aperture is fully open at the centre, so stand on the shelf band:
+        # between the aperture edge (+3.95) and the recess edge (+7.31).
+        ("RFID recess floor sheet",   (fcx, fcy + 29.7, -1.0), (0, 0, 1), 2.20),
+        ("front wall beside the recess", (fcx + 26.0, fcy, -1.0), (0, 0, 1), 3.00),
         ("side wall",                (-54.9, 0.0, 40.0), (1, 0, 0), 2.60),
         ("top wall",                 (0.0, 77.4, 20.0), (0, -1, 0), 2.90),
         ("bottom wall",              (-2.0, -77.4, 12.0), (0, 1, 0), 2.90),
@@ -848,15 +871,26 @@ def audit(shell, plate, r307b, ring=None):
     exf_ = -wi_ + P["esp32_post_len"]
     fyv, fzv = P["fan_centre_yz"]
     iw, ih, iys, izs, ir = P["intake"]
+
+    def _solid(*c):
+        """is that design-frame point inside the shell's material?"""
+        return bool(shell.contains([list(c)])[0])
+
     checks += [
-        ("RFID aperture centre clear", not bool(shell.contains([[fcx, fcy, zi - 1.5]])[0])),
+        ("RFID aperture centre clear", not _solid(fcx, fcy, zi - 1.5)),
         ("no bar in the aperture",
-         not bool(shell.contains([[fcx - 9.33, fcy, zi - 1.5]])[0]) and
-         not bool(shell.contains([[fcx + 9.33, fcy, zi - 1.5]])[0])),
-        ("fan bore centre clear", not bool(shell.contains([[-P["W"] / 2 + 1.0, fyv, fzv]])[0])),
-        ("intake slot open (+X)",  not bool(shell.contains([[W_ / 2 - 1.0, iys[0], izs[0]]])[0])),
-        ("intake wall beside",      bool(shell.contains([[W_ / 2 - 1.0, iys[0] - iw / 2 - 2.0,
-                                                           izs[0]]])[0])),
+         not _solid(fcx - 9.33, fcy, zi - 1.5) and not _solid(fcx + 9.33, fcy, zi - 1.5)),
+        ("fan bore centre clear", not _solid(-P["W"] / 2 + 1.0, fyv, fzv)),
+        *([("intake slot open (+X)", not _solid(W_ / 2 - 1.0, iys[0], izs[0])),
+           ("intake wall beside", _solid(W_ / 2 - 1.0, iys[0] - iw / 2 - 2.0, izs[0]))]
+          if P["side_intake"] else
+          [("+X wall plain (no side openings)",
+            all(_solid(W_ / 2 - 1.0, iy, iz) for iy in iys for iz in tuple(izs) + (2.5, 41.0))),
+           ("bottom grille open", not _solid(P["vent_rows"][0], -H_ / 2 + 1.0, P["vent_z"][0])),
+           ("top grille open", not _solid(P["top_vent_x"][0], H_ / 2 - 1.0, P["top_vent_z"])),
+           ("wall between grille rows",
+            _solid((P["vent_rows"][0] + P["vent_rows"][1]) / 2, -H_ / 2 + 1.0,
+                   P["vent_z"][0]))]),
         # pad top must be exactly the board's back face (4.6) - probe OFF the pilot axis
         ("ring pad coplanar",       bool(shell.contains(
             [[fcx - P["rc522_post_off"][0] + 2.6, fcy + P["rc522_post_off"][1] - 2.6,

@@ -451,10 +451,15 @@ measurement, never silently revert them:
    continuous, then subtract one generous box; 90 of 148 mm of register remains, plenty for
    4 screws. 53.8 cm3 instead of a 79.6 cc solid plug (v3.1 added the relief cut through the
    skin, which is +2.4 cc of frame and -0 mm of interference).
-7. **Air path**: 8 x 30 x 5 mm stadium slots (1157 mm2) on the wall opposite the fan - never
-   round holes there, a d5.0 hole 5.5 mm from a 3 mm wall leaves a 2.0 mm ligament and splits on
-   the spool's own tension. d28 bore with no grille and no seat lip, 4 x (20 x 4) exhaust slots and
-   3 x (16 x 3) top vents. v2's 3 grille bars left 50 % of the bore closed.
+7. **Air path (v3.3)**: the fan does the work, so the fan's own bore *is* the inlet - d28,
+   615 mm2, no grille and no seat lip, and the fan is mounted blowing IN. The outlet is two
+   grilles, 8 x (21 x 4.5) in the bottom wall and 4 x (21 x 4) in the top, 1069 mm2 = 1.74x the
+   bore. The right-hand wall is **plain**: v3.2 had cut 8 x 30 x 5 slots there (1157 mm2) and they
+   were paid for in stiffness for a wall that no longer does any breathing. Slots, never round
+   holes - a d5.0 hole 5.5 mm from a 3 mm wall leaves a 2.0 mm ligament and splits on the spool's
+   own tension - and no row of slots may leave a web thinner than the wall it is cut in (the
+   18 x 5 / 2.5 mm-web version failed the audit and was re-cut). v2's 3 grille bars left 50 % of
+   the bore closed.
 8. **Everything is measured twice.** `build_v3.py` sections A-K (interference, envelopes,
    openings, other parts, probes, printability, STL re-read, the 22-hole pilot census, the
    bed envelope, the measured v2->v3 deltas) and `verify_v3.py`, which imports nothing from the
@@ -481,7 +486,8 @@ measurement, never silently revert them:
 
 ### Figures a rebuild must regenerate (additions to §22)
 `v3_drawing_sheet.png`, `v3_exploded_iso.png`, `v3_fixing_detail.png`, `v3_fixing_section.png`,
-`v3_all_views.png`, `v3_vs_v2.png`. The two fixing panels are cut from the shipped STLs with
+`v3_all_views.png`, `v3_vs_v2.png`, `v3_grille_map.png` (v3.3: every opening in the four side walls,
+lifted out of a mid-thickness slice of the shipped shell and labelled with the size it measured). The two fixing panels are cut from the shipped STLs with
 `mesh.section()`, so they cannot drift; `v3_vs_v2.png` renders both versions with the same
 `projection()` call, which is what makes "it looks unchanged" impossible to argue with.
 
@@ -497,11 +503,11 @@ one re-measured off `cad/v3/*.stl`. It is now the third gate and has to say
 | 1 fasteners | is each pilot at the thread's minor, and will the thread pull out? | play 0.01-0.05 mm; 75-362 N per screw vs the 0.15-0.88 N it actually holds |
 | 2 clamping | is anything crushed, and is any head too tall for the gap behind it? | LCD bezel and R307 shoulder in compression; every head clears the plate |
 | 3 kinematics | can each part actually be *installed*, straight in, no tilting? | all 6 modules + the plate descend with 0 blocked samples |
-| 4 airflow | does the fan get air on both sides of the loop? | 615 mm2 bore in series with 1609 mm2 of grille-free path = 2.6x the bore; 0.86 L/s = 86 % of free air; dT 1.6 K; box changed every 0.9 s |
+| 4 airflow | does the fan get air on both sides of the loop? | v3.3: the bore is the inlet (615 mm2) in series with 1069 mm2 of outlet grilles = 1.74x the bore, +X wall measured 0 voids; duty point and box-change time are printed in docs/v3_physics_audit.txt section 4 |
 | 5 optics | can the sensor see a finger, and can a human read the display? | 1815 of 1815 cone samples clear of the ring; LCD visible to 113 deg |
 | 6-7 RF | does plastic or metal sit in front of an antenna? | RC522 0 of 4350 points in material (aperture 100 % open), ESP32 keep-out 0 of 4350, no copper within 6 mm of the trace |
 | 8 plastic stress | plate peel, hook shear, wall ligaments, countersink edge distance | 289x peel reserve; hooks 0.16 MPa vs 8.5; RFID<->R307 ligament 22.50 mm; countersink wall 2.25 mm |
-| 9 slicer reality | first layer, overhangs, thin sheets, density, thermal | 11 396 mm2 single contour, 0.40 % of faces steeper than 60 deg, all >= 2.2 mm, 154 g, PETG note |
+| 9 slicer reality | first layer, overhangs, thin sheets, density, thermal | 11 396 mm2 single contour, 0.40 % of faces steeper than 60 deg, all >= 2.2 mm, 155 g, PETG note |
 | 10 doc truth | does every sentence in the pack match the triangles? | re-greps the docs, checks the required strings AND every `cm3` figure against the mesh volumes |
 
 **Four real defects it found, all fixed in the geometry - not in the text:**
@@ -522,7 +528,7 @@ one re-measured off `cad/v3/*.stl`. It is now the third gate and has to say
   front face now visibly differs from v2 (portrait swipe window).
 * **F14 (v3.2) - the two checkers disagreed on mass by 50 g.** `verify_v3` applied a blanket 0.62
   factor; the shell is a thin-walled box where 3 perimeters x 0.45 mm fill a 2.6 mm wall *solid*.
-  Both now use the same model - walls solid, 3 skins, 15 % core -> 154 g, 1 kg spool = 6.5 sets.
+  Both now use the same model - walls solid, 3 skins, 15 % core -> 155 g, 1 kg spool = 6.4 sets.
 
 **Accepted by design (recorded as notes, not failures):** the M2.5 pan head ends 0.90 mm proud of
 the ring's inner face (it sits in the recess, on the PCB side - it never touches the rear plate);
@@ -532,8 +538,10 @@ black-ish PLA box in Indian sun passes PLA's 55-60 deg heat-deflection point.
 **Rules a rebuild must keep from this round:**
 1. Every module must enter by **descending along one axis** with 0 blocked samples at every
    intermediate position - check kinematics, not just the final assembled overlap.
-2. Intact area of an intake/exhaust must be **>= 1.5x the fan bore**, and slots (not round holes)
-   within 3 mm of a wall.
+2. Intact area of the *passive* openings must be **>= 1.5x the fan bore** on each side of it -
+   a fan's own bore counts as one side, so with the fan as the intake the grilles are the whole
+   other side and must still clear the rule.  Slots (not round holes), and no web between
+   neighbouring openings thinner than the wall they are cut in.
 3. Countersink edge distance >= half the cone diameter, measured to the *real* outline.
 4. A closure plate gets no through-holes for clearance; relieve the register instead.
 5. Any feature that reaches a mounting pad is **generated from the pad's offset**, never typed.
@@ -543,3 +551,37 @@ black-ish PLA box in Indian sun passes PLA's 55-60 deg heat-deflection point.
    washers under those heads.
 8. A claim in a doc is a measurement the third checker re-runs: when geometry changes, the doc
    edit is part of the fix (`docs/v3_physics_audit.txt` section 10 refuses a stale number).
+
+## §29 v3.3 APPENDIX - the fan does the work, so the perforated side wall went away
+
+Asked for in one line: *"remove the right side many grooves - for that I have fan"*.  v3.2 had cut
+8 x 30 x 5 mm stadium slots into the +X wall (1157 mm2) to feed the fan; the user's point is that a
+fan moves air by itself, and the wall paid for openings that were doing nothing a sealed box could
+not do without.  The change is a **real design change**, not a re-tune, and it was built, cut and
+re-measured like one:
+
+* `P["side_intake"] = False` deletes the +X wall's cut entirely.  `True` puts v3.2 back in one
+  rebuild, and the build self-test switches its checks with it - a reversal must cost archaeology,
+  not interpretation.
+* The ⌀28 fan bore stops being an exhaust and becomes the **inlet**: the fan is mounted **blowing
+  IN** (arrows on its frame pointing at the box).  The box then sits a little above ambient, so air
+  leaks *out* through the RFID aperture and the LCD rebate instead of dust being pulled in past the
+  R307 prism.
+* The passive openings take the whole outlet duty, so they grew: **8 x 21 x 4.5 mm** in the bottom
+  wall (4 columns at +/-12.5 / +/-37.5, rows at z 7.0 and 15.0) and **4 x 21 x 4 mm** in the top
+  wall at z 26 - 1069 mm2 together, measured off the mesh, **1.74x** the bore against a rule of
+  >= 1.5x.  Duty point against the fan's straight line: A_eff 533 mm2, 0.84 L/s at 1.9 Pa
+  (84 % of free air), the whole 784 cm3 box changed every 0.9 s, dT 1.6 K at 1.6 W.
+* Sealing the wall and leaving v3.2's bottom/top grilles as they were was **rejected on numbers**:
+  452 mm2, 0.73x the bore - the fan would have run near its choke point.
+* The first v3.3 cut (18 x 5 slots at z 7 / 14.5) was **rejected by the audit**, not by taste: the
+  web between the rows measured 2.50 mm, thinner than the 3.0 mm wall it sits in, and
+  `audit_physics_v3.py` section 8 failed it.  Height 5 -> 4.5, pitch 24 -> 25, width 18 -> 21 paid
+  the web back (3.50 and 4.00 mm) *and* the area.
+* A fourth figure, `renders/v3_grille_map.png`, draws each side wall's mid-thickness section with
+  every void labelled at the size it measured - 0 openings in the right wall is the headline.
+
+**What a v4 must not lose from this round:** the wall an opening is in is not the wall it belongs
+to - an opening that does not serve a path, a fastener, an antenna or a user is a defect with a
+reason attached.  And when the user says a feature is redundant, check whether the *duty* it was
+doing is redundant too; here it was not, so the duty moved and the numbers were re-run.

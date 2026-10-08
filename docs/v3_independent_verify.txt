@@ -3,10 +3,10 @@ source: cad/v3/*.stl only; no number imported from the generator
 ==============================================================================
 
 1. mesh integrity of the exported files
-   01 main shell                    open=0 nonmanifold=0 bodies=1 vol=110.86 cm3 micro=8 PASS
-      (8 sub-micron sliver triangles, all inside x=-54.3..54.3 y=-76.8..76.8 -> rim/chamfer junctions, each < 1 um2, slicers ignore them)
+   01 main shell                    open=0 nonmanifold=0 bodies=1 vol=112.02 cm3 micro=10 PASS
+      (10 sub-micron sliver triangles, all inside x=-54.3..54.3 y=-76.7..76.8 -> rim/chamfer junctions, each < 1 um2, slicers ignore them)
    02 rear plate                    open=0 nonmanifold=0 bodies=1 vol=53.80 cm3 micro=6 PASS
-      (6 sub-micron sliver triangles, all inside x=-54.3..54.3 y=-76.8..76.8 -> rim/chamfer junctions, each < 1 um2, slicers ignore them)
+      (6 sub-micron sliver triangles, all inside x=-54.3..54.3 y=-76.7..76.8 -> rim/chamfer junctions, each < 1 um2, slicers ignore them)
    03 R307 bracket                  open=0 nonmanifold=0 bodies=1 vol=1.01 cm3 micro=0 PASS
    04 RC522 ring                    open=0 nonmanifold=0 bodies=1 vol=2.19 cm3 micro=0 PASS
    bed placement of the shipped files - this is what a slicer is actually handed:
@@ -19,11 +19,11 @@ source: cad/v3/*.stl only; no number imported from the generator
    slices valid (no self-intersection) 214 slices, invalid=0 empty=0            PASS
 
 3. wall thickness map (rays cast in from outside each face, 4 mm grid)
-   samples with material: 2826 of 3310 rays (484 pass straight through openings)
+   samples with material: 2840 of 3310 rays (470 pass straight through openings)
    samples below 1.6 mm: 5 re-probed, 1 of them were tangential grazes off a feature face (a 4 mm grid can land exactly on one).  A real thin wall is thin from every direction; a graze is not, so the widest re-probe wins.
       graze at [-51.0, -65.5, 50.0]: 0.97 mm raw -> 10.00 mm confirmed
    thinnest wall found: 1.40 mm at [1.0, -57.5, -4.0]
-   thickness histogram (mm -> count): 1:5, 2:33, 3:2368, 4:20, 5:124, 6:6, 8:23, 9:18, 10:7, 11:21, 12:3, 13:23, 14:18, 17:16, 18:1, 20:12, 21:2, 22:8, 24:2, 25:7, 26:10, 30:1, 34:2, 40:2, 41:5, 43:22, 52:6, 53:1, 54:1, 78:1, 89:3, 102:1, 110:38, 121:6, 155:10
+   thickness histogram (mm -> count): 1:5, 2:41, 3:2364, 4:22, 5:122, 6:9, 8:30, 9:21, 10:5, 11:21, 12:3, 13:22, 14:18, 17:16, 18:1, 20:12, 21:2, 22:8, 24:2, 25:7, 26:10, 30:1, 34:2, 40:2, 41:5, 43:22, 52:6, 53:1, 54:1, 78:1, 89:3, 102:1, 110:38, 121:6, 155:10
    no wall thinner than 1.2 mm      min 1.40 mm                              PASS
 
 4. component clearance (envelopes re-typed here; 0 samples inside material required)
@@ -78,14 +78,35 @@ source: cad/v3/*.stl only; no number imported from the generator
    fan bore                         9/9 sample rays escape                   PASS
    bottom exhaust                   9/9 sample rays escape                   PASS
    top vent                         9/9 sample rays escape                   PASS
-   intake slot +X                   9/9 sample rays escape                   PASS
+   bottom grille, far row           9/9 sample rays escape                   PASS
+   top grille, last slot            9/9 sample rays escape                   PASS
+   +X wall, where a slot used to be 0/9 rays escape (all must be blocked)    PASS
+   +X wall, mid height              0/9 rays escape (all must be blocked)    PASS
+   +X wall, top corner              0/9 rays escape (all must be blocked)    PASS
+   +X wall, bottom corner           0/9 rays escape (all must be blocked)    PASS
+   +X wall, above the USB           0/9 rays escape (all must be blocked)    PASS
    RFID aperture has no bar         8428 probes inside the rounded 38 x 56 window, 0 blocked   (v2: 190 mm2 of that area was stiffener bar) PASS
    fan bore 100 % open              616 of 616 mm2 clear (100.0 %); v2 passed 50 % PASS
 
+6b. grilles: what the walls actually contain at mid-thickness
+   bottom grille slots              8 found, 4 x z=7 + 4 x z=15              PASS
+   bottom wall: exactly one USB opening 1 void above the grille: 20.4 x 12.4 mm  PASS
+   bottom slot size                 ['21.00x4.50', '21.00x4.50'] worst off by 0.00 mm PASS
+   bottom slot columns              [-37.5, -12.5, 12.5, 37.5]               PASS
+   bottom slot rows                 [7.0, 15.0] mm above the bed             PASS
+   top grille slots                 4 found, 21 x 4 at z=26                  PASS
+   top slot size                    ['21.00x4.00', '21.00x4.00']             PASS
+   top slot columns                 [-37.5, -12.5, 12.5, 37.5]               PASS
+   +X wall is plain (no openings)   0 voids in the right wall at mid-thickness PASS
+   -X wall: the fan bore is the only opening 1 void, 615 mm2 of a 616 mm2 bore        PASS
+   outlet >= 1.5 x inlet area       1069 mm2 of grille vs 616 mm2 bore (needs 924) PASS
+   grille stays clear of the front wall lowest slot edge 4.75 mm, i.e. 1.75 mm clear of that wall's inner face PASS
+   webs between the slots           3.50 mm of plastic between the rows, 4.00 mm between the columns (rule: never thinner than the 3.0 mm wall) PASS
+
 7. layer-by-layer printability (front face down, 0.2 mm slices)
    first layer area                 11469 mm2 (bed adhesion)                 PASS
-   worst layer jump cantilevers little 1045.6 mm2 newly added at z=10.2; its farthest point is 0.00 mm beyond the layer below (bridging span; <= 3.0 mm prints without support) PASS
-   total newly-added area over 43.0 mm of print: 4618 mm2 (0.85 % of the layer sum)
+   worst layer jump cantilevers little 794.2 mm2 newly added at z=0.6; its farthest point is 0.20 mm beyond the layer below (bridging span; <= 3.0 mm prints without support) PASS
+   total newly-added area over 43.0 mm of print: 3350 mm2 (0.61 % of the layer sum)
 
 8. driver access - a 6 mm wide x 25 mm long tool cylinder must be empty
    rear plate M3 x4                 0 blocked samples over 25 mm             PASS
@@ -123,10 +144,10 @@ source: cad/v3/*.stl only; no number imported from the generator
    holes crossing z=42 (rear boss pilots): [(np.float64(-46.5), np.float64(-57.0)), (np.float64(-46.5), np.float64(10.5)), (np.float64(0.0), np.float64(11.0)), (np.float64(46.5), np.float64(-10.5)), (np.float64(46.5), np.float64(57.0))]
 
 12. material estimate
-   solid volume of all 4 printed parts: 167.9 cm3
-   shell 110.9 + plate 53.8 + bracket 1.01 + ring 2.19 cm3
-   printed PLA (0.45 nozzle, 3 walls, 3 skins, 15 % infill, no supports): shell 109 g / plate 41 g / bracket 1 g / ring 3 g  = TOTAL 154 g
-   extruded 124 cm3 = 51.6 m of 1.75 mm filament, so a 1 kg spool makes 6.5 sets; the blanket 0.62 factor understates the shell by 23 g because a 2.6 mm wall prints solid (3 perimeters x 0.45 mm)
+   solid volume of all 4 printed parts: 169.0 cm3
+   shell 112.0 + plate 53.8 + bracket 1.01 + ring 2.19 cm3
+   printed PLA (0.45 nozzle, 3 walls, 3 skins, 15 % infill, no supports): shell 110 g / plate 41 g / bracket 1 g / ring 3 g  = TOTAL 155 g
+   extruded 125 cm3 = 52.0 m of 1.75 mm filament, so a 1 kg spool makes 6.4 sets; the blanket 0.62 factor understates the shell by 24 g because a 2.6 mm wall prints solid (3 perimeters x 0.45 mm)
 
 ==============================================================================
 INDEPENDENT RESULT: ALL CHECKS PASS

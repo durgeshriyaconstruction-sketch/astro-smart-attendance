@@ -421,23 +421,32 @@ Every opening is measured out of the meshes (a planar slice through each wall, e
 counted), then modelled as sharp-edged orifices in series intersected with the fan's straight
 line:   dp = dp_max (1 - Q/Q_max)   and   dp = K rho/2 (Q/A_eff)^2,  K = 1.3.
 """)
-xw = xwall_voids(SHELL, 1)                         # +X wall: the 8 intake slots
-slots = list(xw)
-slot_a = sum(v["area"] for v in slots)
-xwn = xwall_voids(SHELL, -1)                        # -X wall: the fan bore
+xw = xwall_voids(SHELL, 1)                         # +X wall: v3.3 must be PLAIN here
+xwn = xwall_voids(SHELL, -1)                       # -X wall: the fan bore, which IS the inlet
 bore = max(xwn, key=lambda v: v["area"]) if xwn else None
 bore_a = bore["area"] if bore else 0.0
 yb = ywall_voids(SHELL, -1)
-exh = [v for v in yb if v["w"] > 8 and v["h"] < 8 and abs(abs(v["cu"]) - 16.0) < 5]
+exh = [v for v in yb if v["w"] > 8 and v["h"] < 8]        # the 8-slot bottom grille
 exh_a = sum(v["area"] for v in exh)
+usbs = [v for v in yb if v["h"] >= 8]                      # the USB opening: not airflow
 yt = ywall_voids(SHELL, 1)
-vent = [v for v in yt if v["w"] > 8 and v["h"] < 8]
+vent = [v for v in yt if v["w"] > 8 and v["h"] < 8]        # the 4-slot top grille
 vent_a = sum(v["area"] for v in vent)
-pass_a = slot_a + exh_a + vent_a
-add(f"   fan bore  d{bore['w']:.1f} = {bore_a:.0f} mm2   |   intake {len(slots)} slots "
-    f"{slot_a:.0f} mm2   |   exhaust {len(exh)} slots {exh_a:.0f} mm2   |   top vents "
-    f"{len(vent)} x {vent_a / max(len(vent), 1):.0f} mm2")
-add(f"   the air's path is the bore in series with {pass_a:.0f} mm2 of everything else")
+slots = exh + vent                                 # the passive set, now the OUTLET
+slot_a = sum(v["area"] for v in slots)
+pass_a = slot_a
+verdict(len(xw) == 0, "the +X wall is plain (v3.2's 8 side slots removed)",
+        f"{len(xw)} void(s) in the right-hand wall at mid-thickness: a fan moves the air, so "
+        f"the side grille was only cutting the wall")
+add(f"   INLET: the d{bore['w']:.1f} fan bore in the -X wall = {bore_a:.0f} mm2   |   OUTLET: "
+    f"bottom grille {len(exh)} slots {exh_a:.0f} mm2 + top grille {len(vent)} slots "
+    f"{vent_a:.0f} mm2 = {pass_a:.0f} mm2")
+add(f"   the path is the {bore_a:.0f} mm2 inlet in series with the {pass_a:.0f} mm2 outlet"
+    + (f"; the {usbs[0]['area']:.0f} mm2 USB opening sits in the same wall and carries no "
+       f"airflow duty" if usbs else ""))
+add("   direction matters at build time: the fan has to blow IN through that bore, so the "
+    "arrows on its frame point at the box.  The enclosure then runs a little above ambient "
+    "pressure, which is what keeps dust out of the R307's prism.")
 A_eff = 1.0 / math.sqrt((1.0 / max(bore_a, 1.0)) ** 2 + (1.0 / max(pass_a, 1.0)) ** 2)
 q, dp = FAN["q_max"] / 1e3, 0.0
 for _ in range(500):
@@ -456,13 +465,15 @@ for _ in range(400):
         break
     q = 0.5 * (q + qn)
 q_lps, free_lps = q * 1e3, FAN["q_max"] / 3.6       # 3.6 m3/h of free air = 1.0 L/s
-verdict(pass_a >= 1.5 * bore_a, "the wall openings are not the bottleneck",
-        f"{pass_a:.0f} mm2 of intake+exhaust+vents in series with the {bore_a:.0f} mm2 bore "
-        f"= {pass_a / bore_a:.1f}x the bore (v3.0 measured 118 mm2 of 6 x d5 holes: 0.2x)")
+verdict(pass_a >= 1.5 * bore_a, "the grilles are not the bottleneck",
+        f"{pass_a:.0f} mm2 of outlet against a {bore_a:.0f} mm2 inlet = "
+        f"{pass_a / bore_a:.2f}x the bore; a sharp-edged opening in front of a small blower "
+        f"wants >= 1.5x its own area, so the orifice loss sits on the fan's rim and not on "
+        f"the plastic (v3.0 measured 118 mm2 of 6 x d5 holes: 0.19x)")
 verdict(q_lps >= 0.8, "air actually moved through the box",
         f"bore-limited duty point A_eff {A_eff:.0f} mm2 -> {q_lps:.2f} L/s "
-        f"({q_lps * 60:.0f} mL/min) at {dp:.1f} Pa = {q_lps / free_lps * 100:.0f} % of free air; "
-        f"the {bore_a:.0f} mm2 outlet of a 3010 blower is what caps it, not the walls",
+        f"({q_lps * 60:.0f} L/min) at {dp:.1f} Pa = {q_lps / free_lps * 100:.0f} % of free air; "
+        f"the {bore_a:.0f} mm2 inlet bore of a 3010 blower is what caps it, not the walls",
         warn=q_lps < 0.8)
 vol_mm3 = W * H * D / 1e3
 add(f"   that is the box's whole {vol_mm3:.0f} cm3 volume changed every "
@@ -475,9 +486,11 @@ no_fan_dT = P_diss / (AIR["rho"] * AIR["cp"] * 0.35e-3)     # natural convection
 add(f"   with the fan off, the same box relies on natural convection alone: dT would be "
     f"~{no_fan_dT:.0f} K, and the prism would fog on a humid morning - the fan is a demister,")
 add(f"   not a cooler, and it is right to run it continuously from the ESP32's own supply.")
-biggest = max((v["w"] * v["h"] for v in slots), default=0)
-add(f"   widest intake slot {slots[0]['w']:.1f} x {slots[0]['h']:.1f} mm - still too narrow for a")
-add(f"   finger, and a card cannot reach inside because the aperture edge is a closed rectangle.")
+big = max(slots, key=lambda v: v["w"] * v["h"])
+add(f"   widest grille slot {big['w']:.1f} x {big['h']:.1f} mm: a finger needs about 8 mm of "
+    f"clear opening and a card 54 mm, so")
+add(f"   nothing inside can be reached through the air path, and the {bore_a:.0f} mm2 bore is "
+    f"guarded by the fan's own frame.")
 
 # =============================================================================================
 # 5  MATERIAL / TOLERANCE
@@ -654,12 +667,16 @@ for i in range(len(front)):
                               f"{front[j]['w']:.0f}x{front[j]['h']:.0f}"
 verdict(worst > 6.0, "thinnest ligament between front-wall openings",
         f"{worst:.2f} mm ({where}) across {len(front)} openings", warn=worst <= 6.0)
-web = 9e9
-for i in range(len(slots)):
-    for j in range(i + 1, len(slots)):
-        web = min(web, slots[i]["poly"].distance(slots[j]["poly"]))
-verdict(web > 3.0, "web between neighbouring intake slots",
-        f"{web:.2f} mm minimum, in a {WS:.1f} mm wall")
+for grp, gnm in ((exh + usbs, "bottom grille"), (vent, "top grille")):
+    web, wpair = 9e9, ""
+    for i in range(len(grp)):
+        for j in range(i + 1, len(grp)):
+            dd = grp[i]["poly"].distance(grp[j]["poly"])
+            if dd < web:
+                web, wpair = dd, f"{grp[i]['w']:.0f}x{grp[i]['h']:.0f} vs " \
+                                  f"{grp[j]['w']:.0f}x{grp[j]['h']:.0f}"
+    verdict(web > 3.0, f"web between neighbouring {gnm} openings",
+            f"{web:.2f} mm minimum ({wpair}) in a 3.0 mm wall")
 from shapely.geometry import Point
 csk_ok = 9e9
 try:
@@ -672,9 +689,19 @@ except BaseException:
 verdict(csk_ok >= 1.2, "plastic between each plate countersink and the outline",
         f"{csk_ok:.2f} mm minimum of the 4 corners (v3.0 measured 0.08 mm - the d6.6 cone was "
         f"opening onto the R3 corner round; v3.1 moved the screws 3.5 mm inboard)", warn=True)
-n_edge = min(min(v["cu"] - v["w"] / 2 + H / 2, H / 2 - (v["cu"] + v["w"] / 2)) for v in slots)
-verdict(n_edge > 5.0, "edge distance of the intake slots",
-        f"{n_edge:.1f} mm from the wall's edge (>= 2x the slot height is the rule of thumb)")
+# a bottom/top wall is a slab in the (x, z) plane; its own faces are not the interesting
+# distance, the cavity outline inside it is - a slot that ends within a millimetre of the
+# front wall's inner face undermines that corner instead of breathing through it.
+XIN, Z0, Z1 = W / 2 - WS, ZF, D - ZF
+for grp, gnm in ((exh, "bottom"), (vent, "top")):
+    n_x = min(XIN - (abs(v["cu"]) + v["w"] / 2) for v in grp)
+    verdict(n_x > 3.0, f"{gnm} grille to the side wall",
+            f"{n_x:.2f} mm of solid left between the outermost slot and the inner face of the "
+            f"2.6 mm side wall (rule: at least the wall thickness)")
+    n_z = min(min(v["cv"] - v["h"] / 2 - Z0, Z1 - (v["cv"] + v["h"] / 2)) for v in grp)
+    verdict(n_z > 1.5, f"{gnm} grille to the front / rear wall",
+            f"{n_z:.2f} mm between the nearest slot edge and the inner face of the wall it is "
+            f"beside (rule: >= 1.5 mm, so the slot never breaks the corner joint)")
 
 # =============================================================================================
 # 9  SLICER REALITY
@@ -779,8 +806,10 @@ claim("RFID aperture height", rvw[0]["h"] if rvw else 0, P["rfid_window"][1], 0.
 claim("fan bore", bore["w"], P["fan_open_d"], 0.05)
 claim("RC522 ring thickness", RING_T, P["rc522_ring"][2], 0.001)
 claim("plate thickness", P["plate_t"], 3.0, 0.001)
-add(f"   intake: {len(slots)} slots of {slots[0]['w']:.1f} x {slots[0]['h']:.1f} mm = "
-    f"{slot_a:.0f} mm2 total   (docs must say 8 x 30 x 5, not v3.0's 6 x d5.0)")
+add(f"   inlet: d{bore['w']:.0f} bore = {bore_a:.0f} mm2, fan blowing in;   outlet: "
+    f"{len(exh)} x {exh[0]['w']:.0f} x {exh[0]['h']:.1f} bottom + {len(vent)} x "
+    f"{vent[0]['w']:.0f} x {vent[0]['h']:.0f} top = {slot_a:.0f} mm2   (the docs have to say "
+    f"8 x 21 x 4.5 and 4 x 21 x 4, not v3.2's 8 x 30 x 5 side slots)")
 for nm, (a, b) in (("", (0, 0)),):
     pass
 for nm, mm in zip([r[0] for r in rows], [r[3] for r in rows]):
@@ -790,15 +819,16 @@ for nm, mm in zip([r[0] for r in rows], [r[3] for r in rows]):
                 f"mesh d{mm:.2f} (thread-forming size, read with a 0.01 mm radial step)")
 DOC = {"design notes": "docs/v3_design_notes.md", "print order": "exports/README_PRINT_ORDER_v3.txt"}
 REQ = {
-    "design notes": [r"110 x 155 x 46", r"3\.0 mm", r"2\.6 mm", r"8 x 30 x 5", r"2\.05",
-                     r"1\.8", r"bed-aligned"],
-    "print order": [r"110 x 155 x 46", r"8 x 30 x 5", r"M2\.5 x 8", r"15 %", r"no supports"],
+    "design notes": [r"110 x 155 x 46", r"3\.0 mm", r"2\.6 mm", r"8 x 21 x 4.5", r"4 x 21 x 4",
+                     r"2\.05", r"1\.8", r"bed-aligned", r"blow(?:s|ing)? IN"],
+    "print order": [r"110 x 155 x 46", r"8 x 21 x 4.5", r"blow(?:s|ing)? IN",
+                    r"M2\.5 x 8", r"15 %", r"no supports"],
 }
 for nm, rel in DOC.items():
     p = os.path.join(ROOT, rel)
     txt = open(p, encoding="utf-8").read() if os.path.exists(p) else ""
     missing = [pat for pat in REQ[nm] if not re.search(pat, txt)]
-    verdict(not missing, f"{rel}: carries the v3.1 numbers",
+    verdict(not missing, f"{rel}: carries the v3.3 numbers",
             f"missing patterns: {missing if missing else 'none'}", warn=True)
     vols = set(round(float(v), 1) for v in re.findall(r"(\d+\.\d) cm3", txt))
     real = {round(abs(m.volume) / 1e3, 1) for _n, m in PARTS}

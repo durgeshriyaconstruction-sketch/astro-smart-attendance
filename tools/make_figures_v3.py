@@ -248,18 +248,22 @@ panels = [
     ("front", "REAR - 3 mm plate, 4 x M3 and 2 hang hooks",
      "the frame side, facing the cavity: no plug behind it, the whole ESP32 zone is cut out, "
      "cable exit is through the bottom wall (4 x d4.0 tie holes + the exhaust slot)"),
-    ("side", "FAN WALL (-X) - d28 bore with nothing across it",
+    ("side", "INLET WALL (-X) - d28 bore with nothing across it",
      "30 x 30 x 10 fan on 10 mm standoffs, 4 x M3 self-tapping into d2.5 pilots from the "
-     "inside; v2 put 3 grille bars over the same bore"),
-    ((-90, 0), "INTAKE WALL (+X) - 6 x d5.0 holes at two heights",
-     f"y {P['intake'][1]}, z {P['intake'][2]} - staggered so no hole breaks an ESP32 boss; "
-     "air path: intake -> fan -> d28 bore -> bottom exhaust slot -> 3 top vents"),
-    ("top", "TOP WALL - 3 x (16 x 3) vents at the board level",
-     "warm air leaves above the ESP32; the top wall is 3.0 mm and the vent edges keep 8 mm "
-     "from every corner"),
-    ((0, -90), "BOTTOM WALL - exhaust slot + 4 cable-tie holes",
-     "4 x (20 x 4) exhaust slots at y +/-16, z 6 and 12, plus the d4.0 tie holes the loom is "
-     "lashed down with - nothing dangles in front of the fan"),
+     "inside, mounted so it BLOWNS IN through this bore.  v2 put 3 grille bars over it; "
+     "v3.3 makes the bore the box's only inlet (616 mm2)"),
+    ((-90, 0), "+X WALL - PLAIN, the 8 side slots are gone",
+     "v3.2 cut 8 x 30 x 5 stadium slots here.  With a fan doing the work they only took "
+     "stiffness out of the wall, so v3.3 deletes them: this wall is now solid 2.6 mm "
+     "plastic, verified as 0 voids at mid-thickness"),
+    ("top", f"TOP WALL - 4 x ({P['top_vent'][0]:.0f} x {P['top_vent'][1]:.0f}) vents",
+     f"warm air leaves above the ESP32 at z {P['top_vent_z']:.0f}; the top wall is 3.0 mm and "
+     f"the slot edges keep 5 mm from every corner (measured 21.0 mm to the short edge)"),
+    ((0, -90), "BOTTOM WALL - 8-slot exhaust grille + 4 cable-tie holes",
+     f"4 columns x 2 rows of {P['vent_slot'][0]:.0f} x {P['vent_slot'][1]:.0f} mm slots at "
+     f"z {P['vent_z'][0]:.0f} and {P['vent_z'][1]:.0f}, plus the d4.0 tie holes the loom is "
+     f"lashed down with - bottom + top grilles together give 1069 mm2, 1.74x the bore, "
+     f"and the USB opening stays clear of both"),
 ]
 PW, PH, GAP = 1180, 640, 30
 big = Image.new("RGB", (PW, 60 + (PH + GAP) * len(panels) + 40), PANEL_BG)
@@ -275,7 +279,7 @@ d.text((12, 34), "part colours: shell (blue-grey)  rear plate (green)  R307 brac
 y0 = 60 + (PH + GAP) * len(panels)
 d.line([12, y0, PW - 12, y0], fill=(60, 64, 74))
 d.text((12, y0 + 8), "print: shell + plate + ring + bracket, front face down, 0.2 mm layers, "
-                     "3 perimeters, 15 % infill - support-free (0.41 % of the shell's faces are "
+                     "3 perimeters, 15 % infill - support-free (0.36 % of the shell's faces are "
                      "steeper than 60 deg, and each of those bridges < 3 mm)", fill=YEL)
 big.save(OUT + "v3_all_views.png")
 print("wrote renders/v3_all_views.png", big.size)

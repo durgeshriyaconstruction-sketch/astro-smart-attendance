@@ -44,12 +44,13 @@ DOCS = {
     "master_prompt.md": os.path.join("docs", "master_prompt.md"),
 }
 FIGS = [f"v3_{n}.png" for n in ["drawing_sheet", "exploded_iso", "fixing_detail",
-                                "fixing_section", "all_views", "vs_v2"]]
+                                "fixing_section", "all_views", "vs_v2", "grille_map"]]
 SRC = {
     "build_v3_PARAMETRIC_generator.py": os.path.join("tools", "build_v3.py"),
     "verify_v3_INDEPENDENT.py": os.path.join("tools", "verify_v3.py"),
     "audit_v3_PHYSICS.py": os.path.join("tools", "audit_physics_v3.py"),
     "check_v3_GROOVES.py": os.path.join("tools", "check_grooves_v3.py"),
+    "make_grille_map_v3.py": os.path.join("tools", "make_grille_map_v3.py"),
     "orient_v3.py": os.path.join("tools", "orient_v3.py"),
 }
 
