@@ -49,7 +49,9 @@ PROOF THAT SHIPS WITH THE ZIP
                                  access, RF path, fits, dimensions, mass)
   renders/v2_shell_drawing_sheet.png   front / iso / side / plate views
   renders/v2_exploded_iso.png          all 4 printed parts exploded
-  renders/v2_fixing_detail.png         RC522 fixing exploded + section with the stack-up
+  renders/v2_fixing_detail.png         RC522 fixing: exploded stack + dimensioned section
+                                 (in the section, bright material is what the cut
+                                 plane actually passes through; dim = behind the plane)
   renders/rfid_before_after.png        v1 closed pocket vs v2 open window
   viewer_offline.html                  the interactive 3D model, no internet needed
 
