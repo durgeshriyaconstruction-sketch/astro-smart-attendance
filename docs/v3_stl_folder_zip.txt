@@ -1,0 +1,47 @@
+ASTRO SMART ATTENDANCE v3 - friendly-name STL folder
+================================================================================
+
+1. THE FOUR STLs, COPIED AND RENAMED (not converted, not re-meshed, not re-scaled)
+--------------------------------------------------------------------------------
+   01_MAIN_SHELL_v3.stl     -> MAIN BODY.stl              555,484 B   front face down on the bed, rear opening up - no supports
+   02_REAR_PLATE_v3.stl     -> BACK PLATE.stl             159,284 B   register frame down on the bed, outer face up
+   03_R307_BRACKET_v3.stl   -> FINGER SENSOR HOLDER.stl    39,684 B   back face down on the bed
+   04_RC522_RING_v3.stl     -> CARD READER RING.stl        95,684 B   pad face down on the bed
+   PRINT  (PLA or PETG, 0.2 mm layers, 3 perimeters, 15-20 % infill, NO supports)
+
+2. GATE - the archive must be the shipped bytes, and the shipped bytes must be untouched
+--------------------------------------------------------------------------------
+   the zip holds exactly 7 files: 4 STLs, PRINT ORDER.txt,                    PASS
+   MAIN BODY.stl          in the zip is byte-identical to cad/v3/01_MAIN_SHELL_v3.stl PASS
+   MAIN BODY.stl          is the same size (555,484 B), not re-written        PASS
+   BACK PLATE.stl         in the zip is byte-identical to cad/v3/02_REAR_PLATE_v3.stl PASS
+   BACK PLATE.stl         is the same size (159,284 B), not re-written        PASS
+   FINGER SENSOR HOLDER.stl in the zip is byte-identical to cad/v3/03_R307_BRACKET_v3.stl PASS
+   FINGER SENSOR HOLDER.stl is the same size (39,684 B), not re-written       PASS
+   CARD READER RING.stl   in the zip is byte-identical to cad/v3/04_RC522_RING_v3.stl PASS
+   CARD READER RING.stl   is the same size (95,684 B), not re-written         PASS
+   everything unzips into one folder, not into loose files                    PASS
+   6 screw rows in FILE NAMES.txt (expected 6)                                PASS
+   '4 x M3 x 10' is the length the shipped print order also recommends        PASS
+   '4 x M2.5 x 8' is the length the shipped print order also recommends       PASS
+   '2 x M3 x 8' is the length the shipped print order also recommends         PASS
+   '4 x M2.5 x 4' is the length the shipped print order also recommends       PASS
+   '4 x M3 x 12' is the length the shipped print order also recommends        PASS
+   '4 x M2.2 x 8' is the length the shipped print order also recommends       PASS
+   MAIN BODY.stl          is the README's 01_MAIN_SHELL_v3.stl - same part, two names, both documents agree PASS
+   BACK PLATE.stl         is the README's 02_REAR_PLATE_v3.stl - same part, two names, both documents agree PASS
+   FINGER SENSOR HOLDER.stl is the README's 03_R307_BRACKET_v3.stl - same part, two names, both documents agree PASS
+   CARD READER RING.stl   is the README's 04_RC522_RING_v3.stl - same part, two names, both documents agree PASS
+   cad/v3/*.stl were not modified by this script (same four sha256 at exit)   PASS
+   ASTRO_SMART_ATTENDANCE_STL.zip is 183,117 bytes - the four meshes, no padding PASS
+
+   ASTRO_SMART_ATTENDANCE_STL.zip  183,117 bytes, 7 files
+   d849dcd3da38586d47846e2fae3ad2a8e8be165e5496031ae8466ca8ea659112  BACK PLATE.stl
+   1a283b7fc20e036cce4fdc61f6586fde91d9d83567ffc519840c145080914f8c  CARD READER RING.stl
+   780b096e619e34e5dec94a1ad0acf96cfc496c18ff49eb7862ee1250985e9446  FILE NAMES.txt
+   3bec52e43d7553ae05940b52d9190c72bbec3e40a31e1c311a0bb7057bd0cdcf  FINGER SENSOR HOLDER.stl
+   2b0d8aedc4e4c077a1ccebaba5479c393faa74fd003fc8eb3fcd1b6be5104f45  MAIN BODY.stl
+   1de04f6fa6b6d9308462d75133be031837850a0e84caaa366a73079cd4d951ee  PRINT ORDER.txt
+   90ec5cc0f0b871c947b2ddd259adbdf8bcc4fd79c57b59ef5afeab1d4ecc3482  SHA256SUMS.txt   (this list, so it cannot contain itself)
+
+STL FOLDER ZIP: ALL CHECKS PASS
