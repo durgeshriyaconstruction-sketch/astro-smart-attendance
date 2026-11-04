@@ -390,7 +390,7 @@ static bool pwrOn=true;                       // sensor power switch state (GPIO
 static String confirmRfid="",confirmName="";  // card tapped, waiting for the owner finger
 static uint32_t confirmUntil=0;
 static uint16_t pendingId=0;
-static const uint8_t SECURITY_LEVEL=4;                              // BUG 3
+static const uint8_t SECURITY_LEVEL=3;                              // BUG 3 (level 4 too strict — 1/20 success; level 3 still far safer than original level 1)
 static const uint32_t LATCH_RELEASE_MS=250;                         // BUG 2
 static const uint32_t SCAN_COOLDOWN_MS=400;                         // BUG 2
 static uint32_t lastRetry=0;                                        // BUG 12(b)
