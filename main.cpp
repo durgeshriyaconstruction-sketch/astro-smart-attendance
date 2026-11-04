@@ -567,18 +567,14 @@ static void declineConfirm(const char*why){
 }
 static void matchStep(){
   static bool latchFinger=false;                                       // BUG 2
-  static uint32_t latchAt=0;                                           // BUG 2
   static uint8_t poorImg=0;                                            // BUG 4
   uint32_t now=millis();
-  // BUG 2: held finger — return early while latched
+  uint8_t image=sensor->getImage();
+  // BUG 2: held finger — return early while latched; release immediately on NOFINGER so re-testing works
   if(latchFinger){
-    uint8_t img=sensor->getImage();
-    if(img==FINGERPRINT_NOFINGER&&now-latchAt>LATCH_RELEASE_MS){latchFinger=false;latchAt=now;}
+    if(image==FINGERPRINT_NOFINGER){latchFinger=false;return;}
     else return;
   }
-  // BUG 2: 400 ms cooldown after release
-  if(now-latchAt<SCAN_COOLDOWN_MS)return;
-  uint8_t image=sensor->getImage();
   if(matchWaitLift){if(image==FINGERPRINT_NOFINGER)matchWaitLift=false;return;}
   if(image!=FINGERPRINT_OK)return;
   matchWaitLift=true;
@@ -593,14 +589,14 @@ static void matchStep(){
   // BUG 4: only FINGERPRINT_OK and FINGERPRINT_NOTFOUND are terminal; transient errors retry without latch
   if(fs!=FINGERPRINT_OK&&fs!=FINGERPRINT_NOTFOUND)return;
   if(fs==FINGERPRINT_NOTFOUND){
-    if(confirmRfid.length()){declineConfirm("no match");latchFinger=true;latchAt=now;return;}
+    if(confirmRfid.length()){declineConfirm("no match");latchFinger=true;return;}
     Hardware::showResult("No match","Not enrolled");Hardware::leds(false,true);Hardware::beep(160,900);Hardware::leds(false,false);
     if(millis()-lastUnknownAt>15000){lastUnknownAt=millis();Hardware::event("UNKNOWN-PRINT","Unknown fingerprint","fingerprint","No match","Fingerprint not recognized",false,false);}
-    latchFinger=true;latchAt=now;return;
+    latchFinger=true;return;
   }
   // fs==FINGERPRINT_OK
   Student*s=byFpId(sensor->fingerID);
-  if(!s||!s->active){if(confirmRfid.length()){declineConfirm("no match");latchFinger=true;latchAt=now;return;}Hardware::showResult("No match","Not enrolled");Hardware::leds(false,true);Hardware::beep(160,900);Hardware::leds(false,false);latchFinger=true;latchAt=now;return;}
+  if(!s||!s->active){if(confirmRfid.length()){declineConfirm("no match");latchFinger=true;return;}Hardware::showResult("No match","Not enrolled");Hardware::leds(false,true);Hardware::beep(160,900);Hardware::leds(false,false);latchFinger=true;return;}
   if(confirmRfid.length()){
     bool match=(s->rfid==confirmRfid);
     String nm=confirmName,rf=confirmRfid;clearConfirm();
@@ -615,18 +611,18 @@ static void matchStep(){
       Hardware::event(rf,nm,"fingerprint","Declined","Finger belonged to "+s->name+" — not the card owner — declined",true,false);
       Serial.println("[FINGER] wrong finger (matched "+s->rfid+") — declined");
     }
-    latchFinger=true;latchAt=now;return;
+    latchFinger=true;return;
   }
   if(Data::config.fingerConfirm){
     if(millis()-lastCardReqAt>8000){lastCardReqAt=millis();Hardware::event(s->rfid,s->name,"fingerprint","Card required","Fingerprint alone is not allowed — tap the card first, then the finger",true,false);}
     Hardware::showResult("TAP CARD FIRST","Then finger");
     Hardware::leds(false,true);Hardware::beep(150,900);Hardware::leds(false,false);
     Serial.println("[FINGER] finger-only declined ("+s->rfid+") — card required first");
-    latchFinger=true;latchAt=now;return;
+    latchFinger=true;return;
   }
   lastResult=s->name+" (finger)";
   Hardware::card(s->rfid,"fingerprint");
-  latchFinger=true;latchAt=now;
+  latchFinger=true;
 }
 void service(){
   uint32_t now=millis();
