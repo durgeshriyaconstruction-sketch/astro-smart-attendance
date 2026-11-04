@@ -85361,5 +85361,4 @@ const uint8_t CHART_GZ[] PROGMEM={
 0x00,
 };
 const size_t QR_SVG_LEN=sizeof(QR_SVG);
-const size_t CHART_GZ_LEN=sizeof(CHART_GZ);(QR_SVG);
 const size_t CHART_GZ_LEN=sizeof(CHART_GZ);
