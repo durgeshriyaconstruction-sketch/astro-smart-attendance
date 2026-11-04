@@ -463,9 +463,9 @@ void power(bool on){
 bool powered(){return pwrOn;}
 bool confirmActive(){return confirmRfid.length()>0;}
 void awaitConfirm(const String&rfid,const String&name){
-  confirmRfid=rfid;confirmName=name;confirmUntil=millis()+20000;matchWaitLift=true;
+  confirmRfid=rfid;confirmName=name;confirmUntil=millis()+5000;matchWaitLift=true;
   message=name+" — place finger to confirm";
-  Hardware::show("CONFIRM FINGER",firstWord(name));
+  Hardware::show("ASK FINGER",firstWord(name));
   Hardware::beep(70,1800);
   Serial.println("[FINGER] card OK — awaiting finger confirm ("+rfid+")");
 }
@@ -628,8 +628,8 @@ void service(){
   uint32_t now=millis();
   if(confirmRfid.length()&&phase==Phase::IDLE&&(int32_t)(now-confirmUntil)>=0){
     String nm=confirmName,rf=confirmRfid;clearConfirm();
-    message="Finger confirm timeout";
-    Hardware::showResult("CONFIRM TIMEOUT","Tap card again");
+    message="Finger confirm done";
+    Hardware::showResult("DONE","No finger — moved on");
     Hardware::leds(false,true);Hardware::beep(160,700);Hardware::leds(false,false);
     Hardware::event(rf,nm,"fingerprint","Timeout","Fingerprint confirmation timed out — attendance not marked",true,false);
     Serial.println("[FINGER] confirm timeout ("+rf+")");
