@@ -33,13 +33,13 @@ BACKUP_DIR="${BACKUP_DIR:-./backups}"
 KEEP_LOCAL="${KEEP_LOCAL:-14}"
 RCLONE_REMOTE="${RCLONE_REMOTE:-}"
 SKIP_ARCHIVE="${SKIP_ARCHIVE:-0}"
+SKIP_DB="${SKIP_DB:-0}"
 SKIP_UPLOAD="${SKIP_UPLOAD:-0}"
 
 say()  { printf '%s\n' "$*"; }
 fail() { printf 'ERROR: %s\n' "$*" >&2; exit 1; }
 
 command -v gzip >/dev/null || fail "gzip is not installed"
-[ -n "${SUPABASE_DB_URL:-}" ] || fail "SUPABASE_DB_URL is not set (Supabase dashboard -> Project Settings -> Database -> Connection string -> URI, then replace [YOUR-PASSWORD])"
 if [ "$SKIP_UPLOAD" != "1" ]; then
   [ -n "$RCLONE_REMOTE" ] || fail "RCLONE_REMOTE is not set (e.g. gdrive:astro-smart-attendance)"
   command -v rclone >/dev/null || fail "rclone is not installed — see https://rclone.org/install/"
@@ -51,13 +51,16 @@ mkdir -p "$BACKUP_DIR"
 DUMP="$BACKUP_DIR/astro-$STAMP.sql.gz"
 
 say "== database dump =="
-if command -v pg_dump >/dev/null; then
+if [ "$SKIP_DB" = "1" ]; then
+  say "   skipped (SKIP_DB=1)"
+elif ! command -v pg_dump >/dev/null; then
+  say "   skipped — pg_dump is not installed (the day archive still runs)"
+else
+  [ -n "${SUPABASE_DB_URL:-}" ] || fail "SUPABASE_DB_URL is not set (Supabase dashboard -> Project Settings -> Database -> Connection string -> URI, then replace [YOUR-PASSWORD])"
   # Schema + data, no ownership/ACL noise, compressed as it streams.
   pg_dump --no-owner --no-privileges --clean --if-exists "$SUPABASE_DB_URL" \
     | gzip -9 > "$DUMP"
   say "   $DUMP  ($(du -h "$DUMP" | cut -f1))"
-else
-  fail "pg_dump is not installed. On Ubuntu: sudo apt install postgresql-client-16"
 fi
 
 say "== year/month/day archive =="
@@ -66,6 +69,8 @@ if [ "$SKIP_ARCHIVE" = "1" ]; then
 else
   [ -n "${ARCHIVE_EMAIL:-}" ] && [ -n "${ARCHIVE_PASSWORD:-}" ] \
     || fail "ARCHIVE_EMAIL / ARCHIVE_PASSWORD are not set (a staff login; the archive tool signs in as that user)"
+  export SUPABASE_URL="${SUPABASE_URL:-https://nrjchonjlncamfyzmfye.supabase.co}"
+  export SUPABASE_KEY="${SUPABASE_KEY:-sb_publishable_9a4vSwLdVz4Yd8wrWcTvXA_aIMmC6H_}"
   ARCHIVE_MONTH="$(date -u -d 'yesterday' +%Y-%m 2>/dev/null || date -u -v-1d +%Y-%m)"
   node tools/archive/archive.mjs --month "$ARCHIVE_MONTH" --out "$BACKUP_DIR/archive" --skip-empty
 fi

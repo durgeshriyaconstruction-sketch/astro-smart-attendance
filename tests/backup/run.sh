@@ -92,6 +92,24 @@ check "SKIP_UPLOAD needs no remote at all" $?
 check "and writes the dump anyway" "$(has 'PGDUMP' "$STUB_LOG")"
 check "but makes no rclone call" "$(lacks 'RCLONE' "$STUB_LOG")" 
 
+# --- 4b. a machine without pg_dump still gets the day archive --------------
+run SUPABASE_DB_URL='postgresql://x' BACKUP_DIR="$TMP/work" SKIP_ARCHIVE=1 SKIP_UPLOAD=1 PATH='/usr/bin:/bin'
+check "no pg_dump is a skip, not a failure" $?
+check "and it says so plainly" "$(has 'pg_dump is not installed' "$TMP/last.log")"
+
+run BACKUP_DIR="$TMP/work" SKIP_DB=1 SKIP_ARCHIVE=1 SKIP_UPLOAD=1
+st=$?
+check "SKIP_DB skips the dump on request" $st
+[ "$st" = "0" ] || sed -n 1,20p "$TMP/last.log"
+check "and names the switch" "$(has 'skipped (SKIP_DB=1)' "$TMP/last.log")"
+
+check "the Windows script exists beside the shell one" \
+  "$([ -f "$ROOT/tools/backup/backup.ps1" ] && echo 0 || echo 1)"
+check "the Windows script writes the same archive call" \
+  "$(has 'tools/archive/archive.mjs --month' "$ROOT/tools/backup/backup.ps1")"
+check "the Windows script uploads into <remote>/database" \
+  "$(has 'rclone copy $dump "$remote/database"' "$ROOT/tools/backup/backup.ps1")"
+
 # --- 5. the archive step is wired in ---------------------------------------
 check "the archive tool is called with a month" \
   "$(has 'node tools/archive/archive.mjs --month' "$ROOT/tools/backup/backup.sh")"

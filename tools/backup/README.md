@@ -8,9 +8,14 @@ and OneDrive are supported — rclone speaks to either one.
 
 ```
 tools/backup/
-├── backup.sh   dump + archive + upload, one command
-└── README.md   this file
+├── backup.sh    Linux/macOS/WSL/Git-Bash version
+├── backup.ps1   Windows PowerShell version (same job, no bash needed)
+└── README.md    this file
 ```
+
+Both do the same three things: `pg_dump` (when installed), the year → month →
+day archive, then `rclone copy` into your drive. Neither is a live sync — it is
+a copy, taken when you run it.
 
 ## What you need once
 
@@ -31,12 +36,44 @@ tools/backup/
      with your Microsoft account.
    * On a headless server add `--auth-no-open-browser` and paste the returned
      code into the provider's page.
-3. **Tools** — `pg_dump` (Postgres client 15/16), `node` 18+, `rclone`, `gzip`.
+3. **Tools** — `node` 18+ and `rclone` are enough to start. `pg_dump`
+   (Postgres client 15/16) only adds the full database dump; the day archive
+   works without it, and the script says so instead of failing.
    ```bash
-   sudo apt install postgresql-client-16 gzip
+   sudo apt install postgresql-client-16 gzip     # Debian/Ubuntu
+   winget install PostgreSQL.PostgreSQL.17        # Windows (optional)
    ```
 
-## Run it
+## Run it — Windows PowerShell
+
+```powershell
+cd "C:\path\to\astro-smart-attendance"
+$env:ARCHIVE_EMAIL    = 'principal@astro-school.test'
+$env:ARCHIVE_PASSWORD = 'Astro-Principal-2026'
+$env:RCLONE_REMOTE    = 'onedrive:astro-smart-attendance'
+
+# 1. dry run: writes the files locally, uploads nothing
+.\tools\backup\backup.ps1 -NoUpload
+
+# 2. real run: writes and uploads
+.\tools\backup\backup.ps1
+
+# full database dump as well (needs pg_dump + the DB password)
+$env:SUPABASE_DB_URL = 'postgresql://postgres:<PASSWORD>@db.nrjchonjlncamfyzmfye.supabase.co:5432/postgres'
+.\tools\backup\backup.ps1
+```
+
+If PowerShell refuses to run the script (`running scripts is disabled`), allow it
+for that window only:
+
+```powershell
+powershell -ExecutionPolicy Bypass -File .\tools\backup\backup.ps1 -NoUpload
+```
+
+Switches: `-NoUpload`, `-SkipDb`, `-SkipArchive`. Environment: `BACKUP_DIR`,
+`KEEP_LOCAL`, `SUPABASE_URL`, `SUPABASE_KEY` (both default to this project).
+
+## Run it — Linux / macOS / WSL / Git Bash
 
 ```bash
 cd astro-smart-attendance
@@ -69,12 +106,20 @@ Useful switches: `SKIP_UPLOAD=1` (write the files, upload nothing),
 20 0 * * * cd /path/to/astro-smart-attendance && SUPABASE_DB_URL='…' RCLONE_REMOTE='gdrive:astro-smart-attendance' ARCHIVE_EMAIL='principal@astro-school.test' ARCHIVE_PASSWORD='…' ./tools/backup/backup.sh >> /var/log/astro-backup.log 2>&1
 ```
 
-**Windows (Task Scheduler → Create Basic Task → Daily):** start a program
-`powershell.exe`, arguments:
+**Windows (Task Scheduler):** create a task, *Trigger* = Daily 00:20, *Action* =
+start a program `powershell.exe` with arguments:
 ```
--NoProfile -Command "cd C:\astro-smart-attendance; $env:SUPABASE_DB_URL='…'; $env:RCLONE_REMOTE='onedrive:astro-smart-attendance'; $env:ARCHIVE_EMAIL='principal@astro-school.test'; $env:ARCHIVE_PASSWORD='…'; bash tools/backup/backup.sh"
+-NoProfile -ExecutionPolicy Bypass -File "C:\path\to\astro-smart-attendance\tools\backup\backup.ps1"
 ```
-(Git for Windows ships `bash`; or run the same script in WSL.)
+and set the four environment variables in that user's profile first (System
+Properties → Environment Variables), so the task inherits them:
+
+```
+ARCHIVE_EMAIL     principal@astro-school.test
+ARCHIVE_PASSWORD  Astro-Principal-2026
+RCLONE_REMOTE     onedrive:astro-smart-attendance
+SUPABASE_DB_URL   postgresql://postgres:<PASSWORD>@db.nrjchonjlncamfyzmfye.supabase.co:5432/postgres
+```
 
 ## Restoring a dump
 
