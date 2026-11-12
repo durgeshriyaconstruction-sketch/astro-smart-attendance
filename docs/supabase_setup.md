@@ -472,7 +472,7 @@ delete from public.students   where roll_no = 'DEMO-01';
 | `late_after` `08:20`, `day_end` `14:00` | guessed values — set the school's real timings |
 | ~~`site_url`, redirect list, open signups~~ | fixed 2026-11-12: `site_url` = the Firebase host, both hosts + localhost allowed, signups **disabled** (accounts are provisioned by an admin, then `members` / `student_links` grants access) |
 | No mail provider configured | rows reach `status='queued'` and stop there until `services/mailer` has a Resend key or a Gmail app password |
-| No admin/student screens yet | the RPCs and RLS are live; the dashboards that call them are not built |
+| Screens built, not yet used on a real browser | `web/` now carries the staff and parent dashboards and `tests/web` boots them headlessly against a fake Supabase (74 assertions). Nothing in the build sandbox can reach `*.supabase.co`, so the first real sign-in is still to happen — see `web/README.md` |
 | Region `ap-southeast-2` | chosen at creation, not changeable; ~90–140 ms from Renukoot |
 | Free tier | no point-in-time backups; pauses after ~7 days idle (cron keeps it warm) |
 
@@ -529,3 +529,37 @@ select public.astro_device_health();         -- terminals
 select * from public.astro_pending_leaves(); -- leave approvals waiting
 select public.astro_attendance_report(current_date - 30, current_date);
 ```
+
+## 12. The web dashboard — 2026-11-12
+
+`web/` is a static dashboard that speaks to this project with plain `fetch`
+(password grant, silent refresh, `/rest/v1/rpc/*`). No SDK, no build step:
+`index.html` + `styles.css` + `js/`, deployed to any static host.
+
+* staff (`admin` / `teacher` / `viewer`): today's attendance, date-range report
+  with CSV, students + classes + cards + fingerprints, notices, message inbox,
+  leave approvals, school timings, holidays, terminal check, email queue
+* parent (`student`): colour-coded month calendar, notices, thread with the
+  school, leave request form
+* every write goes through an RPC — the dashboard never inserts into a table
+* `tests/web` boots the real modules in jsdom against a fake Supabase:
+  `cd tests/web && npm install && npm test` → `74 passed, 0 failed`
+
+Contracts were checked against the live project, not assumed: every RPC name
+and argument list was read from `pg_proc`, and `astro_update_settings`,
+`astro_student_calendar`, `astro_inbox` and friends were called as the demo
+`admin` and demo guardian (JWT claims set inside a transaction) to confirm the
+JSON they return matches what the screens read.
+
+Two client bugs found this way and fixed:
+
+| Bug | Effect | Fix |
+|---|---|---|
+| a notice expiry was sent as `new Date(local).toISOString()`, i.e. read in the *browser's* timezone | a laptop set to UTC expired notices 5 h 30 m late | `zonedToIso()` reads the digits as the school's wall clock (`Asia/Kolkata`), tested for IST and UTC |
+| `astro_update_settings` has `p_clear_absent_after`, and the screen never sent it | the auto-absent cut-off could be set once and never removed | Settings has a "No automatic absent marking" switch wired to that flag |
+
+Demo history so the screens have something to show (`tools/demo_seed.sql`,
+idempotent, safe to re-run): DEMO-01 joins on 1 Apr, then 2–12 Nov of mixed
+attendance, one approved leave (5–6 Nov) and a holiday on 19 Nov. As the
+guardian the calendar now reads present 5 · late 1 · absent 2 · leave 2 ·
+holiday 1 · weekly off 5 · **75%**.

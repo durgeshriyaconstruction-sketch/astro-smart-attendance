@@ -1,0 +1,12 @@
+{
+  "name": "astro-web-tests",
+  "private": true,
+  "type": "module",
+  "description": "Headless DOM tests for the dashboard in web/",
+  "scripts": {
+    "test": "node run.mjs"
+  },
+  "devDependencies": {
+    "jsdom": "^24.1.3"
+  }
+}
