@@ -36,6 +36,38 @@ Open it: <https://drive.google.com/drive/folders/1QAN2ra0HyUsQJpS9m8VXduR5H2b8Ux
 This is the *same JSON shape* `tools/archive` writes, so the two can be mixed:
 a night run from a PC just overwrites the same files.
 
+## Option D — automatic, no PC (set up 2026-11-12)
+
+Supabase builds the month, a Google Apps Script writes it to Drive every night.
+Nothing on your side stays switched on, and a chat does not have to run.
+
+```
+Supabase: astro_drive_month()  ←  astro-export Edge Function  ←  Apps Script (Google)
+                                                    writes →  astro-smart-attendance/2026/11/…
+```
+
+Live state:
+
+| piece | value |
+|---|---|
+| SQL function | `public.astro_drive_month(p_month, p_school_code)` — migration `0031_drive_export.sql`, service role only |
+| Edge Function | `astro-export`, `verify_jwt: false`, `v1` — <https://nrjchonjlncamfyzmfye.supabase.co/functions/v1/astro-export> |
+| secret | `DRIVE_SYNC_SECRET` (48 hex) in Supabase secrets; sent as `x-drive-secret` or `?secret=` |
+| script | `tools/drive_sync/Code.gs` — paste into <https://script.google.com>, run once, add a daily 9pm trigger |
+| proven | ping → `200 {"ok":true,...}`; `?month=2026-11` → `200`, 7,757 bytes, 10 days, class `9-A`, 75 % |
+| not yet proven | the Apps Script half, until it is pasted and run on your side |
+
+Checks that need no browser:
+
+```sql
+-- what the function produces for a month (same bytes the script writes)
+select jsonb_pretty(public.astro_drive_month('2026-11')->'summary');
+
+-- what the HTTP call returned last time
+select id, status_code, length(content) as bytes
+  from net._http_response where id > 0 order by id desc limit 5;
+```
+
 ## Option A — say "do the backup" in chat
 
 With the Google Drive app connected, the assistant reads the database through
