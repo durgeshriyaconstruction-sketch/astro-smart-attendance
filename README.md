@@ -33,7 +33,14 @@ The attendance terminal talks to Postgres through four locked-down functions
 single table, and every tap is idempotent so an offline queue can be replayed
 safely.
 
+Notices and one-to-one messages are posted by staff
+(`astro_post_notice`, `astro_send_message`) and land instantly in the student's
+app because both read the same tables; the same trigger writes one row per
+guardian into the `alerts` outbox, which [`services/mailer`](services/mailer/README.md)
+delivers by email.
+
 - Backend design + operations: [`docs/supabase_setup.md`](docs/supabase_setup.md)
+- Email delivery worker: [`services/mailer/README.md`](services/mailer/README.md)
 - Firmware: [`firmware/README.md`](firmware/README.md)
 - What to paste into `main.cpp`: [`docs/main_cpp_additions.md`](docs/main_cpp_additions.md)
 - Schema/migrations: [`supabase/migrations/`](supabase/migrations/)

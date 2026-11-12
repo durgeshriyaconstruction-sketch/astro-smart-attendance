@@ -15,6 +15,11 @@ supabase/migrations/0007_audit_fixes.sql           RLS recursion, holidays, fing
 supabase/migrations/0008_late_arrival_upgrade.sql  late arrival after auto-close
 supabase/migrations/0009_provision_device_fix.sql  provisioning INSERT fix
 supabase/migrations/0010_tighten_rls_helpers.sql   anon whitelist = 4 functions
+supabase/migrations/0011_notices_messages_outbox.sql  notices, messages, unified alerts outbox
+supabase/migrations/0012_outbox_visibility_and_read_guard.sql  outbox privacy, mark-read guard, student feed
+supabase/migrations/0013_shrink_executable_surface.sql internal helpers no longer executable
+supabase/migrations/0014_outbox_worker_contract.sql  claim / finish / release for the mailer
+supabase/migrations/0015_fix_claim_ambiguity.sql     qualify columns in astro_claim_emails
 ```
 
 ---
@@ -30,7 +35,7 @@ supabase/migrations/0010_tighten_rls_helpers.sql   anon whitelist = 4 functions
 | Secret / `service_role` key | **server only** — never in firmware, never in a browser |
 | Direct Postgres | `db.nrjchonjlncamfyzmfye.supabase.co:5432`, pooler `:6543` |
 
-## 2. Tables (12, all with RLS)
+## 2. Tables (14, all with RLS)
 
 | Table | Holds |
 |---|---|
@@ -41,7 +46,9 @@ supabase/migrations/0010_tighten_rls_helpers.sql   anon whitelist = 4 functions
 | `devices` | terminal: `device_code`, `secret_hash`, firmware, `last_seen`, `last_boot`, RSSI |
 | `attendance` | one row per student per day (`session='daily'`) or per period |
 | `device_events` | every raw tap incl. replays; `event_uid` unique → idempotent sync |
-| `alerts` | queued parent emails (`late`, `absent`, …) with `status` |
+| `alerts` | **the outbox**: one row per family per message (`late`, `absent`, `notice`, `message`, …) with `status`, `attempts`, `last_error`. Attendance alerts point home with `attendance_id` (bigint); notices and messages with `ref_kind` + `ref_id` (uuid) |
+| `notices` | admin announcements: audience `all` / `class` / `student`, pinned, `publish_at`, `expires_at` |
+| `messages` | one-to-one notes to a single student, with `read_at` |
 | `members` | dashboard users → school + role (`admin`/`teacher`/`viewer`) |
 | `student_links` | student/guardian self-service view of their own rows |
 | `school_holidays` | dates the cron must not mark absent |
@@ -60,7 +67,7 @@ Views: `v_attendance_feed`, `v_daily_attendance` (both `security_invoker`).
 ## 3. The four RPCs the terminal may call
 
 `SECURITY DEFINER`, device authenticated by `device_code` + `sha256(secret)`.
-`anon` may execute **only these four** (see §5).
+`anon` may execute **only these four** (see §6).
 
 | Function | Purpose |
 |---|---|
@@ -119,14 +126,85 @@ Each event is processed independently — one bad card cannot lose the rest of t
 queue. Events carry the **tap time** from the terminal, so a queue uploaded at
 16:00 still records the 08:05 arrival (clamped to `[now-30d, now+5min]`).
 
-## 5. Security model (verified, not assumed)
+## 5. Notices, messages and email delivery
+
+Admin writes once, families see it everywhere, because there is only one copy:
+`notices` and `messages` are the source of truth and the triggers copy them into
+the `alerts` outbox for delivery. No sync step, no second database.
+
+```
+admin UI ─ astro_post_notice / astro_send_message ─▶ notices | messages
+                                                          │ trigger
+                                                          ▼
+                                             alerts (one row per guardian)
+                                                    │            │
+                        parent app reads notices,   │            │  worker claims
+                        messages, own alerts        │            ▼
+                                                    │      Resend / Gmail SMTP
+```
+
+| RPC | Caller | Returns |
+|---|---|---|
+| `astro_post_notice(title, body, audience, class_id, student_id, pinned, school_id, expires_at)` | admin | `{ok, notice_id, recipients, email_queued}` |
+| `astro_send_message(student_id, subject, body, school_id)` | admin | `{ok, message_id, student, roll_no, email_queued, guardian_email_on_file}` |
+| `astro_mark_message_read(message_id)` | student/parent, admin | `{ok, message_id, read_at, newly_read}` |
+| `astro_student_feed(student_id, limit)` | student/parent, admin | `{student, unread_messages, notices[], messages[], count}` |
+| `astro_outbox_stats()` | admin | `{queued, sent, failed, skipped, oldest_queued}` |
+| `astro_requeue_failed()` | admin | `{ok, requeued}` — resets failed rows to `queued` |
+
+**Fan-out rule** — an email row is written only for students that are `active`
+**and** have `guardian_email` on file. `audience='all'` → whole school,
+`'class'` → that class, `'student'` → that one student. A family with no email
+still sees the notice in the app; it simply produces no email row, and
+`recipients: 0` in the reply tells the admin that nobody would be emailed.
+
+**Delivery** is a separate process (`services/mailer`, see its README). It calls
+three server-only RPCs — `astro_claim_emails`, `astro_finish_email`,
+`astro_release_stale_sending` — and needs the **secret key**, so it never runs in
+the browser or on the ESP32. Until it is configured with a provider, rows simply
+sit at `status='queued'`; nothing breaks and nothing is lost.
+
+**Who can read what** (enforced by RLS *and* by the RPCs):
+
+* admin/teacher of the school: everything in that school;
+* a guardian/self via `student_links`: notices addressed to `all`, their own
+  class or their own child; their child's messages; and only their child's outbox
+  rows (so other families' addresses and bodies are never exposed);
+* `anon`: nothing — all of the above is revoked.
+
+### Example (verified against the live project)
+
+```sql
+-- admin, in the SQL editor or from the app
+select public.astro_post_notice('PTM on Saturday',
+  'Parent-teacher meeting this Saturday at 10 AM in the school hall.',
+  'all', null, null, true);
+
+{"ok": true, "notice_id": "5db82b87-…", "recipients": 2, "email_queued": true}
+
+select public.astro_send_message(
+  (select id from public.students where roll_no = 'DEMO-01'),
+  'Your attendance this month',
+  'You were late 3 times this month. Please reach school by 8:20 AM.');
+
+{"ok": true, "message_id": "26d0be7d-…", "student": "Demo Student",
+ "roll_no": "DEMO-01", "email_queued": true, "guardian_email_on_file": true}
+
+-- parent app, signed in and linked to that student
+select public.astro_student_feed((select id from public.students where roll_no = 'DEMO-01'));
+{"ok": true, "unread_messages": 1, "count": 4, "notices": [ …3… ], "messages": [ …1… ]}
+```
+
+## 6. Security model (verified, not assumed)
 
 * `anon` has **no privilege on any table or view** — `has_table_privilege` is
-  false for all 12 tables; `GET /rest/v1/students` returns `permission denied`.
+  false for all 14 tables; `GET /rest/v1/students` returns `permission denied`.
 * `anon` may execute exactly four functions: `astro_heartbeat`,
   `astro_lookup_card`, `astro_mark_attendance`, `astro_sync_batch`. It cannot
   execute `astro_close_day`, `astro_prune_events`, `astro_provision_device`,
-  `astro_rotate_device_secret`, `astro_verify_device` or the RLS helpers.
+  `astro_rotate_device_secret`, `astro_verify_device`, the notice/message RPCs,
+  the outbox worker RPCs or the internal helpers (migration 0013 revoked the
+  trigger and utility functions from `authenticated` too).
 * Device secrets are stored as `sha256(secret)` only.
 * Dashboard: a signed-in `admin` sees their school (verified: 1 school, 1
   student, 1 device, own membership row, `is_staff=true`, `is_admin=true`); a
@@ -146,7 +224,7 @@ queue. Events carry the **tap time** from the terminal, so a queue uploaded at
 If you add a function later: `revoke all … from public, anon;` then grant it to
 the role that needs it.
 
-## 6. Verified test matrix
+## 7. Verified test matrix
 
 | Test | Result |
 |---|---|
@@ -174,8 +252,25 @@ the role that needs it.
 | RLS: admin read + write | ✅ |
 | RLS: viewer write | ✅ blocked `42501` |
 | RLS: non-member read | ✅ 0 rows, no error |
+| notice, audience `all` | ✅ `recipients 2` (3 active students, 1 without email) |
+| notice, audience `class` | ✅ `recipients 2` — only that class |
+| notice, audience `student` | ✅ `recipients 1` |
+| message to one student | ✅ 1 outbox row, `email_queued true` |
+| guardian sees own notices only | ✅ 3 of 3 matching; another class's/another child's not returned |
+| guardian sees own messages only | ✅ 1 message for its child, 0 for a sibling account |
+| guardian reads outbox directly | ✅ 4 rows (own child) instead of 6 (whole school) |
+| guardian calls `astro_post_notice` | ✅ `42501 NOT_STAFF` |
+| guardian marks another child's message read | ✅ `42501 NOT_ALLOWED` |
+| student marks own message read twice | ✅ `newly_read true` then `false`, same `read_at` |
+| `astro_student_feed` as guardian | ✅ notices + messages, `unread_messages 1` |
+| worker: claim 3 | ✅ 3 rows → `sending`, `attempts 1` |
+| worker: finish ok / fail | ✅ `sent` + `sent_at`; `failed` + `last_error` |
+| worker: requeue failed | ✅ back to `queued`, `attempts 0` |
+| worker: stale `sending` row | ✅ released to `queued` after the window |
+| `anon` execute on 0011–0014 RPCs | ✅ all false |
+| trigger helpers execute as `authenticated` | ✅ all false after 0013 |
 
-## 7. Automation (pg_cron, UTC)
+## 8. Automation (pg_cron, UTC)
 
 | Job | Cron | What it does |
 |---|---|---|
@@ -184,7 +279,7 @@ the role that needs it.
 
 Manual run: `select public.astro_close_day('2026-11-12');`
 
-## 8. Day-to-day operations
+## 9. Day-to-day operations
 
 **Add a student + card**
 ```sql
@@ -233,21 +328,52 @@ where u.email = 'teacher@school.com' and s.code = 'ABPS-RNK'
 on conflict (user_id) do update set role = excluded.role;
 ```
 
+**Post a notice / message one student** (this is what the admin screen calls)
+```sql
+-- whole school
+select public.astro_post_notice('Holiday on Friday',
+  'School will remain closed on Friday for Guru Nanak Jayanti.', 'all', null, null, true);
+
+-- one class (class_id from public.classes)
+select public.astro_post_notice('Maths test Monday',
+  'Chapter 7 test for 9-A on Monday.', 'class',
+  (select id from public.classes where name='9' and section='A'));
+
+-- one student
+select public.astro_send_message(
+  (select id from public.students where roll_no='DEMO-01'),
+  'Fee reminder', 'Term 2 fees are due on 30 Nov.');
+```
+`recipients` in the reply is the number of guardians with an email on file; `0`
+means everyone in that audience sees it in the app but nobody gets mail.
+
+**Watch / drain the email queue**
+```sql
+select public.astro_outbox_stats();     -- queued / sent / failed / skipped
+select public.astro_requeue_failed();   -- retry everything that failed
+select id, kind, to_email, status, attempts, last_error
+from public.alerts where status <> 'sent' order by created_at desc limit 20;
+```
+Delivery itself is `services/mailer` (`npm run check`, `npm run once`, or `npm start`).
+
 **Remove the demo row before go-live**
 ```sql
 delete from public.alerts where student_id in (select id from public.students where roll_no='DEMO-01');
+delete from public.notices;     -- old notices are visible to every family
+delete from public.messages;
 delete from public.attendance where student_id in (select id from public.students where roll_no='DEMO-01');
 delete from public.rfid_cards where card_uid = 'A1B2C3D4';
 delete from public.students   where roll_no = 'DEMO-01';
 ```
 
-## 9. Still open (needs your decisions)
+## 10. Still open (needs your decisions)
 
 | Item | Why it matters |
 |---|---|
 | `late_after` `08:20`, `day_end` `14:00` | guessed values — set the school's real timings |
 | `site_url = http://localhost:3000`, empty redirect allow-list | hosted dashboard login will fail |
 | Signups enabled | anyone can create an account (sees nothing, but noise) |
-| No SMTP provider | `alerts` only queue emails; nothing sends them |
+| No mail provider configured | rows reach `status='queued'` and stop there until `services/mailer` has a Resend key or a Gmail app password |
+| No admin/student screens yet | the RPCs and RLS are live; the dashboards that call them are not built |
 | Region `ap-southeast-2` | chosen at creation, not changeable; ~90–140 ms from Renukoot |
 | Free tier | no point-in-time backups; pauses after ~7 days idle (cron keeps it warm) |
