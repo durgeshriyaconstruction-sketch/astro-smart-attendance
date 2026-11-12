@@ -27,6 +27,14 @@ Cost: Only 1,500 Rupees per unit.
 - 3D Printed Enclosure (Blender)
 - Arduino C++ and HTML/CSS/JavaScript
 
+## Filing everything as year → month → day
+
+Attendance, notices, messages, the e-mails a guardian received and the leave
+records can be written out as ordinary folders — `2026/11/2026-11-12.json` plus a
+`.csv` sheet per day — with one command that reads through the same security the
+dashboard uses:
+[`tools/archive`](tools/archive/README.md).
+
 ## Cloud backend (Supabase)
 The attendance terminal talks to Postgres through four locked-down functions
 (`astro_heartbeat`, `astro_mark_attendance`, `astro_sync_batch`,

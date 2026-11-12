@@ -27,3 +27,6 @@ node_modules/
 # web test runner dependencies (npm install in tests/web)
 tests/web/node_modules/
 tests/web/package-lock.json
+
+# the archive tool writes year/month/day folders - never commit a school's records
+/archive/
