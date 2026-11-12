@@ -1,0 +1,19 @@
+{
+  "name": "astro-smart-attendance-mailer",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "description": "Drains the astro_smart_attendance email outbox (public.alerts) and delivers notices, messages and attendance alerts to guardians.",
+  "engines": {
+    "node": ">=18"
+  },
+  "scripts": {
+    "start": "node index.mjs",
+    "once": "node index.mjs --once",
+    "check": "node index.mjs --check",
+    "test": "node --test test/mailer.test.mjs test/rpc.integration.test.mjs"
+  },
+  "dependencies": {
+    "nodemailer": "^6.9.16"
+  }
+}

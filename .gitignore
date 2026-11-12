@@ -1,0 +1,37 @@
+__pycache__/
+*.pyc
+.DS_Store
+renders/_*.png
+exports/ZIP_CONTENTS/
+pylibs/
+exports/ZIP_CONTENTS*/
+
+# regenerable design-frame copies of the shipped STLs (tools/build_v3.py writes these for the checkers)
+cad/v3/assembly/
+
+# Blender autosave and the preview server log - regenerable, never shipped
+*.blend1
+serve.log
+
+# firmware credentials - never commit (copy astro_config.example.h instead)
+firmware/**/astro_config.h
+# ...except the credential-free config the host tests compile against
+!firmware/test/host/test_config/astro_config.h
+firmware/**/secrets.h
+.env
+.env.local
+
+# mailer dependencies
+node_modules/
+
+# web test runner dependencies (npm install in tests/web)
+tests/web/node_modules/
+tests/web/package-lock.json
+
+# the archive tool writes year/month/day folders - never commit a school's records
+/archive/
+/backups/
+/.drive-upload/
+
+# PlatformIO build output
+.pio/

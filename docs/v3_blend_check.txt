@@ -1,0 +1,121 @@
+ASTRO SMART ATTENDANCE v3 - .blend GATE (opens the saved file and re-measures it)
+================================================================================
+   ASTRO_SMART_ATTENDANCE_v3.blend exists and is a real .blend                PASS
+
+   opened: Blender 4.5.14 LTS, 74 objects, 61 meshes, 5 collections
+
+1. THE PRINTED PARTS IN THE .blend vs THE SHIPPED STLS  (both measured here, in mm)
+--------------------------------------------------------------------------------
+   collection '01 PRINTED' holds exactly the four parts that ship as STLs, nothing extra PASS
+   01 MAIN SHELL: 115.22 cm3 in the .blend vs 115.22 cm3 in the STL (11108 tris) PASS
+   01 MAIN SHELL: 115.22 cm3 vs the 115.2 cm3 the design notes publish        PASS
+   01 MAIN SHELL: same triangle count as the STL (11108)                      PASS
+   01 MAIN SHELL: lowest point z = 0.00 mm = the 0.0 mm lift in the print-orientation table (part runs z 0.00 .. 43.00 mm) PASS
+   01 MAIN SHELL: envelope 110.00 x 155.00 x 43.00 mm is inside one 180 x 180 bed PASS
+   02 REAR PLATE:  53.80 cm3 in the .blend vs  53.80 cm3 in the STL (3184 tris) PASS
+   02 REAR PLATE:  53.80 cm3 vs the 53.8 cm3 the design notes publish         PASS
+   02 REAR PLATE: same triangle count as the STL (3184)                       PASS
+   02 REAR PLATE: lowest point z = 41.00 mm = the 41.0 mm lift in the print-orientation table (part runs z 41.00 .. 46.00 mm) PASS
+   02 REAR PLATE: envelope 110.00 x 155.00 x 5.00 mm is inside one 180 x 180 bed PASS
+   03 R307 BRACKET:   1.01 cm3 in the .blend vs   1.01 cm3 in the STL (792 tris) PASS
+   03 R307 BRACKET:   1.01 cm3 vs the 1.0 cm3 the design notes publish        PASS
+   03 R307 BRACKET: same triangle count as the STL (792)                      PASS
+   03 R307 BRACKET: lowest point z = 26.50 mm = the 26.5 mm lift in the print-orientation table (part runs z 26.50 .. 29.70 mm) PASS
+   03 R307 BRACKET: envelope 36.80 x 14.00 x 3.20 mm is inside one 180 x 180 bed PASS
+   04 RC522 RING:   2.19 cm3 in the .blend vs   2.19 cm3 in the STL (1912 tris) PASS
+   04 RC522 RING:   2.19 cm3 vs the 2.2 cm3 the design notes publish          PASS
+   04 RC522 RING: same triangle count as the STL (1912)                       PASS
+   04 RC522 RING: lowest point z = 4.60 mm = the 4.6 mm lift in the print-orientation table (part runs z 4.60 .. 7.20 mm) PASS
+   04 RC522 RING: envelope 43.60 x 76.00 x 2.60 mm is inside one 180 x 180 bed PASS
+
+   four printed solids, from the .blend's own triangles: 172.22 cm3, box 110.00 x 155.00 x 46.00 mm
+   assembly box off the .blend = 110 x 155 x 46 mm                            PASS
+
+2. FASTENERS: one per documented hole, in that hole, to that length
+--------------------------------------------------------------------------------
+   LCD1602: 4 screws in the .blend for 4 holes measured on the mesh           PASS
+   LCD1602: every screw axis lands on a measured hole centre (worst 0.000 mm) PASS
+   LCD1602: every tip stops in the plastic (+0.60 mm above the pilot bottom)  PASS
+      LCD1602       screw length in the .blend 8.00 mm  vs documented 8.0 mm (room 9.00 mm)
+   LCD1602: modelled length matches the schedule                              PASS
+   R307 bracket: 2 screws in the .blend for 2 holes measured on the mesh      PASS
+   R307 bracket: every screw axis lands on a measured hole centre (worst 0.000 mm) PASS
+   R307 bracket: every tip stops in the plastic (+0.20 mm above the pilot bottom) PASS
+      R307 bracket  screw length in the .blend 8.00 mm  vs documented 8.0 mm (room 8.60 mm)
+   R307 bracket: modelled length matches the schedule                         PASS
+   RC522 ring: 4 screws in the .blend for 4 holes measured on the mesh        PASS
+   RC522 ring: every screw axis lands on a measured hole centre (worst 0.000 mm) PASS
+   RC522 ring: every tip stops in the plastic (+0.30 mm above the pilot bottom) PASS
+      RC522 ring    screw length in the .blend 4.00 mm  vs documented 4.0 mm (room 4.70 mm)
+   RC522 ring: modelled length matches the schedule                           PASS
+   rear plate: 4 screws in the .blend for 4 holes measured on the mesh        PASS
+   rear plate: every screw axis lands on a measured hole centre (worst 0.000 mm) PASS
+   rear plate: every tip stops in the plastic (+0.20 mm above the pilot bottom) PASS
+      rear plate    screw length in the .blend 10.00 mm  vs documented 10.0 mm (room 10.60 mm)
+   rear plate: modelled length matches the schedule                           PASS
+   fan 3010: 4 screws in the .blend for 4 holes measured on the mesh          PASS
+   fan 3010: every screw axis lands on a measured hole centre (worst 0.000 mm) PASS
+   fan 3010: every tip stops in the plastic (+1.50 mm above the pilot bottom) PASS
+      fan 3010      screw length in the .blend 12.00 mm  vs documented 12.0 mm (room 13.90 mm)
+   fan 3010: modelled length matches the schedule                             PASS
+   ESP32 boss: 4 screws in the .blend for 4 holes measured on the mesh        PASS
+   ESP32 boss: every screw axis lands on a measured hole centre (worst 0.000 mm) PASS
+   ESP32 boss: every tip stops in the plastic (+0.60 mm above the pilot bottom) PASS
+      ESP32 boss    screw length in the .blend 8.00 mm  vs documented 8.0 mm (room 9.00 mm)
+   ESP32 boss: modelled length matches the schedule                           PASS
+
+   22 screws in the .blend = the 22 holes the print order tells you to drill  PASS
+
+3. THE BED-ALIGNED COPIES, THE MODULES AND THE RIG
+--------------------------------------------------------------------------------
+   collection '04 BED ALIGNED' is in the file                                 PASS
+   4 bed-aligned copies in '04 BED ALIGNED' for the print bag                 PASS
+   01 MAIN SHELL (as printed): first layer on z = 0 (0.000 mm), 115.22 cm3 in the box PASS
+   02 REAR PLATE (as printed): first layer on z = 0 (0.000 mm), 53.80 cm3 in the box PASS
+   03 R307 BRACKET (as printed): first layer on z = 0 (0.000 mm), 1.01 cm3 in the box PASS
+   04 RC522 RING (as printed): first layer on z = 0 (-0.000 mm), 2.19 cm3 in the box PASS
+   the bed copies are switched off in the viewport and the render, so the assembly view is never doubled up when you open the file PASS
+   '03 FASTENERS' holds 22 shanks and 22 heads - one of each per screw        PASS
+   9 module solids in '02 MODULES' as envelopes (they are the reserved space, published from vendor sheets - not a claim about your boards)
+   the 3010 fan is the one solid that is real geometry, not a box             PASS
+   fan outer box 30.0 x 30.0 x 10.0 mm in the .blend (axis along X, into the bore) = the 30 x 30 x 10 mm 3010 PASS
+   fan solid 2529 mm3 - that is 30 x 30 x 10 = 9000 minus the d28 bore and 4 x d3.2 on 24 mm PASS
+   fan mesh has 800 triangles (the bore and the lug holes are really in it)   PASS
+   7 explode empties with keyframes: front_LCD, front_R307, front_bracket, front_ring, left_esp32, left_fan, rear_plate PASS
+   timeline 1..48 at 24 fps - assembled, exploded, reassembled                PASS
+   explode travel measured by moving the timeline on the reopened file:
+      front_LCD      ->   +0.0,   +0.0,  -50.0 mm
+      front_R307     ->   +0.0,   +0.0,  -38.0 mm
+      front_bracket  ->   +0.0,   +0.0,  -70.0 mm
+      front_ring     ->   +0.0,   +0.0,  -22.0 mm
+      left_esp32     ->  -46.0,   +0.0,   +0.0 mm
+      left_fan       ->  -62.0,   +0.0,   +0.0 mm
+      rear_plate     ->   +0.0,   +0.0,  +62.0 mm
+   every group actually moves more than 20 mm, so the drawing separates the parts PASS
+   4 groups out through the front, 1 out through the back, 2 out through the fan wall - the order the print guide is written in PASS
+   scene units: 1 unit = 1 mm, so every number above is a millimetre and a slicer will agree PASS
+
+3b. NOTHING POKES OUT OF THE CASE (the check that a display solid was not left 14 mm in the air)
+--------------------------------------------------------------------------------
+   every printed part, module and screw is inside the 110 x 155 x 46 envelope + 2.5 mm (the 2 mm USB plug relief is the only thing allowed outside, and it is inside that margin) PASS
+
+4. THE .glb COPY AND THE RENDERED FRAMES
+--------------------------------------------------------------------------------
+   ASTRO_SMART_ATTENDANCE_v3_assembly.glb exists                              PASS
+   re-imported 57 meshes, box 110000 x 157000 x 46050 scene-mm = 110.00 x 157.00 x 46.05 .glb units (1 unit = 1 mm)
+   the .glb carries the assembly (57 meshes)                                  PASS
+   .blend assembled box, all three real-object collections: 110.0 x 157.0 x 46.05 mm  (the printed case itself is 110 x 155 x 46)
+   the .glb re-imports to the .blend's own 110.0 x 157.0 x 46.05 mm to 0.05 mm - a faithful copy, with no explode baked into it PASS
+   renders/v3_blend_front.png exists                                          PASS
+   renders/v3_blend_front.png: 1500 x 1100 px                                 PASS
+   renders/v3_blend_front.png: 40244 sampled px, spread 0.00..0.78, variance 0.0186 - a real shaded picture, not a blank or a black frame PASS
+   renders/v3_blend_iso.png exists                                            PASS
+   renders/v3_blend_iso.png: 1500 x 1100 px                                   PASS
+   renders/v3_blend_iso.png: 40244 sampled px, spread 0.09..0.78, variance 0.0033 - a real shaded picture, not a blank or a black frame PASS
+   renders/v3_blend_exploded.png exists                                       PASS
+   renders/v3_blend_exploded.png: 1500 x 1100 px                              PASS
+   renders/v3_blend_exploded.png: 40244 sampled px, spread 0.00..0.78, variance 0.0073 - a real shaded picture, not a blank or a black frame PASS
+
+   .blend sha256 0e8c2514e30bccd38f0d87a30cfd223a03c45e62
+
+BLENDER RESULT: ALL CHECKS PASS

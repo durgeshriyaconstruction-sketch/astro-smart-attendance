@@ -1,0 +1,35 @@
+
+=== cad/01_MAIN_SHELL.stl
+  triangles: 4096   unique vertices: 2018
+  X:    -55.00 ..     55.00   ( 110.00 mm)
+  Y:    -77.50 ..     77.50   ( 155.00 mm)
+  Z:      0.00 ..     48.00   (  48.00 mm)
+  surface area: 90409.8 mm^2   closed volume: 108.23 cm^3
+
+=== cad/02_DETACHABLE_WALL_PLATE.stl
+  triangles: 934   unique vertices: 457
+  X:    -55.00 ..     55.00   ( 110.00 mm)
+  Y:    -77.50 ..     77.50   ( 155.00 mm)
+  Z:     38.55 ..     48.00   (   9.45 mm)
+  surface area: 41202.4 mm^2   closed volume: 49.99 cm^3
+
+=== cad/03_R307_RETENTION.stl
+  triangles: 276   unique vertices: 136
+  X:     19.00 ..     53.00   (  34.00 mm)
+  Y:    -30.00 ..    -18.00   (  12.00 mm)
+  Z:     28.10 ..     30.10   (   2.00 mm)
+  surface area: 1012.3 mm^2   closed volume: 0.80 cm^3
+
+=== cad/04_RC522_RETENTION.stl
+  triangles: 276   unique vertices: 136
+  X:    -56.00 ..     16.00   (  72.00 mm)
+  Y:     -9.00 ..     -5.00   (   4.00 mm)
+  Z:      4.35 ..      5.95   (   1.60 mm)
+  surface area: 825.8 mm^2   closed volume: 0.45 cm^3
+
+=== cad/05_ESP32_RETENTION.stl
+  triangles: 276   unique vertices: 136
+  X:      6.00 ..     50.00   (  44.00 mm)
+  Y:    -27.00 ..    -23.00   (   4.00 mm)
+  Z:     35.40 ..     36.80   (   1.40 mm)
+  surface area: 490.1 mm^2   closed volume: 0.23 cm^3

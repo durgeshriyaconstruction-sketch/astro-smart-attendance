@@ -1,0 +1,138 @@
+ASTRO SMART ATTENDANCE - v3 enclosure audit  (RE-DESIGN)
+============================================================================
+axis frame: X width 110, Y height 155, Z depth 46 mm
+shell     : 11108 tris, watertight=True, winding_ok=True, bodies=1
+shell size: [110.0, 155.0, 43.0] (depth 43 + 3 mm plate = 46)
+assembly  : 110.0 x 155.0 x 46.0 mm  (v2 was 48 deep)
+volume    : 115.2 cm3  ~71 g PLA (15 % infill, estimate)
+
+A. printed-part interference
+   shell <-> rear plate                    0.00 mm3   PASS
+   shell <-> R307 bracket                  0.00 mm3   PASS
+   shell <-> RC522 ring                    0.00 mm3   PASS
+
+B. component fit  (envelope overlap with shell material = 0 required)
+   envelope                      overlap  verdict
+   LCD_glass_pane                   0.00  PASS
+   LCD_pcb+backpack                 0.00  PASS
+   LCD_bezel_window                 0.00  PASS
+   R307_body                        0.00  PASS
+   RC522_board                      0.00  PASS
+   RC522_components                 0.00  PASS
+   RC522_scan_zone                  0.00  PASS
+   ESP32_board+components           0.00  PASS
+   ESP32_RF_keepout                 0.00  PASS
+   USB_plug                         0.00  PASS
+   Fan_3010                         0.00  PASS
+
+C. openings (must be open through the wall, wall must exist beside them)
+   LCD window           open=True  wall_ok=True  PASS
+   R307 window          open=True  wall_ok=True  PASS
+   RFID scan window     open=True  wall_ok=True  PASS
+   USB slot             open=True  wall_ok=True  PASS
+   fan bore (no grille) open=True  wall_ok=True  PASS
+
+D. other printed parts
+   rear plate   : size [110.0, 155.0, 5.0], watertight=True, 53.8 cm3
+   RC522 ring   : size [43.6, 76.0, 2.6], watertight=True, 2.2 cm3  (print 1, flat - v2 needed 2 clamp bars + a lip, v3 needs one part)
+   R307 bracket : size [36.8, 14.0, 3.2], watertight=True
+
+E. wall / feature thickness probe (ray through the material)
+   front wall, plain          measured  2.90 mm   design 2.90   PASS
+   front-wall skin under an RC522 pilot measured  1.30 mm   design 1.40   PASS
+   RFID recess floor sheet    measured  2.15 mm   design 2.20   PASS
+   front wall beside the recess measured  2.95 mm   design 3.00   PASS
+   side wall                  measured  2.50 mm   design 2.60   PASS
+   top wall                   measured  2.90 mm   design 2.90   PASS
+   bottom wall                measured  2.90 mm   design 2.90   PASS
+   LCD boss above wall        measured 11.50 mm   design 11.50   PASS
+   R307 post height           measured 23.50 mm   design 23.50   PASS
+   fan bore rim (no grille)   measured  1.50 mm   design 1.60   PASS
+
+F. dimensional audit against the supplied component references
+   R307 body              model: (20.0, 44.1, 23.5)                     ref: 44.1 x 20 x 23.5    
+   R307 window            model: (19.3, 21.2)                           ref: 19 x 21             
+   ESP32 pcb              model: (28.33, 51.45, 1.6)                    ref: 51.45 x 28.33       
+   RC522 pcb              model: (40.0, 60.0)                           ref: 40 x 60             
+   LCD pcb                model: 80 x 36 (window pattern 75.1 x 31)     ref: 80 x 36             
+   LCD visible            model: (66.0, 17.5) window                    ref: 64 x 16             
+   Fan                    model: (30.0, 30.0, 10.0)                     ref: 30 x 30 x 10        
+   Fan hole pitch         model: 24.0                                   ref: ~24                 
+   ESP32 PCB hole inset   model: 3.5                                    ref: unverified            VERIFY_ACTUAL_HARDWARE
+   RC522 board holes      model: unused - perimeter hold-down ring      ref: unverified            VERIFY_ACTUAL_HARDWARE
+
+
+G. printability (orientation: front face down, rear opening up)
+   >60 deg overhang area: 244 mm2 (0.30 % of surface) - SUPPORT_REQUIRED = NO
+   designed walls: front 3.0 mm, locally 2.2 mm at the RFID ledge ring, sides 2.6 mm, top/bottom 3.0 mm, plate 3.0 mm, part fit 0.35 mm, plate register lip 0.25 mm/side, rebate ring 0.45 x 3.0 mm around the LCD + fingerprint openings
+   outer polish: vertical corners R3.0 mm, 1.0 mm x 45 deg front rim, plate rear rim chamfered, plate screws countersunk 6.6 mm / 90 deg (flush flat head)
+
+I. screw fixing map  (circular pilot holes - every hardware fixing, verified)
+   part          screw  pilot    depth    hole empty  material
+   LCD1602       M2.5   2.05 x 8.5               True      True  PASS   at (-37.5, 36.5)
+   LCD1602       M2.5   2.05 x 8.5               True      True  PASS   at (-37.5, 67.5)
+   LCD1602       M2.5   2.05 x 8.5               True      True  PASS   at (37.5, 36.5)
+   LCD1602       M2.5   2.05 x 8.5               True      True  PASS   at (37.5, 67.5)
+   R307 bracket  M3     2.50 x 8.0               True      True  PASS   at (22.0, -24.1)
+   R307 bracket  M3     2.50 x 8.0               True      True  PASS   at (50.0, -24.1)
+   RC522 ring    M2.5   2.05 x 3.8               True      True  PASS   at (-33.0, -58.0)
+   RC522 ring    M2.5   2.05 x 3.8               True      True  PASS   at (-33.0, 9.9)
+   RC522 ring    M2.5   2.05 x 3.8               True      True  PASS   at (0.9, -58.0)
+   RC522 ring    M2.5   2.05 x 3.8               True      True  PASS   at (0.9, 9.9)
+   ESP32 standoffM2.2   1.80 x 7.0               True      True  PASS   at (-66.5, 16.8)
+   ESP32 standoffM2.2   1.80 x 7.0               True      True  PASS   at (-66.5, 38.2)
+   ESP32 standoffM2.2   1.80 x 7.0               True      True  PASS   at (-22.0, 16.8)
+   ESP32 standoffM2.2   1.80 x 7.0               True      True  PASS   at (-22.0, 38.2)
+   Fan 3010      M3     2.50 x 12.0               True      True  PASS   at (5.0, 12.0)
+   Fan 3010      M3     2.50 x 12.0               True      True  PASS   at (5.0, 36.0)
+   Fan 3010      M3     2.50 x 12.0               True      True  PASS   at (29.0, 12.0)
+   Fan 3010      M3     2.50 x 12.0               True      True  PASS   at (29.0, 36.0)
+   rear plate    M3     2.50 x 9.0               True      True  PASS   at (-46.5, -67.5)
+   rear plate    M3     2.50 x 9.0               True      True  PASS   at (-46.5, 67.5)
+   rear plate    M3     2.50 x 9.0               True      True  PASS   at (46.5, -67.5)
+   rear plate    M3     2.50 x 9.0               True      True  PASS   at (46.5, 67.5)
+   -> 22 screw holes in total: 4 x LCD1602, 2 x R307 bracket, 4 x RC522 ring, 4 x ESP32 standoff, 4 x Fan 3010, 4 x rear plate  |  4 x cable-tie holes d4.0 (through)   ALL PASS
+
+J. outer polish / assembly features (probed)
+   corner rounded             PASS
+   corner material kept       PASS
+   front rim chamfered        PASS
+   rim material below         PASS
+   plate rear chamfer         PASS
+   plate corner round         PASS
+   plate csk open             PASS
+   plate csk wall kept        PASS
+   RC522 seat rib             PASS
+   RC522 ledge ring           PASS
+   R307 seat rib              PASS
+   strain-relief post         PASS
+   RFID aperture centre clear PASS
+   no bar in the aperture     PASS
+   fan bore centre clear      PASS
+   +X wall plain (no side openings) PASS
+   bottom wall solid at all 8 old slot centres PASS
+   top wall solid at all 4 old slot centres PASS
+   the fan bore is still there PASS
+   the USB opening is still there PASS
+   ring pad coplanar          PASS
+   LCD rebate ring cut        PASS
+   wall under LCD rebate      PASS
+   rebate at the other side   PASS
+   ESP32 round boss           PASS
+   ESP32 spotface open        PASS
+
+K. v3 design deltas - measured, not asserted
+   K1 RFID aperture   8269 rays inside the rounded 38 x 56 window: 0 blocked  ->  2106 mm2 free (100.0 % of 2106 mm2 of opening)   v2 lost 190 mm2 to two stiffener bars
+   K2 fan bore        314 rays in the d28 circle: 0 blocked  ->  100.0 % of the bore is open   (v2: 3 grille bars left 50 %)
+   K3 clamp seat flat  4/4 pad tops at exactly z=4.60 (the ring's seat plane)   PASS
+   K3b board bearing   4/4 points on the flat inner face at z=3.00 all around the aperture   PASS
+   K4 rear plate      53.8 cm3   v2's solid 2 mm plug alone was 31.0 cm3 -> the v3 frame keeps the same location duty for a fraction of the plastic
+   K5 front face      3.0 mm plate, 0.45 x 3.0 mm rebate sunk around LCD + fingerprint; 2.0 mm of the rim was chamfered away, 2.55 mm is left under each rebate
+
+H. STL file re-read verification (what the slicer will actually see)
+   shell        edges open=0 non-manifold=0 bodies=1 micro-faces=10 vol=115.2 cm3   PASS
+   rear plate   edges open=0 non-manifold=0 bodies=1 micro-faces=6 vol=53.8 cm3   PASS
+   R307 bracket edges open=0 non-manifold=0 bodies=1 micro-faces=0 vol=1.0 cm3   PASS
+   RC522 ring   edges open=0 non-manifold=0 bodies=1 micro-faces=0 vol=2.2 cm3   PASS
+
+RESULT: ALL CHECKS PASS

@@ -1,0 +1,26 @@
+
+05_FIT_GAUGE_v3 - the fit and pilot card, every number read from tools/build_v3.py
+--------------------------------------------------------------------------------------------
+   cuts clear of the card's edge        min 5.50 mm (rule 3.0)                     PASS
+   cuts clear of each other             min 14.40 mm                               PASS
+   every engraved line is in solid plastic 60 engraving segments, 0 crossing a cut or its 0.55 mm edge PASS
+   pilot floor left in the boss         4.60 mm under an 8.00 mm pilot             PASS
+   wall between neighbouring pilots     6.93 mm minimum                            PASS
+   engravings clear of the card's outline 1.78 mm minimum (rule 0.4)                 PASS
+   watertight, outward normals, positive volume watertight=True is_volume=True volume=+42.23 cm3 PASS
+   one body after the boolean           1 bodies                                   PASS
+   printed flat, no supports            min z +0.0000  max z 12.60 (the boss is the tallest thing on it) PASS
+   inside a 220 x 220 x 250 bed         150.00 x 112.00 x 12.60                    PASS
+   card outline                         150.00 x 112.00 (design 150.0 x 112.0)     PASS
+   volume 42235 mm3 (42.23 cm3); PLA ~26 g at 3 walls / 15 % infill - the same estimate the enclosure builder uses, so the two are comparable (the boss prints solid, and it should - that is the point)
+
+   what the card carries (all of it from P, none of it typed a second time)
+     3  LCD   GO cut 66.00 x 17.50 (the window itself)   board outline 80 x 36   pitch crosses 75.10 x 31.0, d2.05 at the four holes the wall drills
+     4  R307  GO cut 21.00 x 25.00 (the bezel relief)   body outline 44.10 x 20.00   prism window 19.30 x 21.20
+     5  RC522 GO cut 60.80 x 40.80 (0.40 per side on a 60 x 40 board)   recess 62.70 x 44.70   pads (+/-34, +/-17)
+     6  USB   GO cut 20.40 x 12.40   plug body 15.60 x 8.00
+     1  pilots d1.80, d2.00, d2.05, d2.20, d2.35, d2.50, 8.00 deep in a 10.0 mm boss   2  board holes d2.00, d2.20, d2.50, d2.70
+
+   wrote cad/v3/05_FIT_GAUGE_v3.stl (810 kB, 16208 triangles) + the assembly copy
+
+GAUGE BUILD: ALL CHECKS PASS
