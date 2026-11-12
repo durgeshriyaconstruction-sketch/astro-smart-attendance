@@ -203,9 +203,14 @@ if (composer) {
 }
 
 await settle(6);
-const delBtn = [...document.querySelectorAll('.thread button.icon-btn')]
-  .find((b) => b.title === 'Delete for everyone');
-check('an admin sees "Delete for everyone" on a message', Boolean(delBtn));
+// Delete belongs to whoever wrote the message: the office gets it on its own
+// messages only, and the family's answer carries no button at all.
+const threadBubbles = [...document.querySelectorAll('.thread .bubble')];
+const bubbleOf = (text) => threadBubbles.find((b) => b.textContent.includes(text));
+const delBtn = bubbleOf('You were late 3 times')?.querySelector('button.icon-btn');
+check('the office can delete a message it wrote', delBtn?.title === 'Delete this message');
+check('the office gets no delete button on a message the family wrote',
+  !bubbleOf('We will come on Saturday')?.querySelector('button.icon-btn'));
 if (delBtn) {
   delBtn.click();
   await settle(6);
@@ -215,12 +220,12 @@ if (delBtn) {
     document.querySelector('.toast')?.textContent.includes('2 unsent e-mail withdrawn'),
     document.querySelector('.toast')?.textContent || 'no toast');
 }
-deleteReply = { ok: true, mode: 'hidden' };
+deleteReply = { ok: true, mode: 'deleted', emails_withdrawn: 0 };
 if (delBtn) {
   delBtn.click();
   await settle(6);
-  check('a "hidden" reply is not reported as a delete',
-    document.querySelector('.toast')?.textContent.includes('family'),
+  check('a plain delete needs no e-mail footnote',
+    document.querySelector('.toast')?.textContent.trim() === 'Message deleted',
     document.querySelector('.toast')?.textContent || 'no toast');
 }
 
@@ -289,29 +294,24 @@ check('message thread shows the school message', studentHost.textContent.include
 check('message thread has a composer', Boolean(studentHost.querySelector('textarea')));
 check('opening the thread marks it read', rpcCalls.some((c) => c.fn === 'astro_mark_thread_read'));
 
-// "Delete" must mean something different on each side of the conversation.
-const bubbleBtn = (title) => [...studentHost.querySelectorAll('.bubble button.icon-btn')]
-  .find((b) => b.title === title);
-check('a school message can only be removed from the family\'s view',
-  Boolean(bubbleBtn('Remove from my view')));
-check('the family\'s own message says plain "Delete message"',
-  Boolean(bubbleBtn('Delete message')));
-const schoolDel = bubbleBtn('Remove from my view');
-if (schoolDel) {
-  deleteReply = { ok: true, mode: 'hidden' };
-  schoolDel.click();
-  await settle(6);
-  check('removing a school message is not reported as a delete',
-    document.querySelector('.toast')?.textContent.includes('Removed from your view'),
-    document.querySelector('.toast')?.textContent || 'no toast');
-  const ownDel = bubbleBtn('Delete message');
+// On the family's side the rule is the same one: you delete what you wrote,
+// and a school message is read-only.
+const studentBubbleOf = (text) => [...studentHost.querySelectorAll('.bubble')]
+  .find((b) => b.textContent.includes(text));
+const schoolBubble = studentBubbleOf('You were late 3 times');
+const ownBubble = studentBubbleOf('Thank you sir, we will come.');
+check('a school message is read-only for the family',
+  Boolean(schoolBubble) && !schoolBubble.querySelector('button.icon-btn'));
+const ownDel = ownBubble?.querySelector('button.icon-btn');
+check('the family can delete the message it wrote', ownDel?.title === 'Delete my message');
+if (ownDel) {
+  const before = rpcCalls.filter((c) => c.fn === 'astro_delete_message').length;
   deleteReply = { ok: true, mode: 'deleted', emails_withdrawn: 0 };
   ownDel.click();
   await settle(6);
-  check('deleting the family\'s own message is final',
-    document.querySelector('.toast')?.textContent.includes('Message deleted')
-    && rpcCalls.filter((c) => c.fn === 'astro_delete_message').length >= 2);
-  deleteReply = { ok: true, mode: 'deleted', emails_withdrawn: 2 };
+  check('deleting your own message calls the server and says so',
+    rpcCalls.filter((c) => c.fn === 'astro_delete_message').length > before
+    && document.querySelector('.toast')?.textContent.includes('Message deleted'));
 }
 
 const writer = studentHost.querySelector('textarea');

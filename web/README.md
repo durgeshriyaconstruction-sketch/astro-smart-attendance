@@ -155,14 +155,15 @@ earlier day as "before joining", which is why the first version of this page rea
   containing markup is shown literally. Empty state reads "No notices right now."
 * **Messages** — grouped into one thread per student, sent optimistically and
   marked read on open.
-* **Deleting a message** — delete means erase, not hide. A member of staff
-  deletes a message and the row is removed from the database; every e-mail for
-  it that has not gone out yet is withdrawn in the same transaction (mail
-  already delivered cannot be recalled). A family deleting *their own* message
-  removes it for both sides the same way. A family deleting a message the
-  *school* sent can only take it out of their own view — the school's record
-  stays — so that button is labelled "Remove from my view", and the reply is
-  reported as "removed", never as "deleted".
+* **Deleting a message** — only whoever wrote a message may delete it, and
+  delete means erase: the row leaves `messages`, and every e-mail for it that
+  has not gone out yet is withdrawn in the same statement (mail already
+  delivered cannot be recalled). So the office deletes the messages it wrote,
+  a family deletes the messages it wrote, and neither can touch the other's —
+  a school message is read-only on the family's screen, and the family's reply
+  is read-only on the office's. The server refuses the rest with
+  `NOT_YOUR_MESSAGE` (SQLSTATE 42501), so the rule holds even if someone calls
+  the RPC directly.
 * **Settings** — present/late boundary and absent cut-off are stored per school
   and re-read whenever the Settings tab opens; the same numbers decide the
   Present/Late/Absent verdict computed by the database.

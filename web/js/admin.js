@@ -578,15 +578,18 @@ export function renderAdmin(root, state) {
             h('div', { class: 'bubble-meta' }, mine ? 'School' : name, ' · ', fmtDateTime(m.created_at, tz),
               mine && m.read_at ? ' · read' : ''),
             h('div', { class: 'bubble-body' }, m.body),
-            isAdmin ? h('button', {
-              class: 'icon-btn tiny', type: 'button', title: 'Delete for everyone',
+            // Only the author may delete. The school's own messages carry the
+            // button; what the family wrote is theirs to keep or erase, so a
+            // teacher sees it and nothing more.
+            isAdmin && mine ? h('button', {
+              class: 'icon-btn tiny', type: 'button', title: 'Delete this message',
               onclick: async () => {
-                if (!confirm('Delete this message for everyone?\n\nIt is erased from the database, and any e-mail that has not gone out yet is withdrawn. This cannot be undone.')) return;
+                if (!confirm('Delete this message?\n\nIt is erased from the database, and any e-mail that has not gone out yet is withdrawn. This cannot be undone.')) return;
                 try {
                   const r = await rpc('astro_delete_message', { p_message_id: m.id });
-                  if (r?.mode === 'hidden') toast('Removed from the family\'s view — the school keeps its copy');
-                  else if (r?.emails_withdrawn) toast(`Deleted · ${r.emails_withdrawn} unsent e-mail withdrawn`);
-                  else toast('Deleted for everyone');
+                  toast(r?.emails_withdrawn
+                    ? `Deleted · ${r.emails_withdrawn} unsent e-mail withdrawn`
+                    : 'Message deleted');
                   openThread(studentId, name);
                 } catch (err) { flashError(err); }
               },
