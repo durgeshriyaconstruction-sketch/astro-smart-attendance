@@ -35,7 +35,7 @@ supabase/migrations/0015_fix_claim_ambiguity.sql     qualify columns in astro_cl
 | Secret / `service_role` key | **server only** — never in firmware, never in a browser |
 | Direct Postgres | `db.nrjchonjlncamfyzmfye.supabase.co:5432`, pooler `:6543` |
 
-## 2. Tables (14, all with RLS)
+## 2. Tables (core 14; see §10 for the three added later — all with RLS)
 
 | Table | Holds |
 |---|---|
@@ -367,14 +367,103 @@ delete from public.rfid_cards where card_uid = 'A1B2C3D4';
 delete from public.students   where roll_no = 'DEMO-01';
 ```
 
-## 10. Still open (needs your decisions)
+## 10. Dashboard API (migrations 0016 – 0021)
+
+Everything the student and admin dashboards need is an RPC (`supabase.rpc(name, args)`),
+so the rules live in the database and not in page JavaScript. Tables now: 17, all with RLS
+(added `leave_requests`, `notice_dismissals`, `device_commands`).
+
+### Who am I
+| Call | Use |
+|---|---|
+| `astro_whoami()` | role (`admin` / `teacher` / `viewer` / `student` / `none`), school, linked students. Call once after login to choose the dashboard. |
+| `astro_add_member(p_email, p_role)` | admin: give an existing account staff access. The last admin cannot be removed or demoted (`LAST_ADMIN`). |
+| `astro_link_student(p_email, p_student_id, p_relation)` / `astro_unlink_student` | staff: attach a login to a student (`self` or `guardian`). |
+
+### Student dashboard
+| Feature | Call | Notes |
+|---|---|---|
+| Colour calendar | `astro_student_calendar(p_student_id, p_month)` | one entry per day: `present`, `late`, `absent`, `leave`, `holiday`, `weekly_off`, `upcoming`, `not_enrolled`, `not_marked`; plus a summary with `attendance_percent`. Holidays and weekly-off days never count against the student. |
+| Notices + messages | `astro_student_feed(p_student_id)` | notices sorted critical → important → normal, then pinned, then newest; expired, staff-only and dismissed notices are left out. |
+| Dismiss a notice | `astro_dismiss_notice(p_notice_id, p_undo)` | per user; does not delete it for anyone else. |
+| Send a message | `astro_student_send_message(p_student_id, p_body, p_client_id)` | pass a UUID made in the browser as `p_client_id`: a retry after a dropped connection returns the same message instead of a duplicate. 20 messages per 10 minutes. |
+| Read receipts | `astro_mark_message_read(p_message_id)`, `astro_mark_thread_read(p_student_id)` | only the *receiver* can mark a message read. |
+| Delete a message | `astro_delete_message(p_message_id)` | own message → deleted; a received one → hidden for the student only. |
+| Leave | `astro_request_leave(p_student_id, p_from, p_to, p_reason)`, `astro_cancel_leave(p_leave_id)` | max 61 days, no overlap with another pending/approved request, at most 7 days back-dated. |
+
+### Admin dashboard
+| Feature | Call | Notes |
+|---|---|---|
+| Today / any day | `astro_day_overview(p_date, p_class_id)` | counts + per-student rows. |
+| Add / edit student | `astro_save_student(p_roll_no, p_full_name, p_class_id, p_guardian_name, p_guardian_email, p_guardian_phone, p_card_uid, p_fingerprint_slot, p_device_code, p_student_id)` | one transaction. Returns `{ok:false, reason}` with `ROLL_EXISTS`, `CARD_IN_USE` (+ owner name) or `FINGERPRINT_IN_USE`; nothing is half-saved. |
+| Correct attendance | `astro_set_attendance(p_student_id, p_date, p_status, p_note)` | `p_status = 'clear'` removes the row. |
+| Notice manager | `astro_post_notice(p_title, p_body, p_priority, p_audience, p_class_id, p_student_id, p_pinned, p_expires_at)`, `astro_delete_notice(p_notice_id)` | priority `normal` / `important` / `critical`; audience `all` / `students` / `staff` / `class` / `student`. Deleting or editing a notice also cancels / updates e-mails that are still queued. |
+| Inbox | `astro_inbox()`, `astro_send_message(p_student_id, p_subject, p_body)` | conversations with unread counts. Viewers cannot read messages. |
+| Timings | `astro_update_settings(p_late_after, p_absent_after, …)` | must be `day_start ≤ late_after ≤ absent_after ≤ day_end` (`BAD_TIMING_ORDER`). |
+| Holidays | `astro_set_holiday(p_date, p_name)`, `astro_remove_holiday(p_date)` | declaring one removes that day's automatic absences and their unsent e-mails. |
+| Leave approval | `astro_decide_leave(p_leave_id, p_approve, p_note)` | writes `leave` rows, skipping weekly-off days and holidays, never over a day the student actually attended. |
+| Health pills | `devices.last_seen`, `wifi_rssi`, `firmware` | online = `last_seen` within 90 s. |
+
+### How a scan is classified
+`time ≤ late_after` → **present**; `≤ absent_after` → **late**; later → **absent** (`after-cutoff`).
+If `absent_after` is empty, everything after `late_after` is late. A real scan replaces an automatic
+absence or a leave row; any other existing row answers `ALREADY_MARKED` (double tap, or card then finger).
+
+### Device check and enrolment (command queue)
+The site is HTTPS and the terminal is on the school LAN, so the browser cannot call it directly.
+The admin queues a command, the terminal collects it, and the same row carries the answer.
+
+```
+admin    astro_queue_command('ASTRO-RNK-01', 'lcd_text', '{"text":"Hello World"}')  -> command_id
+terminal astro_poll_commands(code, secret)        -> [{id, kind, payload, expires_in}]
+terminal astro_command_result(code, secret, id, true, '{"uid":"A1B2C3D4"}')
+admin    watches device_commands (realtime) until status = done | failed | expired | cancelled
+```
+
+| kind | payload | result |
+|---|---|---|
+| `lcd_text` | `text` (wrapped to 2×16) or `line1`/`line2`, `hold_seconds` | — |
+| `rfid_capture` | optional `student_id` | `uid`, `known`, `owner`; with `student_id` the card is assigned (`assigned`, or `reason: CARD_IN_USE`) |
+| `fp_check` | — | terminal sends `slot` (+ `confidence`); server adds `enrolled`, `student` |
+| `fp_enroll` | optional `student_id`, `slot` (else the first free slot is chosen) | `slot`, `linked` |
+| `fp_delete` | `slot` | — |
+| `refresh`, `reboot` | — | `reboot` is admin-only |
+
+Commands expire (default 120 s, max 600 s), are handed out once, and a second command of the same
+kind replaces the first, so pressing "Arm" twice never leaves two captures waiting.
+`astro_heartbeat` now also returns `absent_after`, `weekly_off`, `settings_version`, `is_holiday`,
+`holiday`, `is_weekly_off`, `today` (present / late / absent / leave / students — for the LCD rotation)
+and `pending_commands`.
+
+### Live updates
+Realtime is on for `attendance`, `notices`, `messages`, `leave_requests`, `school_holidays`,
+`devices`, `device_commands`, `schools`, `students`. RLS applies, so each user only receives their own rows.
+
+### Known-bug list → where it is now enforced
+| Bug class | Guard |
+|---|---|
+| Duplicate attendance on double tap / card + finger | unique slot index + `ALREADY_MARKED` |
+| Same card or fingerprint on two students | unique indexes, `CARD_IN_USE`, `FINGERPRINT_IN_USE` |
+| Late/absent decided by the device clock | decided on the server in the school's timezone |
+| Holiday or Sunday counted as absent | close-day skips them; calendar reports `holiday` / `weekly_off` |
+| Student reads another student's data | RLS through `student_links`; verified with a stranger account (sees 0 rows) |
+| Student writes own attendance / approves own leave | no direct write grants; `NOT_STAFF` |
+| Duplicate message after a retry | `p_client_id` |
+| Notice deleted but e-mail still goes out | queued e-mails cancelled on delete |
+| HTML in a notice or message | stored as plain text — the page must render with `textContent`, never `innerHTML` |
+| Stale device command runs later | expiry + single hand-out + supersede |
+
+## 11. Still open (needs your decisions)
 
 | Item | Why it matters |
 |---|---|
-| `late_after` `08:20`, `day_end` `14:00` | guessed values — set the school's real timings |
-| `site_url = http://localhost:3000`, empty redirect allow-list | hosted dashboard login will fail |
-| Signups enabled | anyone can create an account (sees nothing, but noise) |
+| Web app still on Firebase | <https://astro-smart-attendence.web.app/> could not be opened from the build sandbox, and its source is not in this repo. The pages have to be switched to the RPCs above. |
+| Firmware does not poll yet | `astro_poll_commands` / `astro_command_result` and the new heartbeat fields are live, but `firmware/astro_attendance` does not call them yet, so Device Check and enrolment stay idle. |
+| `late_after` `08:20`, `day_end` `14:00`, `absent_after` empty | guessed values — set the school's real timings |
+| `site_url = http://localhost:3000`, empty redirect allow-list | password-reset and confirmation links will point at localhost |
+| Signups enabled, password minimum 6 | anyone can create an account (sees nothing until linked, but noise) |
+| Built-in mail: 2 auth e-mails per hour | sign-up confirmations will stall without custom SMTP |
 | No mail provider configured | rows reach `status='queued'` and stop there until `services/mailer` has a Resend key or a Gmail app password |
-| No admin/student screens yet | the RPCs and RLS are live; the dashboards that call them are not built |
+| Demo student is marked absent every school day | the 30-minute close-day job is live; delete `DEMO-01` or mark it inactive before real use |
 | Region `ap-southeast-2` | chosen at creation, not changeable; ~90–140 ms from Renukoot |
 | Free tier | no point-in-time backups; pauses after ~7 days idle (cron keeps it warm) |
