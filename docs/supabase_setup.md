@@ -1,14 +1,20 @@
-# Supabase setup — what was built in `nrjchonjlncamfyzmfye`
+# Supabase backend — what exists in `nrjchonjlncamfyzmfye`
 
-Applied on **2026-11-12** directly to the project (region `ap-southeast-2`,
-Postgres 17). SQL is kept in `supabase/migrations/` so it can be replayed on a
-fresh project or moved to Neon later.
+Applied **2026-11-12**, region `ap-southeast-2`, Postgres 17. Every migration below
+has been executed against the live project and verified; the SQL is replayable on
+a fresh project (or on Neon later).
 
 ```
-supabase/migrations/0001_schema.sql          tables, RLS, views
-supabase/migrations/0002_device_api.sql      the four device RPCs
-supabase/migrations/0003_seed.sql            school + device + demo row
-supabase/migrations/0004_automation.sql      pg_cron end-of-day closure
+supabase/migrations/0001_schema.sql                tables, RLS, views
+supabase/migrations/0002_device_api.sql            the four device RPCs
+supabase/migrations/0003_seed.sql                  school + device + demo row
+supabase/migrations/0004_automation.sql            pg_cron end-of-day closure
+supabase/migrations/0005_hardening.sql             staff guard, timestamp clamp, updated_at
+supabase/migrations/0006_revoke_anon_helpers.sql   anon grant fix + fail-closed defaults
+supabase/migrations/0007_audit_fixes.sql           RLS recursion, holidays, fingerprints, indexes
+supabase/migrations/0008_late_arrival_upgrade.sql  late arrival after auto-close
+supabase/migrations/0009_provision_device_fix.sql  provisioning INSERT fix
+supabase/migrations/0010_tighten_rls_helpers.sql   anon whitelist = 4 functions
 ```
 
 ---
@@ -20,137 +26,167 @@ supabase/migrations/0004_automation.sql      pg_cron end-of-day closure
 | Project URL | `https://nrjchonjlncamfyzmfye.supabase.co` |
 | REST endpoint | `https://nrjchonjlncamfyzmfye.supabase.co/rest/v1` |
 | Publishable key (device + browser) | `sb_publishable_9a4vSwLdVz4Yd8wrWcTvXA_aIMmC6H_` |
-| Legacy `anon` key (same role, older format) | in **Settings ▸ API Keys** — also fine |
+| Legacy `anon` key | Settings ▸ API Keys (same role, older format) |
 | Secret / `service_role` key | **server only** — never in firmware, never in a browser |
-| Direct Postgres | `db.nrjchonjlncamfyzmfye.supabase.co:5432` (pooler on `:6543`) |
+| Direct Postgres | `db.nrjchonjlncamfyzmfye.supabase.co:5432`, pooler `:6543` |
 
-> The publishable key is not a password. It is only useful if a row-level
-> security policy or a granted function lets it do something — here that is
-> exactly four functions and nothing else.
-
-## 2. Tables
+## 2. Tables (12, all with RLS)
 
 | Table | Holds |
 |---|---|
-| `schools` | one row per school: timezone, `day_start`, `late_after`, `day_end` |
+| `schools` | timezone, `day_start`, `late_after`, `day_end`, `alert_emails` |
 | `classes` | class + section + teacher (`9/A`) |
-| `students` | roll number, name, guardian email/phone, `fingerprint_id` (R307 slot) |
-| `rfid_cards` | card UID → student, `active` flag, label |
-| `devices` | terminals: `device_code`, `secret_hash`, firmware, last seen, RSSI |
+| `students` | roll no, name, guardian email/phone, `fingerprint_id` (legacy) |
+| `rfid_cards` | card UID → student, `active`, label |
+| `devices` | terminal: `device_code`, `secret_hash`, firmware, `last_seen`, `last_boot`, RSSI |
 | `attendance` | one row per student per day (`session='daily'`) or per period |
-| `device_events` | every raw tap incl. replays, `event_uid` unique → idempotent sync |
+| `device_events` | every raw tap incl. replays; `event_uid` unique → idempotent sync |
 | `alerts` | queued parent emails (`late`, `absent`, …) with `status` |
-| `members` | dashboard users → school + role (`admin` / `teacher` / `viewer`) |
+| `members` | dashboard users → school + role (`admin`/`teacher`/`viewer`) |
 | `student_links` | student/guardian self-service view of their own rows |
+| `school_holidays` | dates the cron must not mark absent |
+| `fingerprints` | `(device_id, slot)` → student — R307 slots are per-terminal |
 
-Views for the dashboard: `v_attendance_feed` (readable feed) and
-`v_daily_attendance` (present/late/absent counts per day).
+Views: `v_attendance_feed`, `v_daily_attendance` (both `security_invoker`).
 
 **Uniqueness that protects the data**
 
-* `attendance (student_id, attendance_date, session, coalesce(period_no,0))` —
-  a second tap can never create a second row for the same slot.
-* `device_events.event_uid` — replaying the offline queue 100 times writes once.
+* `attendance (student_id, attendance_date, session, coalesce(period_no,0))` — a
+  second tap can never create a second row for the same slot.
+* `device_events.event_uid` — replaying the offline queue 100× writes once.
 * `rfid_cards.card_uid` — one card cannot belong to two students.
+* `fingerprints (device_id, slot)` and `(device_id, student_id)`.
 
-## 3. The four RPCs the terminal uses
+## 3. The four RPCs the terminal may call
 
-All are `SECURITY DEFINER`, validate `device_code` + `device_secret`
-(sha256 check), and are the **only** thing `anon` may execute.
+`SECURITY DEFINER`, device authenticated by `device_code` + `sha256(secret)`.
+`anon` may execute **only these four** (see §5).
 
-### `astro_heartbeat`
-```bash
-curl -s -X POST https://nrjchonjlncamfyzmfye.supabase.co/rest/v1/rpc/astro_heartbeat \
-  -H "apikey: sb_publishable_9a4vSwLdVz4Yd8wrWcTvXA_aIMmC6H_" \
-  -H "Authorization: Bearer sb_publishable_9a4vSwLdVz4Yd8wrWcTvXA_aIMmC6H_" \
-  -H "Content-Type: application/json" \
-  -d '{"p_device_code":"ASTRO-RNK-01","p_device_secret":"<your device secret>","p_firmware":"astro-1.0.0"}'
-```
-```json
-{"ok":true,"code":"HELLO","school":"The Aditya Birla Public School, Renukoot",
- "late_after":"08:20","day_start":"08:00","day_end":"14:00",
- "server_time":"2026-11-12T15:47:36","local_date":"2026-11-12","local_time":"15:47:36",
- "server_epoch":1794478657}
-```
+| Function | Purpose |
+|---|---|
+| `astro_heartbeat` | school name, late cut-off, server clock, updates `last_seen` |
+| `astro_mark_attendance` | one tap → present/late, `ALREADY_MARKED`, `UNKNOWN_CARD` |
+| `astro_sync_batch` | offline replay, per-event isolation, honest counters |
+| `astro_lookup_card` | read-only "is this card registered?" |
 
-### `astro_mark_attendance`
+### Example (verified against the live project)
+
 ```bash
 curl -s -X POST https://nrjchonjlncamfyzmfye.supabase.co/rest/v1/rpc/astro_mark_attendance \
   -H "apikey: sb_publishable_9a4vSwLdVz4Yd8wrWcTvXA_aIMmC6H_" \
   -H "Content-Type: application/json" \
   -d '{"p_device_code":"ASTRO-RNK-01",
        "p_device_secret":"<your device secret>",
-       "p_card_uid":"A1:B2:C3:D4",
+       "p_card_uid":"a1:b2:c3:d4",
        "p_event_uid":"11111111-1111-1111-1111-111111111111"}'
 ```
 ```json
-{"ok":true,"code":"MARKED","action":"marked","status":"late","time":"15:47",
- "student":{"id":"…","roll_no":"DEMO-01","name":"Demo Student","class":"9-A"}}
+{"ok":true,"code":"MARKED","action":"marked","status":"late","time":"08:42",
+ "date":"2026-11-12","method":"rfid","period_no":null,
+ "upgraded_from_absent":false,
+ "student":{"roll_no":"DEMO-01","name":"Demo Student","class":"9-A"}}
 ```
-Same request again (same or new `event_uid`):
-```json
-{"ok":true,"code":"ALREADY_MARKED","action":"already_marked","status":"late",…}
-{"ok":true,"code":"MARKED","duplicate":true,…}
-```
-Unknown card: `{"ok":false,"code":"UNKNOWN_CARD"}` — HTTP 200, no row written.
 
-### `astro_sync_batch`
-```json
-{"p_device_code":"ASTRO-RNK-01","p_device_secret":"…",
- "p_events":[{"card_uid":"A1B2C3D4","event_uid":"…","event_ts":"2026-11-12T03:10:00Z"},
-             {"card_uid":"BAD","event_uid":"…"}]}
-```
-→ `{"code":"BATCH_DONE","accepted":2,"failed":0,"results":[…]}`
+| Situation | Response |
+|---|---|
+| first tap of the day | `code: MARKED`, `status: present` or `late` |
+| tap again same day | `code: ALREADY_MARKED` (HTTP 200, no second row) |
+| replayed `event_uid` | last result + `"duplicate": true` |
+| card not registered | `code: UNKNOWN_CARD`, `ok: false` |
+| arriving after the 14:45 auto-close | `MARKED` + `"upgraded_from_absent": true` |
 
-Each event is processed independently, so one bad card cannot lose the rest of
-the queue. Events are timestamped **at tap time** on the terminal, so a queue that
-uploads at 16:00 still records the 08:05 arrival.
-
-### `astro_lookup_card`
-Read-only "is this card registered?" for the enrol screen.
-
-**Errors** come back as HTTP 400 with a JSON body:
+### Errors (HTTP 400/401, JSON body)
 
 | `message` | Meaning |
 |---|---|
-| `DEVICE_NOT_FOUND` | unknown `device_code` |
-| `DEVICE_DISABLED` | `devices.active = false` |
+| `DEVICE_NOT_FOUND` / `DEVICE_DISABLED` | unknown or switched-off terminal |
 | `BAD_DEVICE_SECRET` | secret does not match `secret_hash` |
+| `BAD_METHOD` / `BAD_SESSION` / `PERIOD_NO_REQUIRED` / `NO_CREDENTIAL` | bad request |
 | `EVENTS_MUST_BE_ARRAY` | malformed batch payload |
-| `NO_CREDENTIAL` / `BAD_SESSION` / `PERIOD_NO_REQUIRED` | bad request parameters |
+| `NOT_STAFF` / `SCHOOL_FORBIDDEN` | dashboard user without rights |
 
-## 4. Security model
+> The SQLSTATE in `code` (`28P01`, `22023`, …) is noise on a 16×2 LCD; the
+> firmware promotes `message` to the displayed code. See `astro_cloud.h`.
 
-* `anon` (the key in the firmware) has **no privileges on any table**. Direct
-  `GET /rest/v1/students` returns `permission denied`. Verified by
-  `has_table_privilege` on all 10 tables.
-* **Supabase gotcha, already handled** (migration `0006`): `ALTER DEFAULT
-  PRIVILEGES` grants `EXECUTE` on every new function to `anon` *explicitly*, so
-  `revoke ... from public` is not enough. Audit result after `0006` — anon can
-  execute only `astro_heartbeat`, `astro_mark_attendance`, `astro_sync_batch`,
-  `astro_lookup_card`; it cannot execute `astro_close_day`,
-  `astro_prune_events`, `astro_provision_device`, `astro_rotate_device_secret`.
-  If you add a new function later, revoke it from `anon` in the same migration.
-* RLS is enabled on all ten tables; dashboard users see only their own school
-  (`members.school_id`), students/guardians only their own rows
-  (`student_links`).
-* Device secrets are stored as `sha256(secret)`; the plain secret exists only in
-  the firmware and in your records. A leaked database backup does not leak them.
-* `service_role` bypasses RLS: server-side only (edge functions, admin scripts).
+## 4. Batch response
 
-## 5. Automation already scheduled (`pg_cron`, UTC)
+```json
+{"ok":true,"code":"BATCH_DONE","accepted":3,
+ "marked":1,"duplicates":1,"unknown":1,"failed":0,"results":[…]}
+```
+
+Each event is processed independently — one bad card cannot lose the rest of the
+queue. Events carry the **tap time** from the terminal, so a queue uploaded at
+16:00 still records the 08:05 arrival (clamped to `[now-30d, now+5min]`).
+
+## 5. Security model (verified, not assumed)
+
+* `anon` has **no privilege on any table or view** — `has_table_privilege` is
+  false for all 12 tables; `GET /rest/v1/students` returns `permission denied`.
+* `anon` may execute exactly four functions: `astro_heartbeat`,
+  `astro_lookup_card`, `astro_mark_attendance`, `astro_sync_batch`. It cannot
+  execute `astro_close_day`, `astro_prune_events`, `astro_provision_device`,
+  `astro_rotate_device_secret`, `astro_verify_device` or the RLS helpers.
+* Device secrets are stored as `sha256(secret)` only.
+* Dashboard: a signed-in `admin` sees their school (verified: 1 school, 1
+  student, 1 device, own membership row, `is_staff=true`, `is_admin=true`); a
+  `viewer` **cannot insert** (`42501 new row violates row-level security
+  policy`); a signed-in user with no membership row sees 0 rows everywhere.
+
+**Two Supabase-specific traps that bit this project** (both now closed):
+
+1. `ALTER DEFAULT PRIVILEGES` grants `EXECUTE` on every new function to `anon`
+   *explicitly*. `revoke … from public` does **not** remove it — you must
+   `revoke … from anon`. Before migration 0006 the publishable key could call
+   `astro_close_day()`.
+2. A policy on `members` that queries `members` inside its `USING` clause makes
+   PostgreSQL raise `42P17 infinite recursion detected in policy for relation
+   "members"`. Use a `SECURITY DEFINER` helper (`is_admin()`) instead.
+
+If you add a function later: `revoke all … from public, anon;` then grant it to
+the role that needs it.
+
+## 6. Verified test matrix
+
+| Test | Result |
+|---|---|
+| heartbeat with valid device | ✅ `HELLO` + school + `late_after` |
+| heartbeat with wrong secret | ✅ `28P01 BAD_DEVICE_SECRET` |
+| tap → present / late | ✅ `MARKED` |
+| same `event_uid` replayed | ✅ `duplicate:true`, one row |
+| second tap, new `event_uid` | ✅ `ALREADY_MARKED` |
+| unknown card | ✅ `UNKNOWN_CARD`, no row |
+| batch: good + duplicate + unknown | ✅ `marked 1, duplicates 1, unknown 1` |
+| offline replay keeps tap time | ✅ row dated 2026-11-05 from a batched event |
+| card UID normalisation `a1:b2:c3:d4` | ✅ → `A1B2C3D4` |
+| fingerprint slot 7 (mapped) | ✅ `MARKED`, method `fingerprint` |
+| fingerprint slot 999 (unmapped) | ✅ `UNKNOWN_CARD` |
+| daily tap carrying `period_no` | ✅ stored as `NULL` |
+| invalid method | ✅ `BAD_METHOD` |
+| forged 2020 timestamp | ✅ clamped to `now - 30 days` |
+| close-day on a holiday | ✅ `holidays_skipped 1`, 0 absent |
+| close-day, period-only student | ✅ not marked absent |
+| close-day, no taps | ✅ absent + alert queued |
+| close-day run twice | ✅ idempotent |
+| arrive after auto-close | ✅ `upgraded_from_absent`, queued absent alert withdrawn |
+| manual absent row | ✅ never overwritten |
+| provisioning a 2nd terminal | ✅ returns secret once |
+| RLS: admin read + write | ✅ |
+| RLS: viewer write | ✅ blocked `42501` |
+| RLS: non-member read | ✅ 0 rows, no error |
+
+## 7. Automation (pg_cron, UTC)
 
 | Job | Cron | What it does |
 |---|---|---|
-| `astro-close-day` | `15 9 * * 1-6` (14:45 IST, Mon–Sat) | marks every active student with no tap as `absent`, queues a guardian email for each |
-| `astro-prune-events` | `30 20 * * 0` (02:00 IST, Sun) | deletes `device_events` older than 90 days |
+| `astro-close-day` | `15 9 * * 1-6` (14:45 IST, Mon–Sat) | marks active students with no row as `absent`, queues guardian emails, skips holidays |
+| `astro-prune-events` | `30 20 * * 0` (02:00 IST Sun) | deletes `device_events` older than 90 days |
 
 Manual run: `select public.astro_close_day('2026-11-12');`
 
-## 6. Day-to-day operations
+## 8. Day-to-day operations
 
 **Add a student + card**
-
 ```sql
 with s as (select id from public.students
            where school_id = (select id from public.schools where code='ABPS-RNK')
@@ -159,29 +195,36 @@ insert into public.rfid_cards (school_id, student_id, card_uid, label)
 select (select id from public.schools where code='ABPS-RNK'), s.id, '04A2B3C4', 'Anant - new card'
 from s;
 ```
+(Or Dashboard ▸ Table Editor ▸ `students` ▸ *Import CSV*.)
 
-**Bulk import students** — Dashboard ▸ Table Editor ▸ `students` ▸ *Import CSV*
-(columns: `school_id`, `class_id`, `roll_no`, `full_name`, `guardian_email`).
-
-**Register a new terminal**
-
+**Register a second terminal**
 ```sql
 select public.astro_provision_device('ABPS-RNK', 'ASTRO-RNK-02', 'Library terminal');
--- returns device_code + device_secret ONCE -> put them in astro_config.h
+-- returns device_code + device_secret ONCE → put them in astro_config.h
 ```
-(Run it from the dashboard SQL editor or as a signed-in `admin` — it refuses
-anonymous callers.)
+Works from the SQL editor (service side) and from a signed-in staff account for
+its own school only.
+
+**Add a holiday** (the cron will skip it)
+```sql
+insert into public.school_holidays (school_id, holiday_date, reason)
+select id, '2026-11-14', 'Diwali break' from public.schools where code='ABPS-RNK';
+```
+
+**Map an R307 fingerprint slot**
+```sql
+insert into public.fingerprints (device_id, school_id, slot, student_id)
+select d.id, d.school_id, 12, st.id
+from public.devices d, public.students st
+where d.device_code = 'ASTRO-RNK-01' and st.roll_no = '9A-14';
+```
 
 **Rotate a lost terminal's secret**
-
 ```sql
 select public.astro_rotate_device_secret('ASTRO-RNK-01');
 ```
 
-**Give a teacher dashboard access**
-
-1. Authentication ▸ Users ▸ *Add user* (email + password).
-2. Then, once:
+**Give a teacher dashboard access** — Auth ▸ Users ▸ *Add user*, then:
 ```sql
 insert into public.members (user_id, school_id, role)
 select u.id, s.id, 'admin'
@@ -189,31 +232,22 @@ from auth.users u, public.schools s
 where u.email = 'teacher@school.com' and s.code = 'ABPS-RNK'
 on conflict (user_id) do update set role = excluded.role;
 ```
-The web dashboard then calls `/rest/v1/v_attendance_feed` with that user's JWT and
-sees only the school's data.
 
-**Demo data to remove before go-live**
-
+**Remove the demo row before go-live**
 ```sql
-delete from public.attendance where student_id in
-  (select id from public.students where roll_no = 'DEMO-01');
+delete from public.alerts where student_id in (select id from public.students where roll_no='DEMO-01');
+delete from public.attendance where student_id in (select id from public.students where roll_no='DEMO-01');
 delete from public.rfid_cards where card_uid = 'A1B2C3D4';
 delete from public.students   where roll_no = 'DEMO-01';
 ```
 
-## 7. Things worth knowing
+## 9. Still open (needs your decisions)
 
-* **Region** is `ap-southeast-2` (Sydney) — chosen at project creation and not
-  changeable afterwards. Round-trip from Renukoot is ~90–140 ms, which is fine
-  for one tap per student and is why the terminal shows its own local result
-  first. If you ever want Mumbai (`ap-south-1`), create a new project and replay
-  the four files in `supabase/migrations/`.
-* **Free-tier pause**: a free project pauses after ~7 days with no activity. The
-  nightly cron keeps the database warm, but check the project is `ACTIVE_HEALTHY`
-  before a demo.
-* **Parent emails** are *queued* in `alerts`, not sent yet — sending needs an SMTP
-  provider (Resend / Gmail app password). The Gmail app is currently switched off
-  for this conversation; turn it on and the dispatcher can be wired next.
-* **Neon**: nothing here blocks it. The schema uses standard Postgres
-  (`pgcrypto`, `pg_cron`, `uuid`), so `pg_dump` / migration replay works when you
-  want the Neon connection strings set up.
+| Item | Why it matters |
+|---|---|
+| `late_after` `08:20`, `day_end` `14:00` | guessed values — set the school's real timings |
+| `site_url = http://localhost:3000`, empty redirect allow-list | hosted dashboard login will fail |
+| Signups enabled | anyone can create an account (sees nothing, but noise) |
+| No SMTP provider | `alerts` only queue emails; nothing sends them |
+| Region `ap-southeast-2` | chosen at creation, not changeable; ~90–140 ms from Renukoot |
+| Free tier | no point-in-time backups; pauses after ~7 days idle (cron keeps it warm) |

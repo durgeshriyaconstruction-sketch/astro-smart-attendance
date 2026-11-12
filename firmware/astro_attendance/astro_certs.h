@@ -1,16 +1,27 @@
 // ============================================================================
-//  astro_certs.h  —  root CAs for <project-ref>.supabase.co
+//  astro_certs.h  --  root CAs for <project-ref>.supabase.co
+//
+//  GENERATED FILE - do not edit by hand.
+//  Regenerate with:  python3 tools/make_certs_header.py
 //
 //  Supabase's edge terminates TLS with Google Trust Services (GTS Root R1) or
-//  Let's Encrypt (ISRG Root X1/X2) depending on when the cert was renewed.
-//  All three roots are embedded so a renewal never bricks the terminal.
+//  Let's Encrypt (ISRG Root X1 / X2) depending on when the project certificate
+//  was renewed. All three roots are embedded so a renewal never bricks the
+//  terminal.
 //
-//  These are public root certificates (found in every browser/OS trust store),
-//  not secrets. Regenerate with tools/make_certs_header.py if they ever change.
+//  These are public root certificates (present in every browser and OS trust
+//  store), not secrets.
 // ============================================================================
 #pragma once
 
-static const char ASTRO_ROOT_GTS_R1[] PROGMEM =
+#ifndef PROGMEM
+#define PROGMEM
+#endif
+
+// Concatenated PEM bundle. mbedTLS parses every certificate in one buffer, so a
+// single call to WiFiClientSecure::setCACert() trusts all of them.
+static const char ASTRO_CA_BUNDLE[] PROGMEM =
+    // ---- GTS Root R1 ----
     "-----BEGIN CERTIFICATE-----\n"
     "MIIFVzCCAz+gAwIBAgINAgPlk28xsBNJiGuiFzANBgkqhkiG9w0BAQwFADBHMQsw\n"
     "CQYDVQQGEwJVUzEiMCAGA1UEChMZR29vZ2xlIFRydXN0IFNlcnZpY2VzIExMQzEU\n"
@@ -41,9 +52,8 @@ static const char ASTRO_ROOT_GTS_R1[] PROGMEM =
     "0E6yove+7u7Y/9waLd64NnHi/Hm3lCXRSHNboTXns5lndcEZOitHTtNCjv0xyBZm\n"
     "2tIMPNuzjsmhDYAPexZ3FL//2wmUspO8IFgV6dtxQ/PeEMMA3KgqlbbC1j+Qa3bb\n"
     "bP6MvPJwNQzcmRk13NfIRmPVNnGuV/u3gm3c\n"
-    "-----END CERTIFICATE-----\n";
-
-static const char ASTRO_ROOT_ISRG_X1[] PROGMEM =
+    "-----END CERTIFICATE-----\n"
+    // ---- ISRG Root X1 ----
     "-----BEGIN CERTIFICATE-----\n"
     "MIIFazCCA1OgAwIBAgIRAIIQz7DSQONZRGPgu2OCiwAwDQYJKoZIhvcNAQELBQAw\n"
     "TzELMAkGA1UEBhMCVVMxKTAnBgNVBAoTIEludGVybmV0IFNlY3VyaXR5IFJlc2Vh\n"
@@ -74,9 +84,8 @@ static const char ASTRO_ROOT_ISRG_X1[] PROGMEM =
     "4RgqsahDYVvTH9w7jXbyLeiNdd8XM2w9U/t7y0Ff/9yi0GE44Za4rF2LN9d11TPA\n"
     "mRGunUHBcnWEvgJBQl9nJEiU0Zsnvgc/ubhPgXRR4Xq37Z0j4r7g1SgEEzwxA57d\n"
     "emyPxgcYxn/eR44/KJ4EBs+lVDR3veyJm+kXQ99b21/+jh5Xos1AnX5iItreGCc=\n"
-    "-----END CERTIFICATE-----\n";
-
-static const char ASTRO_ROOT_ISRG_X2[] PROGMEM =
+    "-----END CERTIFICATE-----\n"
+    // ---- ISRG Root X2 ----
     "-----BEGIN CERTIFICATE-----\n"
     "MIICGzCCAaGgAwIBAgIQQdKd0XLq7qeAwSxs6S+HUjAKBggqhkjOPQQDAzBPMQsw\n"
     "CQYDVQQGEwJVUzEpMCcGA1UEChMgSW50ZXJuZXQgU2VjdXJpdHkgUmVzZWFyY2gg\n"
@@ -92,7 +101,4 @@ static const char ASTRO_ROOT_ISRG_X2[] PROGMEM =
     "/q4AaOeMSQ+2b1tbFfLn\n"
     "-----END CERTIFICATE-----\n";
 
-
-// Concatenated bundle: mbedTLS parses every certificate in the buffer.
-static const char ASTRO_CA_BUNDLE[] PROGMEM =
-    ASTRO_ROOT_GTS_R1 ASTRO_ROOT_ISRG_X1 ASTRO_ROOT_ISRG_X2;
+static const int ASTRO_CA_BUNDLE_LEN = sizeof(ASTRO_CA_BUNDLE) - 1;

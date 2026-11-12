@@ -32,7 +32,11 @@
 #include <string.h>
 #include <vector>
 
+#if __has_include("astro_config.h")
 #include "astro_config.h"
+#else
+#error "astro_config.h is missing: copy astro_config.example.h to astro_config.h and fill in your Wi-Fi + device credentials."
+#endif
 #include "astro_certs.h"
 
 // --------------------------------------------------------------- results ---
@@ -59,6 +63,19 @@ static inline String astroNewUuid() {
            a, (unsigned)(b >> 16), (unsigned)(b & 0xFFFF),
            (unsigned)(c >> 16), (unsigned)(c & 0xFFFF), (unsigned)(d & 0xFFFF));
   return String(buf);
+}
+
+// PostgREST answers a raised exception with {"code":"28P01","message":"BAD_DEVICE_SECRET"}:
+// the SQLSTATE is useless on an LCD, our own code is the useful half. Treat a
+// message that is UPPER_SNAKE as the code.
+static inline bool astroLooksLikeCode(const String& s) {
+  if (s.length() == 0 || s.length() > 32) return false;
+  for (unsigned int i = 0; i < s.length(); i++) {
+    char c = s[i];
+    bool ok = (c >= 'A' && c <= 'Z') || (c >= '0' && c <= '9') || c == '_';
+    if (!ok) return false;
+  }
+  return true;
 }
 
 static inline String astroNowIso() {
@@ -95,9 +112,13 @@ class AstroCloud {
 
   bool online() { return WiFi.status() == WL_CONNECTED; }
 
+  // true only when the last heartbeat reached the database (Wi-Fi alone is not
+  // enough: a paused project or a blocked firewall looks "online" too)
+  bool serverOk() { return online() && _serverOk; }
+
   // ---- heartbeat ---------------------------------------------------------
   bool heartbeat() {
-    if (!online()) return false;
+    if (!online()) { _serverOk = false; return false; }
 
     JsonDocument req;
     req["p_device_code"]   = ASTRO_DEVICE_CODE;
@@ -108,8 +129,10 @@ class AstroCloud {
 
     JsonDocument res;
     int httpCode = 0;
-    if (!postRpc("astro_heartbeat", req, res, httpCode)) return false;
+    if (!postRpc("astro_heartbeat", req, res, httpCode)) { _serverOk = false; return false; }
+    if (!(res["ok"] | false)) { _serverOk = false; return false; }
 
+    _serverOk  = true;
     _school    = String((const char*)(res["school"] | ""));
     _lateAfter = String((const char*)(res["late_after"] | "08:20"));
 
@@ -155,6 +178,7 @@ class AstroCloud {
     r.ok      = res["ok"] | false;
     r.code    = String((const char*)(res["code"] | "UNKNOWN"));
     r.message = String((const char*)(res["message"] | ""));
+    if (astroLooksLikeCode(r.message)) r.code = r.message;
 
     JsonObject st = res["student"];
     if (!st.isNull()) {
@@ -179,7 +203,10 @@ class AstroCloud {
 
     if (online() && !_queue.empty() && (nowMs - _lastSync > ASTRO_SYNC_EVERY_MS)) {
       _lastSync = nowMs;
-      syncQueue();
+      // up to 50 queued taps = five 10-event batches; do them in one pass
+      for (int i = 0; i < 5 && !_queue.empty(); i++) {
+        if (syncQueue() == 0) break;
+      }
     }
 
     if (online() && (nowMs - _lastPing > ASTRO_PING_EVERY_MS)) {
@@ -237,6 +264,7 @@ class AstroCloud {
   uint32_t _lastWifiTry = 0;
   uint32_t _lastSync    = 0;
   uint32_t _lastPing    = 0;
+  bool     _serverOk    = false;
 
   // ------------------------------------------------------------ network ---
   bool connectWifi(uint32_t timeoutMs) {
@@ -366,6 +394,16 @@ class AstroCloud {
 
     parseMark(res, r);
 
+    // 5xx (project restarting, paused, gateway hiccup) is transient: keep the
+    // tap and let the queue replay it. 4xx never succeeds on retry.
+    if (r.httpCode >= 500) {
+      queueAdd(uid, fingerprintId, method, session, periodNo, eventUid, eventTs);
+      r.offline = true;
+      r.code    = "QUEUED";
+      r.message = "Server busy - saved on device";
+      return r;
+    }
+
     if (r.code == "DEVICE_NOT_FOUND" || r.code == "BAD_DEVICE_SECRET" ||
         r.code == "DEVICE_DISABLED") {
       Serial.println("[cloud] credentials rejected - check ASTRO_DEVICE_SECRET");
@@ -377,6 +415,7 @@ class AstroCloud {
     r.ok        = res["ok"] | false;
     r.code      = String((const char*)(res["code"] | "UNKNOWN"));
     r.message   = String((const char*)(res["message"] | ""));
+    if (astroLooksLikeCode(r.message)) r.code = r.message;
     r.marked    = (r.code == "MARKED");
     r.duplicate = (r.code == "ALREADY_MARKED") || (res["duplicate"] | false);
     r.status    = String((const char*)(res["status"] | ""));
@@ -415,7 +454,7 @@ class AstroCloud {
     _queue.clear();
     int n = _prefs.getInt("n", 0);
     for (int i = 0; i < n && i < ASTRO_QUEUE_MAX; i++) {
-      char key[8];
+      char key[16];
       snprintf(key, sizeof(key), "e%d", i);
       String v = _prefs.getString(key, "");
       if (v.length()) _queue.push_back(v);
@@ -425,12 +464,12 @@ class AstroCloud {
   void queueSave() {
     int n = (int)_queue.size();
     for (int i = 0; i < n; i++) {
-      char key[8];
+      char key[16];
       snprintf(key, sizeof(key), "e%d", i);
       _prefs.putString(key, _queue[i]);
     }
     for (int i = n; i < ASTRO_QUEUE_MAX; i++) {
-      char key[8];
+      char key[16];
       snprintf(key, sizeof(key), "e%d", i);
       if (_prefs.isKey(key)) _prefs.remove(key);
     }

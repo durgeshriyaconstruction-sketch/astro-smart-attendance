@@ -171,9 +171,17 @@ void showTapResult(const AstroTapResult& r) {
 | `ARIJIT DAS` / `present 08:07` | new attendance row written |
 | `... DUP` | this card was already marked today — nothing was double-counted |
 | `CARD NOT / REGISTERED` | UID is not in the school's `rfid_cards` table |
-| `SAVED OFFLINE` | no internet; tap is in flash and will upload itself |
+| `SAVED OFFLINE` | no internet (or server 5xx); tap is in flash and will upload itself |
 | `CLOUD ERROR / BAD_DEVICE_SECRET` | the terminal's secret no longer matches the database |
 | `CLOUD ERROR / DEVICE_DISABLED` | the device was switched off in the dashboard |
+| `SERVER DOWN` on the idle screen | Wi-Fi works but the database did not answer the last heartbeat |
+
+The client promotes PostgREST's `message` field to the code, because the raw
+SQLSTATE (`28P01`, `22023`) is unreadable on a 16×2 display.
+
+Server-side 5xx responses (project restarting, paused, gateway hiccup) are
+**queued**, not lost — they replay like an offline tap. Only 4xx responses are
+final, because those never succeed on retry.
 
 ## 9. Fingerprint (R307) — optional, same pattern
 
@@ -208,7 +216,19 @@ With the sketch/flash above, the serial monitor (115200) accepts:
 | `h` | heartbeat (also re-syncs the clock) |
 | `t` | bench-test tap using the seeded demo card `A1B2C3D4` |
 
-## 12. Compile and flash
+## 12. Check it before you flash
+
+```bash
+./firmware/test/host/run.sh
+```
+
+That compiles `astro_cloud.h` and the sketch with `g++` against the **real
+ArduinoJson v7** (cloned by the script) and runs 45 assertions covering
+heartbeat, taps, duplicates, unknown cards, offline queue + reboot, batch
+replay, 5xx queueing and error mapping. Expected: `45 passed, 0 failed` and
+`sketch OK`. It does not replace flashing on the real board.
+
+## 13. Compile and flash
 
 1. Select **ESP32 Dev Module**.
 2. Verify — the only warnings you should see are from the MFRC522 library.
@@ -231,6 +251,8 @@ With the sketch/flash above, the serial monitor (115200) accepts:
 | `HTTP 400 EVENTS_MUST_BE_ARRAY` | queue payload corrupted in NVS | erase flash (`esptool.py erase_flash`) |
 | hangs ~10 s then `OFFLINE` | Wi-Fi reachable but no internet, or TLS root mismatch | set `ASTRO_TLS_INSECURE 1` for a bench test to confirm it is TLS |
 | `-1` in `r.httpCode` | DNS/TCP failure | check `WiFi.localIP()` and that the school firewall allows 443 |
+| idle screen says `SERVER DOWN` but Wi-Fi is fine | no route to `*.supabase.co`, project paused, or wrong `ASTRO_SUPABASE_HOST` | open the project URL in a browser on the same network |
+| compile error: `astro_config.h is missing` | the config file was not copied next to the sketch | copy `astro_config.example.h` → `astro_config.h` |
 
 ## Security rules (please keep them)
 

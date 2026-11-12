@@ -59,6 +59,17 @@ firmware-side, so nothing in the model changes if you move them.
 Nothing is double-counted if the same queue is uploaded twice: every tap carries
 an `event_uid` that the database de-duplicates.
 
+## Host tests (no board needed)
+
+```bash
+./firmware/test/host/run.sh
+```
+
+Compiles `astro_cloud.h` + the sketch with `g++` against the real ArduinoJson v7
+and runs 45 assertions (heartbeat, tap, duplicate, unknown card, error mapping,
+offline queue across a reboot, batch replay, 5xx queueing, `serverOk()`).
+See `firmware/test/host/README.md`. It covers the logic, not the silicon.
+
 ## Security
 
 * Firmware carries the **publishable** key only (cannot read tables).

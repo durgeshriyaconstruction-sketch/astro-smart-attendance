@@ -73,9 +73,13 @@ String uidToHex(MFRC522::Uid *uid) {
 }
 
 void showIdle() {
-  if (cloud.online()) {
+  if (cloud.serverOk()) {
     lcdLine(0, "Tap card / finger");
     lcdLine(1, String("Online  Q:") + cloud.pendingEvents());
+  } else if (cloud.online()) {
+    // Wi-Fi is up but the database did not answer (paused project, firewall)
+    lcdLine(0, "SERVER DOWN");
+    lcdLine(1, String("Saved: ") + cloud.pendingEvents());
   } else {
     lcdLine(0, "OFFLINE MODE");
     lcdLine(1, String("Saved: ") + cloud.pendingEvents());
@@ -148,7 +152,7 @@ void setup() {
   lcdLine(1, "Wi-Fi...");
   bool up = cloud.begin(20000);
 
-  lcdLine(0, up ? "Connected" : "Offline mode");
+  lcdLine(0, up ? (cloud.serverOk() ? "Connected" : "No server") : "Offline mode");
   lcdLine(1, up ? cloud.schoolName().substring(0, 16) : "Will sync later");
   Serial.printf("[cloud] wifi=%s school=%s late_after=%s\n",
                 up ? "UP" : "DOWN", cloud.schoolName().c_str(), cloud.lateAfter().c_str());
