@@ -39,6 +39,11 @@ OneDrive with [`tools/backup`](tools/backup/README.md); Supabase itself has no
 link to either drive. A live copy also sits in Google Drive, written through the
 Drive connection — see [`docs/google_drive_backup.md`](docs/google_drive_backup.md).
 
+E-mail can also be delivered without any machine of your own: an Edge Function
+(`supabase/functions/astro-mail`) is called by `pg_cron` every minute and sends
+whatever the database has queued — see
+[`docs/email_inside_supabase.md`](docs/email_inside_supabase.md).
+
 ## Cloud backend (Supabase)
 The attendance terminal talks to Postgres through four locked-down functions
 (`astro_heartbeat`, `astro_mark_attendance`, `astro_sync_batch`,
