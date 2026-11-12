@@ -33,7 +33,10 @@ Attendance, notices, messages, the e-mails a guardian received and the leave
 records can be written out as ordinary folders — `2026/11/2026-11-12.json` plus a
 `.csv` sheet per day — with one command that reads through the same security the
 dashboard uses:
-[`tools/archive`](tools/archive/README.md).
+[`tools/archive`](tools/archive/README.md). Those files — plus a full `pg_dump`
+of the database — can be pushed every night into your own Google Drive or
+OneDrive with [`tools/backup`](tools/backup/README.md); Supabase itself has no
+link to either drive.
 
 ## Cloud backend (Supabase)
 The attendance terminal talks to Postgres through four locked-down functions
