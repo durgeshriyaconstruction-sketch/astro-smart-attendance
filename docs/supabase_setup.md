@@ -122,7 +122,15 @@ Read-only "is this card registered?" for the enrol screen.
 ## 4. Security model
 
 * `anon` (the key in the firmware) has **no privileges on any table**. Direct
-  `GET /rest/v1/students` returns `401 / permission denied`. Verified.
+  `GET /rest/v1/students` returns `permission denied`. Verified by
+  `has_table_privilege` on all 10 tables.
+* **Supabase gotcha, already handled** (migration `0006`): `ALTER DEFAULT
+  PRIVILEGES` grants `EXECUTE` on every new function to `anon` *explicitly*, so
+  `revoke ... from public` is not enough. Audit result after `0006` — anon can
+  execute only `astro_heartbeat`, `astro_mark_attendance`, `astro_sync_batch`,
+  `astro_lookup_card`; it cannot execute `astro_close_day`,
+  `astro_prune_events`, `astro_provision_device`, `astro_rotate_device_secret`.
+  If you add a new function later, revoke it from `anon` in the same migration.
 * RLS is enabled on all ten tables; dashboard users see only their own school
   (`members.school_id`), students/guardians only their own rows
   (`student_links`).
