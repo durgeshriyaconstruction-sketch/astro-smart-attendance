@@ -532,6 +532,12 @@ select public.astro_attendance_report(current_date - 30, current_date);
 
 ## 12. The web dashboard — 2026-11-12
 
+> Retiring Firebase from the terminal firmware? Every path the old `main.cpp`
+> uses is mapped to its Supabase replacement in
+> [`firebase_to_supabase.md`](firebase_to_supabase.md) — including the two gaps
+> that are not built yet (OTA, timetable).
+
+
 `web/` is a static dashboard that speaks to this project with plain `fetch`
 (password grant, silent refresh, `/rest/v1/rpc/*`). No SDK, no build step:
 `index.html` + `styles.css` + `js/`, deployed to any static host.

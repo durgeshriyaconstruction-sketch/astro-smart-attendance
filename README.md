@@ -21,7 +21,8 @@ Cost: Only 1,500 Rupees per unit.
 - RC522 RFID Module
 - LCD1602 I2C Display
 - Supabase (Postgres + Auth + REST) — live
-- Firebase (legacy dashboard, being migrated)
+- Firebase (legacy device firmware + old dashboard, being retired — see
+  [docs/firebase_to_supabase.md](docs/firebase_to_supabase.md))
 - Astro AI 2.0 (Self-healing diagnostics)
 - 3D Printed Enclosure (Blender)
 - Arduino C++ and HTML/CSS/JavaScript
