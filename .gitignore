@@ -32,3 +32,6 @@ tests/web/package-lock.json
 /archive/
 /backups/
 /.drive-upload/
+
+# PlatformIO build output
+.pio/

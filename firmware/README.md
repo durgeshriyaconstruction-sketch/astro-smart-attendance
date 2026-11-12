@@ -48,7 +48,22 @@ while the first result is still on screen and the heartbeat keeps ticking. The
 only waits left are in `setup()` (USB serial settling, RC522 reset, the first
 Wi-Fi connect).
 
-## Flash it
+## Flash it — PlatformIO in VS Code (recommended here)
+
+`firmware/astro_attendance/platformio.ini` pins the board (`esp32dev`), the
+upload speed and the four libraries, so nothing is installed by hand:
+
+```bash
+cd firmware/astro_attendance
+pio run               # compile only — proves the config file is complete
+pio run -t upload     # flash over USB
+pio device monitor    # 115200, watch the boot log
+```
+
+Because `src_dir` is the project root, the `.ino`/`.h` files are used as they
+are — no renaming, no `src/main.cpp`. `.pio/` is git-ignored.
+
+## Flash it — Arduino IDE
 
 1. Arduino IDE → Libraries: `ArduinoJson 7.x`, `MFRC522`, `LiquidCrystal_I2C`
    (+ `Adafruit Fingerprint Sensor Library` only if you enable the R307).
