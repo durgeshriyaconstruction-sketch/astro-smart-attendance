@@ -73,16 +73,31 @@ address without owning a domain: **Brevo** (free 300/day, 300 mails/hour).
 `MAIL_FROM` must be on a domain you have verified in Resend (or
 `onboarding@resend.dev` for tests to your own address only).
 
-## Volume maths
+## Volume maths — is 300/day enough?
 
-Free Brevo = 300 e-mails/day. One arrival mail per child per day, plus late and
-absent mails:
+Free Brevo = 300 e-mails/day (and 300/hour). One arrival mail per child per day,
+plus late and absent mails:
 
-| students | arrival mails/day | + late/absent | fits? |
+| students | arrival mails/day | + late/absent | verdict |
 |---|---|---|---|
-| 40 | 40 | ~10 | yes |
-| 150 | 150 | ~30 | yes, tight |
-| 400 | 400 | ~80 | no — paid tier or Resend with a domain |
+| 40 | 40 | ~10 | comfortable |
+| 100 | 100 | ~20 | comfortable |
+| 200 | 200 | ~40 | fine |
+| 250 | 250 | ~50 | at the edge — turn `alert_arrivals` off, or upgrade |
+| 400 | 400 | ~80 | no — paid tier, or Resend with a verified domain |
+
+Rule of thumb: **300 ÷ 1.3 ≈ 230 children** with arrivals on; about **1,000**
+with arrivals off (only late/absent).
+
+### What happens when the cap is hit
+
+Nothing is lost and nothing is thrown away. The provider answers 429, the Edge
+Function calls `astro_defer_email(id, reason)`, which puts the row back to
+`queued`, **hands the attempt back**, writes the reason into `last_error`, and
+stops that pass. The next minute's cron tick tries again, and once the daily cap
+resets the queue drains in order. A row only ever reaches `failed` for a real
+error (bad address, rejected sender) — never for being early. That was migration
+`0030_defer_rate_limited.sql`, and `astro-mail` v2 does it.
 
 Turn arrivals off per school with
 `update public.schools set alert_arrivals = false where code = 'ABPS-RNK';`

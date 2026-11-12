@@ -34,6 +34,15 @@ const FROM_NAME = Deno.env.get("MAIL_FROM_NAME") ?? "School Office";
 const DRY_RUN = (Deno.env.get("MAIL_DRY_RUN") ?? "0") === "1";
 const BATCH = Number(Deno.env.get("MAIL_BATCH") ?? "20");
 
+// The provider is out of quota (Brevo free = 300/day). That is not the mail's
+// fault, so it must not count against the six attempts a real error is allowed.
+class RateLimited extends Error {}
+
+const limited = (res: Response, text: string) =>
+  res.status === 429 ||
+  res.status === 402 ||
+  /quota|daily limit|too many|rate.?limit/i.test(text);
+
 const json = (body: unknown, status = 200) =>
   new Response(JSON.stringify(body), {
     status,
@@ -99,7 +108,11 @@ async function send(alert: Alert): Promise<void> {
         text: alert.body,
       }),
     });
-    if (!res.ok) throw new Error(`resend ${res.status} ${(await res.text()).slice(0, 300)}`);
+    if (!res.ok) {
+      const text = (await res.text()).slice(0, 300);
+      if (limited(res, text)) throw new RateLimited(`resend ${res.status} ${text}`);
+      throw new Error(`resend ${res.status} ${text}`);
+    }
     return;
   }
   // Brevo (ex Sendinblue): your own address can be a single verified sender, so
@@ -119,7 +132,11 @@ async function send(alert: Alert): Promise<void> {
       textContent: alert.body,
     }),
   });
-  if (!res.ok) throw new Error(`brevo ${res.status} ${(await res.text()).slice(0, 300)}`);
+  if (!res.ok) {
+    const text = (await res.text()).slice(0, 300);
+    if (limited(res, text)) throw new RateLimited(`brevo ${res.status} ${text}`);
+    throw new Error(`brevo ${res.status} ${text}`);
+  }
 }
 
 Deno.serve(async (req) => {
@@ -165,6 +182,7 @@ Deno.serve(async (req) => {
 
   let sent = 0;
   let failed = 0;
+  let deferred = 0;
   const errors: string[] = [];
 
   for (const alert of claimed) {
@@ -173,6 +191,14 @@ Deno.serve(async (req) => {
       await rpc("astro_finish_email", { p_id: alert.id, p_ok: true, p_error: null });
       sent++;
     } catch (err) {
+      if (err instanceof RateLimited) {
+        // Out of quota for today: hand the row back untouched and stop this
+        // pass — the next cron tick will pick it up once the cap resets.
+        await rpc("astro_defer_email", { p_id: alert.id, p_reason: String(err).slice(0, 300) })
+          .catch(() => {});
+        deferred++;
+        break;
+      }
       failed++;
       const message = String(err).slice(0, 400);
       errors.push(`#${alert.id} ${message}`);
@@ -182,5 +208,13 @@ Deno.serve(async (req) => {
     }
   }
 
-  return json({ ok: true, provider: PROVIDER, claimed: claimed.length, sent, failed, errors });
+  return json({
+    ok: true,
+    provider: PROVIDER,
+    claimed: claimed.length,
+    sent,
+    failed,
+    deferred,
+    errors,
+  });
 });
