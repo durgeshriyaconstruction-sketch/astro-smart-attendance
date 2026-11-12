@@ -269,6 +269,7 @@ the role that needs it.
 | worker: stale `sending` row | ✅ released to `queued` after the window |
 | `anon` execute on 0011–0014 RPCs | ✅ all false |
 | trigger helpers execute as `authenticated` | ✅ all false after 0013 |
+| grant split across the 9 notice/message/worker RPCs | ✅ `service_role` all 9; `authenticated` the 6 admin/parent ones; `anon` none |
 
 ## 8. Automation (pg_cron, UTC)
 
