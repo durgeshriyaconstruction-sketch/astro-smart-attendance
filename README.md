@@ -36,7 +36,8 @@ dashboard uses:
 [`tools/archive`](tools/archive/README.md). Those files — plus a full `pg_dump`
 of the database — can be pushed every night into your own Google Drive or
 OneDrive with [`tools/backup`](tools/backup/README.md); Supabase itself has no
-link to either drive.
+link to either drive. A live copy also sits in Google Drive, written through the
+Drive connection — see [`docs/google_drive_backup.md`](docs/google_drive_backup.md).
 
 ## Cloud backend (Supabase)
 The attendance terminal talks to Postgres through four locked-down functions

@@ -31,3 +31,4 @@ tests/web/package-lock.json
 # the archive tool writes year/month/day folders - never commit a school's records
 /archive/
 /backups/
+/.drive-upload/
