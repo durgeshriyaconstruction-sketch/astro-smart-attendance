@@ -20,10 +20,23 @@ Cost: Only 1,500 Rupees per unit.
 - ESP32 DevKit V1
 - RC522 RFID Module
 - LCD1602 I2C Display
-- Firebase (Auth + Realtime Database + Hosting)
+- Supabase (Postgres + Auth + REST) — live
+- Firebase (legacy dashboard, being migrated)
 - Astro AI 2.0 (Self-healing diagnostics)
 - 3D Printed Enclosure (Blender)
 - Arduino C++ and HTML/CSS/JavaScript
+
+## Cloud backend (Supabase)
+The attendance terminal talks to Postgres through four locked-down functions
+(`astro_heartbeat`, `astro_mark_attendance`, `astro_sync_batch`,
+`astro_lookup_card`). It carries only the publishable key, which cannot read a
+single table, and every tap is idempotent so an offline queue can be replayed
+safely.
+
+- Backend design + operations: [`docs/supabase_setup.md`](docs/supabase_setup.md)
+- Firmware: [`firmware/README.md`](firmware/README.md)
+- What to paste into `main.cpp`: [`docs/main_cpp_additions.md`](docs/main_cpp_additions.md)
+- Schema/migrations: [`supabase/migrations/`](supabase/migrations/)
 
 ## Live Demo
 Cloud Dashboard: https://astro-smart-attendence.web.app

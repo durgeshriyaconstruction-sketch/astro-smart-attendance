@@ -12,3 +12,9 @@ cad/v3/assembly/
 # Blender autosave and the preview server log - regenerable, never shipped
 *.blend1
 serve.log
+
+# firmware credentials - never commit (copy astro_config.example.h instead)
+firmware/**/astro_config.h
+firmware/**/secrets.h
+.env
+.env.local
