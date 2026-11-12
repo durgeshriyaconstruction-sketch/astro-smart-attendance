@@ -183,3 +183,19 @@ test('shortError survives non-Error throws', () => {
   assert.equal(shortError(undefined), 'undefined');
   assert.equal(shortError({ message: 'obj' }), 'obj');
 });
+
+test('leave decisions render with their own label and accent', () => {
+  const leave = {
+    ...notice,
+    id: 11,
+    kind: 'leave',
+    title: 'Leave approved: Demo Student (16 Nov 2026)',
+    subject: 'Leave approved: Demo Student (16 Nov 2026)',
+    body: 'Dear Parent,\n\nThe leave request for Demo Student (Roll DEMO-01) for 16 Nov 2026 has been APPROVED.',
+  };
+  const { html, text } = renderEmail(leave, { schoolName: 'ABPS' });
+  assert.match(html, /Leave update/);
+  assert.match(html, /#0e7490/);
+  assert.match(text, /APPROVED/);
+  assert.match(text, /ABPS/);
+});

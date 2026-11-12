@@ -20,7 +20,20 @@ supabase/migrations/0012_outbox_visibility_and_read_guard.sql  outbox privacy, m
 supabase/migrations/0013_shrink_executable_surface.sql internal helpers no longer executable
 supabase/migrations/0014_outbox_worker_contract.sql  claim / finish / release for the mailer
 supabase/migrations/0015_fix_claim_ambiguity.sql     qualify columns in astro_claim_emails
+supabase/migrations/0022_school_scoped_identity.sql  roles scoped to a school, deterministic current_school
+supabase/migrations/0023_student_lifecycle.sql       save_student keeps guardian data, archive not delete
+supabase/migrations/0024_admin_insights_and_maintenance.sql  report, outbox list, leaves, device health, prune
+supabase/migrations/0025_grant_surface.sql           internal helpers + views no longer executable/writable
+supabase/migrations/0026_leave_outbox_sync.sql       cancelling a leave withdraws its queued email
 ```
+
+Migrations **0016-0021** (`astro_access_and_identity`, `astro_timing_settings`,
+`astro_holidays_leave_calendar`, `astro_notice_priority_two_way_messages`,
+`astro_device_commands_and_enrolment`, `astro_realtime`) were applied from an
+earlier working session and their `.sql` files are not in this checkout yet.
+Their exact text is stored in the live project, and
+`tools/export_live_schema.sql` prints it so the files can be written back;
+until then, 0022+ are written to be additive and idempotent on top of them.
 
 ---
 
@@ -35,7 +48,7 @@ supabase/migrations/0015_fix_claim_ambiguity.sql     qualify columns in astro_cl
 | Secret / `service_role` key | **server only** — never in firmware, never in a browser |
 | Direct Postgres | `db.nrjchonjlncamfyzmfye.supabase.co:5432`, pooler `:6543` |
 
-## 2. Tables (14, all with RLS)
+## 2. Tables (17, all with RLS)
 
 | Table | Holds |
 |---|---|
@@ -53,6 +66,9 @@ supabase/migrations/0015_fix_claim_ambiguity.sql     qualify columns in astro_cl
 | `student_links` | student/guardian self-service view of their own rows |
 | `school_holidays` | dates the cron must not mark absent |
 | `fingerprints` | `(device_id, slot)` → student — R307 slots are per-terminal |
+| `leave_requests` | pending / approved / rejected / cancelled; one row per request, ranges cannot overlap per student |
+| `device_commands` | queued work for one terminal (LCD text, RFID capture, fingerprint enrol/check/delete, reboot) with a TTL |
+| `notice_dismissals` | per-user "hide this notice" rows — the student side of the trash icon |
 
 Views: `v_attendance_feed`, `v_daily_attendance` (both `security_invoker`).
 
@@ -198,13 +214,25 @@ select public.astro_student_feed((select id from public.students where roll_no =
 ## 6. Security model (verified, not assumed)
 
 * `anon` has **no privilege on any table or view** — `has_table_privilege` is
-  false for all 14 tables; `GET /rest/v1/students` returns `permission denied`.
-* `anon` may execute exactly four functions: `astro_heartbeat`,
-  `astro_lookup_card`, `astro_mark_attendance`, `astro_sync_batch`. It cannot
-  execute `astro_close_day`, `astro_prune_events`, `astro_provision_device`,
-  `astro_rotate_device_secret`, `astro_verify_device`, the notice/message RPCs,
-  the outbox worker RPCs or the internal helpers (migration 0013 revoked the
-  trigger and utility functions from `authenticated` too).
+  false for all 17 tables; `GET /rest/v1/students` returns `permission denied`.
+* `anon` may execute exactly six functions, all of which require a device
+  secret: `astro_heartbeat`, `astro_lookup_card`, `astro_mark_attendance`,
+  `astro_sync_batch`, `astro_poll_commands`, `astro_command_result`.
+* `authenticated` cannot execute any internal helper: `astro_verify_device`
+  (which returns the stored `secret_hash` row), `astro_ctx_school`,
+  `astro_norm_uid`, `astro_sha256_hex`, `astro_try_*`, the fan-out / clean /
+  guard trigger functions, `astro_maintenance`, `astro_prune_events` or the
+  mailer's claim/finish RPCs. The two reporting views are `SELECT`-only.
+* Role helpers answer **for one school**: `is_staff()` / `is_admin()` only
+  count a membership in `current_school_id()`, and `current_school_id()` is
+  ordered (`created_at, school_id`) instead of "whichever row the planner
+  found first". `members` is keyed on `user_id`, so one person cannot hold two
+  schools today — this closes the hazard before that ever changes.
+* `astro_prune_events()` had no authorization check at all and was executable
+  by `authenticated`: any signed-in parent could have deleted 30 days of
+  `device_commands` and every `device_events` row older than a week, for every
+  school. It is now `service_role` only (cron calls it through
+  `astro_maintenance()`).
 * Device secrets are stored as `sha256(secret)` only.
 * Dashboard: a signed-in `admin` sees their school (verified: 1 school, 1
   student, 1 device, own membership row, `is_staff=true`, `is_admin=true`); a
@@ -270,13 +298,40 @@ the role that needs it.
 | `anon` execute on 0011–0014 RPCs | ✅ all false |
 | trigger helpers execute as `authenticated` | ✅ all false after 0013 |
 | grant split across the 9 notice/message/worker RPCs | ✅ `service_role` all 9; `authenticated` the 6 admin/parent ones; `anon` none |
+| `astro_save_student` edit without guardian fields | ✅ email/phone/name preserved (was: wiped) |
+| `astro_save_student` bad email / blank roll | ✅ `BAD_EMAIL` / `ROLL_REQUIRED` |
+| `astro_save_class` create, duplicate, delete empty | ✅ created, `CLASS_EXISTS`, deleted |
+| `astro_delete_class` on 9-A (1 student) | ✅ `CLASS_NOT_EMPTY`, class kept |
+| `astro_unassign_card` twice / unknown UID | ✅ idempotent / `CARD_NOT_FOUND` |
+| delete a student that has attendance | ✅ `STUDENT_HAS_ATTENDANCE` (FK is `ON DELETE RESTRICT`) |
+| `astro_archive_student` / reactivate | ✅ card released, fingerprints cleared, 1 queued email cancelled / active again |
+| `astro_remove_member` self as last admin | ✅ `LAST_ADMIN` |
+| `astro_attendance_report` normal / reversed / > 1 year | ✅ per-student %, `BAD_DATES`, `RANGE_TOO_LONG` |
+| leave request → approve | ✅ 2 `leave` attendance rows, queued email, report counts them |
+| duplicate approve / overlapping request | ✅ `ALREADY_DECIDED` / `LEAVE_OVERLAP` |
+| leave approve → cancel | ✅ attendance cleared, **queued email withdrawn** (0026) |
+| leave reject | ✅ rejection email still queued with its own subject |
+| `astro_outbox_list` / `astro_requeue_alert` | ✅ lists 2 rows; skipped→queued, queued→`NOT_REQUEUEABLE` |
+| `astro_device_health` | ✅ 1 terminal, `online false`, 4445 s since seen, 0 taps |
+| `astro_maintenance` | ✅ `events_pruned 0`, `alerts_pruned 0`; cron re-pointed |
+| fingerprint insert with null slot | ✅ `BAD_SLOT` (was a raw 23502) |
+| admin posts a notice / views overview+report | ✅ `NOT_STAFF` never hit, `recipients 1` |
+| viewer posts notice / saves student / inserts row | ✅ `NOT_STAFF`, `NOT_STAFF`, RLS `42501` |
+| viewer reads overview / report | ✅ allowed (member) / `NOT_STAFF` |
+| guardian: own feed vs sibling's feed | ✅ `count 3` / `NOT_ALLOWED` |
+| guardian sees only their own student | ✅ 1 of 2 rows |
+| guardian requests leave for own child / another child | ✅ pending / `NOT_ALLOWED` |
+| guardian calls report, outbox, prune | ✅ `NOT_A_MEMBER` / `NOT_A_MEMBER` / `denied` |
+| deleting a notice with queued mail | ✅ 0 queued rows left pointing at it |
+| `authenticated` on the two views | ✅ `SELECT` only |
+| SECURITY DEFINER functions without a pinned `search_path` | ✅ none |
 
 ## 8. Automation (pg_cron, UTC)
 
 | Job | Cron | What it does |
 |---|---|---|
 | `astro-close-day` | `15 9 * * 1-6` (14:45 IST, Mon–Sat) | marks active students with no row as `absent`, queues guardian emails, skips holidays |
-| `astro-prune-events` | `30 20 * * 0` (02:00 IST Sun) | deletes `device_events` older than 90 days |
+| `astro-maintenance` | `30 20 * * 0` (02:00 IST Sun) | `device_events` older than 90 days, `device_commands` older than 30, outbox rows older than 180, and any `sending` row stuck for 15 minutes |
 
 Manual run: `select public.astro_close_day('2026-11-12');`
 
@@ -357,6 +412,49 @@ from public.alerts where status <> 'sent' order by created_at desc limit 20;
 ```
 Delivery itself is `services/mailer` (`npm run check`, `npm run once`, or `npm start`).
 
+**Add a class, then a student, then a card** (what the admin screen calls)
+```sql
+select public.astro_save_class('9', 'B', 'Mrs Iyer');          -- -> class_id
+select public.astro_save_student('9B-01', 'Anant Verma',
+  (select id from public.classes where name='9' and section='B'),
+  'Rakesh Verma', 'rakesh@example.com', '9876500000',
+  'A1B2C3D4');                                                  -- card attached
+-- edit later: only the fields you pass change
+select public.astro_save_student(null, 'Anant V.', null, null, null, null, null, null, null,
+  (select id from public.students where roll_no='9B-01'));
+```
+A blank string (`''`) clears a field; `null` leaves it alone.
+
+**Remove a student without losing history**
+```sql
+select public.astro_archive_student((select id from public.students where roll_no='9B-01'));
+-- card released, fingerprints cleared, queued mail cancelled, attendance kept.
+-- Deleting the row itself is refused once any attendance exists.
+```
+
+**Approve leave** (the parent app calls `astro_request_leave`)
+```sql
+select * from public.astro_pending_leaves();
+select public.astro_decide_leave('<leave id>', true, 'Approved by class teacher');
+-- approval writes status='leave' for each school day in the range (skipping
+-- weekly-offs and holidays), withdraws any queued absence email, and queues a
+-- decision email to the guardian.  astro_cancel_leave() undoes it.
+```
+
+**Monthly report for a class**
+```sql
+select public.astro_attendance_report('2026-11-01', '2026-11-30',
+  (select id from public.classes where name='9' and section='A'));
+-- {school_days, totals, students:[{present, late, absent, leave, percent}]}
+```
+
+**See what the mailer is doing**
+```sql
+select public.astro_outbox_list('failed');           -- or queued / sent / skipped
+select public.astro_requeue_alert(53);               -- retry one row
+select public.astro_device_health();                 -- terminals, last seen, queue depth
+```
+
 **Remove the demo row before go-live**
 ```sql
 delete from public.alerts where student_id in (select id from public.students where roll_no='DEMO-01');
@@ -372,9 +470,62 @@ delete from public.students   where roll_no = 'DEMO-01';
 | Item | Why it matters |
 |---|---|
 | `late_after` `08:20`, `day_end` `14:00` | guessed values — set the school's real timings |
-| `site_url = http://localhost:3000`, empty redirect allow-list | hosted dashboard login will fail |
-| Signups enabled | anyone can create an account (sees nothing, but noise) |
+| ~~`site_url`, redirect list, open signups~~ | fixed 2026-11-12: `site_url` = the Firebase host, both hosts + localhost allowed, signups **disabled** (accounts are provisioned by an admin, then `members` / `student_links` grants access) |
 | No mail provider configured | rows reach `status='queued'` and stop there until `services/mailer` has a Resend key or a Gmail app password |
 | No admin/student screens yet | the RPCs and RLS are live; the dashboards that call them are not built |
 | Region `ap-southeast-2` | chosen at creation, not changeable; ~90–140 ms from Renukoot |
 | Free tier | no point-in-time backups; pauses after ~7 days idle (cron keeps it warm) |
+
+
+## 11. Second audit pass — 2026-11-12
+
+Everything below was found by reading the live definitions, then fixed,
+applied, and re-tested against the project. Each item says how it was proved.
+
+| # | Finding | Why it mattered | Fix / proof |
+|---|---|---|---|
+| 1 | `astro_prune_events()` had **no authorization check** and was executable by `authenticated` | any signed-in parent could delete `device_commands` younger than 30 days and every `device_events` older than a week, in every school — a one-line audit wipe | revoked to `service_role` (0025); `authenticated` now gets `permission denied for function astro_prune_events` |
+| 2 | Cancelling or deleting an approved leave left its "Leave approved" email queued | parent is told a leave is approved *after* the school withdrew it. Two orphaned rows were sitting in the live queue | `leave_requests_outbox` trigger (0026). Proved: approve → 1 queued, cancel → 0 queued, reject → rejection email still queued |
+| 3 | `astro_save_student()` overwrote `guardian_email/phone/name` with `NULL` on every partial edit | renaming a student or moving them to another class silently deleted the only contact the school has | NULL now means "keep", `''` means "clear" (0023). Proved: email survives a name-only edit |
+| 4 | `students → attendance` was `ON DELETE CASCADE` | one click in the table editor destroyed a student's entire attendance history — the record the school must keep for years | FK is `ON DELETE RESTRICT` + `students_guard_delete` trigger + `astro_archive_student()` (0023). Proved: `STUDENT_HAS_ATTENDANCE`, history intact |
+| 5 | `astro_verify_device()` returns the whole `devices` row (including `secret_hash`) and was executable by `authenticated`; `astro_ctx_school`, `astro_norm_uid`, `astro_sha256_hex`, `astro_try_*`, the fan-out/clean/guard triggers were reachable too | internal plumbing on a public REST surface; a leaked `secret_hash` turns a device secret into an offline cracking target | revoked in 0025. Proved: `anon` can execute exactly the 6 device RPCs; `authenticated` none of the internals |
+| 6 | `authenticated` held INSERT/UPDATE/DELETE on `v_attendance_feed` and `v_daily_attendance` | reads-only views advertising write privileges; RLS still applied, but a grant mistake is one policy away from a hole | `SELECT` only (0025) |
+| 7 | `is_staff()` / `is_admin()` counted a membership in *any* school, and `current_school_id()` had no `ORDER BY` | harmless today only because `members` is keyed on `user_id`; the day a teacher covers two schools it becomes an admin-in-A/viewer-in-B escalation | role helpers now answer for one school, resolution is deterministic, `is_staff(uuid)` / `is_admin(uuid)` overloads added (0022) |
+| 8 | No admin reporting or diagnostics existed at all | "who was absent last month", "did the email go out", "is the terminal alive", "retry that one email" were all SQL-editor-only | `astro_attendance_report`, `astro_outbox_list`, `astro_requeue_alert`, `astro_pending_leaves`, `astro_device_health`, `astro_prune_alerts`, `astro_maintenance` (0024) |
+| 9 | Classes could only be created in SQL; a lost card could not be released; a dashboard member could not be removed | the admin screen would have had to poke tables directly, bypassing every validation | `astro_save_class`, `astro_delete_class` (refuses a non-empty class), `astro_unassign_card`, `astro_remove_member` (0023) |
+| 10 | Inserting a fingerprint with a null slot raised a raw `23502 not-null violation` | an unhelpful error surfacing on the enrolment screen | `fingerprints_guard` trigger answers `BAD_SLOT` |
+| 11 | Auth was configured for `http://localhost:3000`, redirects empty, signups open | hosted login at the Firebase URL would have failed, and anyone could create an account | `site_url` = `https://astro-smart-attendence.web.app`, both Firebase hosts + localhost allowed, **signups disabled** (accounts are provisioned: add the user in Auth, then a `members` or `student_links` row) |
+
+**Also fixed outside the database**
+
+`firmware/test/host/run.sh` — the documented firmware test command — did not
+run on a fresh clone: it compiles against `firmware/test/host/test_config/astro_config.h`,
+which had never been committed because `.gitignore` excludes every
+`firmware/**/astro_config.h` (correctly — that is where Wi-Fi passwords live).
+The credential-free test config is now committed, with an explicit
+`!firmware/test/host/test_config/astro_config.h` exception, and the suite is
+green again: **45 passed, 0 failed**, plus a clean `astro_attendance.ino`
+syntax check. The mailer is at **17 passed**.
+
+**Left alone on purpose**
+
+* Notices have no scheduled publishing (`publish_at` exists, but `astro_post_notice`
+  fans out immediately and does not accept it) — a scheduled notice needs a cron
+  sweep, and nothing has asked for one yet.
+* A guardian's leave request does not email staff: there is no staff email
+  address, and the admin screen gets it instantly through Realtime.
+* `astro_attendance_report` clamps the end date to today and refuses ranges over
+  a year; asking for a future range returns `school_days: 0` rather than
+  pretending those days happened.
+* `members` is one school per user (`PRIMARY KEY (user_id)`). Supporting staff
+  who work at two schools is a `(user_id, school_id)` primary key away — the
+  role helpers and every RLS policy are already school-scoped for it.
+
+**Check the state yourself**
+
+```sql
+select public.astro_outbox_stats();          -- queue depth by status
+select public.astro_device_health();         -- terminals
+select * from public.astro_pending_leaves(); -- leave approvals waiting
+select public.astro_attendance_report(current_date - 30, current_date);
+```

@@ -10,6 +10,7 @@ const KIND_LABEL = {
   absent: 'Absence alert',
   late: 'Late arrival',
   unknown_card: 'Unrecognised card',
+  leave: 'Leave update',
   low_attendance: 'Attendance warning',
 };
 
@@ -19,6 +20,7 @@ const DEFAULT_SUBJECT = {
   absent: 'Absence recorded today',
   late: 'Late arrival recorded today',
   unknown_card: 'Unrecognised card at the gate',
+  leave: 'Leave request update',
   low_attendance: 'Attendance is below the required level',
 };
 
@@ -28,6 +30,7 @@ const ACCENT = {
   absent: '#b91c1c',
   late: '#b45309',
   unknown_card: '#7c3aed',
+  leave: '#0e7490',
   low_attendance: '#b91c1c',
 };
 
