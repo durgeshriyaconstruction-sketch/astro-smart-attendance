@@ -34,14 +34,19 @@ const FROM_NAME = Deno.env.get("MAIL_FROM_NAME") ?? "School Office";
 const DRY_RUN = (Deno.env.get("MAIL_DRY_RUN") ?? "0") === "1";
 const BATCH = Number(Deno.env.get("MAIL_BATCH") ?? "20");
 
-// The provider is out of quota (Brevo free = 300/day). That is not the mail's
-// fault, so it must not count against the six attempts a real error is allowed.
+// The provider refused for a reason that belongs to the setup, not to this
+// message: out of quota (Brevo free = 300/day), or the key/IP is rejected
+// (401/403 — e.g. Brevo's "authorised IPs" list). None of that is the mail's
+// fault, so it must not count against the six attempts a real error is allowed,
+// and the row stays queued until the setup is fixed.
 class RateLimited extends Error {}
 
 const limited = (res: Response, text: string) =>
   res.status === 429 ||
   res.status === 402 ||
-  /quota|daily limit|too many|rate.?limit/i.test(text);
+  res.status === 401 ||
+  res.status === 403 ||
+  /quota|daily limit|too many|rate.?limit|unauthori[sz]ed|api.?key|authorised ip|authorized ip/i.test(text);
 
 const json = (body: unknown, status = 200) =>
   new Response(JSON.stringify(body), {
@@ -157,6 +162,7 @@ Deno.serve(async (req) => {
   if (url.searchParams.get("ping") === "1") {
     return json({
       ok: true,
+      version: 3,
       provider: PROVIDER,
       from: FROM || null,
       api_key: Boolean(API_KEY),
