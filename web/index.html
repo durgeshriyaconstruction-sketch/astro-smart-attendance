@@ -21,6 +21,19 @@
       This dashboard needs JavaScript. Enable it, or use the school office's printed report.
     </p>
   </noscript>
+  <script>
+    // This site used to host the Firebase version of the dashboard. If that one
+    // left a service worker or cache behind, it would keep serving the old files
+    // forever; clear both before the module below runs.
+    if ('serviceWorker' in navigator) {
+      navigator.serviceWorker.getRegistrations()
+        .then((rs) => rs.forEach((r) => r.unregister()))
+        .catch(() => {});
+    }
+    if (window.caches) {
+      caches.keys().then((ks) => ks.forEach((k) => caches.delete(k))).catch(() => {});
+    }
+  </script>
   <script type="module" src="js/app.js"></script>
 </body>
 </html>

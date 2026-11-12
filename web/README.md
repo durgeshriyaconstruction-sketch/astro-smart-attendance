@@ -46,6 +46,59 @@ python3 -m http.server 8000     # then open http://localhost:8000
 Opening `index.html` from the filesystem (`file://`) will not work — ES modules
 need an HTTP origin.
 
+## Deploy it to your own `astro-smart-attendence.web.app`
+
+Yes — the URL stays exactly the same. Firebase Hosting is just static hosting, so
+it can serve this dashboard; Supabase stays the backend. Nothing about the
+domain ties you to Firebase's database.
+
+The repository already carries a `firebase.json` at its root whose `public` is
+`web/`, so:
+
+```bash
+npm install -g firebase-tools        # once
+firebase login
+firebase use --add                   # pick the project behind astro-smart-attendence.web.app
+firebase deploy --only hosting       # uploads web/ and nothing else
+```
+
+That prints your Hosting URL when it finishes — `https://astro-smart-attendence.web.app`.
+There is no build step, no environment file and no key to paste: the project URL
+and publishable key are already in `js/config.js`, and that key is public by
+design.
+
+**Supabase needs no change.** Its Auth `site_url` is already
+`https://astro-smart-attendence.web.app` and the allowed-redirect list already
+contains that host (checked against the live project on 2026-11-12). Password
+sign-in through REST does not consult those lists at all; they only matter for
+e-mailed links, which this app does not send.
+
+### Two things to know before you press deploy
+
+1. **It replaces the old Firebase dashboard at that URL.** The old files are not
+   in this repository, so they cannot be restored from here. If you still need
+   them, copy them to `web/legacy/` first (they will then live at
+   `/legacy/`) — or make a second Hosting site with
+   `firebase hosting:sites:create`.
+2. **A stale service worker can hide the new app.** The old dashboard may have
+   registered one on that domain; it would keep serving its cached files no
+   matter what you deploy. `web/index.html` now unregisters every service worker
+   and drops every cache before it loads, so a hard refresh is enough. If a
+   browser still shows the old screen, clear site data for that host once.
+
+### What you should see
+
+* sign-in page, school name in the header after login
+* staff: nine tabs — Today, Report, Students, Notices, Inbox, Leaves, Settings,
+  Devices, Emails
+* parent: the month calendar with Present/Late/Absent/Leave/Holiday colours,
+  notices, the message thread, the leave form
+
+If the browser console shows `Failed to fetch` against
+`https://nrjchonjlncamfyzmfye.supabase.co`, the network is blocking it (a school
+firewall or a captive portal), not the app — the page itself will say
+"Could not reach the school".
+
 ## Demo accounts
 
 These exist on the live project only while the demo users are present:
