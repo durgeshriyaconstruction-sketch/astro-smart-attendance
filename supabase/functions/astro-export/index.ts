@@ -6,8 +6,9 @@
 // builds exactly the JSON that tools/archive writes.
 //
 //   GET ?ping=1                      health check, no data
-//   GET ?month=2026-11               that month (default: current month, school tz)
-//   GET ?month=2026-11&school=ABPS-RNK
+//   GET ?date=2026-11-12             one day, grouped by class + section (the .xlsx sheets)
+//   GET ?month=2026-11               that month, day-by-day JSON (the full archive)
+//   GET ?date=2026-11-12&school=ABPS-RNK
 //
 // Secret: header `x-drive-secret` or `?secret=` — env DRIVE_SYNC_SECRET.
 // Verify JWT is off: Apps Script has no Supabase session; the secret is the
@@ -45,8 +46,12 @@ Deno.serve(async (req: Request) => {
   }
 
   const month = url.searchParams.get("month");
+  const date = url.searchParams.get("date");
   if (month && !/^\d{4}-(0[1-9]|1[0-2])$/.test(month)) {
     return json({ ok: false, error: "month must look like 2026-11" }, 400);
+  }
+  if (date && !/^\d{4}-\d{2}-\d{2}$/.test(date)) {
+    return json({ ok: false, error: "date must look like 2026-11-12" }, 400);
   }
   const school = url.searchParams.get("school");
 
@@ -56,14 +61,20 @@ Deno.serve(async (req: Request) => {
     return json({ ok: false, error: "SUPABASE_URL / SUPABASE_SERVICE_ROLE_KEY missing" }, 500);
   }
 
-  const rpc = await fetch(`${supaUrl}/rest/v1/rpc/astro_drive_month`, {
+  // one day -> astro_drive_day (class/section sheets); a month -> astro_drive_month
+  const fn = date ? "astro_drive_day" : "astro_drive_month";
+  const args = date
+    ? { p_date: date, p_school_code: school ?? null }
+    : { p_month: month ?? null, p_school_code: school ?? null };
+
+  const rpc = await fetch(`${supaUrl}/rest/v1/rpc/${fn}`, {
     method: "POST",
     headers: {
       apikey: serviceKey,
       authorization: `Bearer ${serviceKey}`,
       "content-type": "application/json",
     },
-    body: JSON.stringify({ p_month: month ?? null, p_school_code: school ?? null }),
+    body: JSON.stringify(args),
   });
 
   if (!rpc.ok) {

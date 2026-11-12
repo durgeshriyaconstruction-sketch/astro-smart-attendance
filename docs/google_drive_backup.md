@@ -1,20 +1,45 @@
 # The school's records in Google Drive
 
-Two ways to get the year → month → day files into Drive. Both produce the same
-folder shape; pick one.
+**Chosen layout (2026-11-12): year → month → class → section → one Excel per day.**
 
 ```
 astro-smart-attendance/            ← folder in Drive
-├── index.json                     what is in this archive, day by day
 └── 2026/
     └── 11/
-        ├── 2026-11-02.json        attendance + notices + messages + e-mail log + leave
-        ├── 2026-11-02.csv         the attendance sheet, opens in Excel
-        ├── ...
-        ├── 2026-11-12.json
-        ├── 2026-11-12.csv
-        └── month-summary.json     per-student present/late/absent for the month
+        ├── 9/
+        │   ├── A/
+        │   │   ├── 2026-11-12.xlsx    col A = name(s), col B = Present/Absent
+        │   │   ├── 2026-11-13.xlsx
+        │   │   └── ...
+        │   └── B/
+        │       └── 2026-11-12.xlsx
+        └── 10/
+            └── A/
+                └── 2026-11-12.xlsx
 ```
+
+One workbook per class + section per day, named by the date. Row 1 says which
+class and date it is, row 2 is the header (`Name`, `Status`), then one row per
+child in roll order. The run rewrites that day's file, so a second run repairs
+it instead of adding `(1)` copies.
+
+Driven by:
+
+| piece | what it does |
+|---|---|
+| `public.astro_drive_day(date)` | one day, grouped by class + section (`0032_drive_day_sheets.sql`) |
+| `astro-export?date=YYYY-MM-DD` | Edge Function endpoint the script calls (v2) |
+| `tools/drive_sync/Code.gs` → `syncDay()` | builds the Sheet, exports real `.xlsx`, files it by folder |
+| Drive folder ids | `2026` `1U57eeN7NJPs9o9_RCKIs9viKrKutULyI` · `11` `162iWPgrF53bjQxvtS0kk9GHzu5k5VJ_p` · `9` `1xpXjO2x5iXjKW5raFOsolnTP8toYeFQL` · `A` `1wiOZjSlLesG0hh0eZiLBGbGI_obHHP5m` |
+
+Proven 2026-11-12: `?date=2026-11-12` → `200`, 356 bytes, path `2026/11/9/A`,
+status `Absent`; the same day then written to Drive by hand as
+`2026/11/9/A/2026-11-12.xlsx` (5,067 bytes) so the target shape is visible
+before the script exists.
+
+`archiveMonth()` in the same script is the optional old-style day-by-day JSON
+archive (not scheduled). The 21 JSON/CSV files written earlier still sit at the
+`2026/11/` root until you decide to delete them.
 
 ## What is already in there (done 2026-11-12)
 
