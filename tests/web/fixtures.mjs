@@ -81,6 +81,15 @@ export const FEED = {
     read_at: null,
     created_at: '2026-11-12T10:50:32.342149+00:00',
     kind: 'message',
+  }, {
+    // The family's own reply: this one *they* may truly erase.
+    id: 'c62d333f-7f0a-4d7f-9a52-2c1d2e3f4a5b',
+    direction: 'from_student',
+    subject: null,
+    body: 'Thank you sir, we will come.',
+    read_at: '2026-11-12T11:20:00.000000+00:00',
+    created_at: '2026-11-12T11:10:00.000000+00:00',
+    kind: 'message',
   }],
 };
 

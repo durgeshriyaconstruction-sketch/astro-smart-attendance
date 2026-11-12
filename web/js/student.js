@@ -207,12 +207,17 @@ export function renderStudent(root, state) {
           !mine && m.read_at ? ' · read' : ''),
         h('div', { class: 'bubble-body' }, m.body),
         h('button', {
-          class: 'icon-btn tiny', type: 'button', title: 'Delete message',
+          class: 'icon-btn tiny', type: 'button',
+          // What you wrote yourself you can erase; what the school sent you can
+          // only be taken out of your view — the school keeps its own record.
+          title: mine ? 'Delete message' : 'Remove from my view',
           onclick: async () => {
-            if (!confirm('Delete this message?')) return;
+            if (!confirm(mine
+              ? 'Delete this message? It is removed for you and for the school.'
+              : 'Remove this message from your view? The school keeps its own copy.')) return;
             try {
-              await rpc('astro_delete_message', { p_message_id: m.id });
-              toast('Message deleted');
+              const r = await rpc('astro_delete_message', { p_message_id: m.id });
+              toast(r?.mode === 'hidden' ? 'Removed from your view' : 'Message deleted');
               messagesTab(host);
             } catch (err) { flashError(err); }
           },

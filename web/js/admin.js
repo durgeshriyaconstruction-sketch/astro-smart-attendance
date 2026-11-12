@@ -468,12 +468,14 @@ export function renderAdmin(root, state) {
       { value: 'important', label: 'Important' },
       { value: 'critical', label: 'Urgent' },
     ], 'normal');
+    // Audience names match the database exactly: `all` reaches staff *and*
+    // families, `students` only the families, `staff` only admin/teacher.
     const audience = selectEl([
-      { value: 'all', label: 'Everyone' },
+      { value: 'all', label: 'Everyone (staff + families)' },
+      { value: 'students', label: 'Families only' },
+      { value: 'staff', label: 'Staff only (admin/teacher)' },
       { value: 'class', label: 'One class' },
       { value: 'student', label: 'One student' },
-      { value: 'students', label: 'Students only' },
-      { value: 'staff', label: 'Staff only' },
     ], 'all');
     const classPick = selectEl([{ value: '', label: '— class —' },
       ...classes.map((c) => ({ value: c.id, label: `${c.name}-${c.section}` }))], '');
@@ -577,12 +579,14 @@ export function renderAdmin(root, state) {
               mine && m.read_at ? ' · read' : ''),
             h('div', { class: 'bubble-body' }, m.body),
             isAdmin ? h('button', {
-              class: 'icon-btn tiny', type: 'button', title: 'Delete message',
+              class: 'icon-btn tiny', type: 'button', title: 'Delete for everyone',
               onclick: async () => {
-                if (!confirm('Delete this message from the thread?')) return;
+                if (!confirm('Delete this message for everyone?\n\nIt is erased from the database, and any e-mail that has not gone out yet is withdrawn. This cannot be undone.')) return;
                 try {
-                  await rpc('astro_delete_message', { p_message_id: m.id });
-                  toast('Message deleted');
+                  const r = await rpc('astro_delete_message', { p_message_id: m.id });
+                  if (r?.mode === 'hidden') toast('Removed from the family\'s view — the school keeps its copy');
+                  else if (r?.emails_withdrawn) toast(`Deleted · ${r.emails_withdrawn} unsent e-mail withdrawn`);
+                  else toast('Deleted for everyone');
                   openThread(studentId, name);
                 } catch (err) { flashError(err); }
               },

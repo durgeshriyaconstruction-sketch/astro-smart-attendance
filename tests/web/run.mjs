@@ -26,6 +26,9 @@ const json = (data, status = 200) => new Response(JSON.stringify(data), {
 let role = 'admin';
 let failRpc = null;
 let messageReply = { ok: true, message_id: 'm1', email_queued: true, guardian_email_on_file: true };
+// The server answers a delete with what it actually did: `deleted` (row erased)
+// or `hidden` (a family taking a school message out of its own view).
+let deleteReply = { ok: true, mode: 'deleted', emails_withdrawn: 2 };
 const rpcCalls = [];
 
 async function fakeFetch(input, init = {}) {
@@ -62,6 +65,7 @@ async function fakeFetch(input, init = {}) {
       case 'astro_outbox_list': return json(F.OUTBOX_LIST);
       case 'astro_mark_thread_read': return json({ ok: true, marked_read: 1 });
       case 'astro_send_message': return json(messageReply);
+      case 'astro_delete_message': return json(deleteReply);
       case 'astro_update_settings': return json({ ok: true, settings_version: 7 });
       case 'astro_save_student': return json({ ok: true, student: { id: F.STUDENT.id, full_name: 'New Kid' } });
       default: return json({ ok: true });
@@ -200,13 +204,24 @@ if (composer) {
 
 await settle(6);
 const delBtn = [...document.querySelectorAll('.thread button.icon-btn')]
-  .find((b) => b.title === 'Delete message');
-check('an admin can delete a message from a thread', Boolean(delBtn));
+  .find((b) => b.title === 'Delete for everyone');
+check('an admin sees "Delete for everyone" on a message', Boolean(delBtn));
 if (delBtn) {
   delBtn.click();
   await settle(6);
   check('deleting a message calls the server',
     rpcCalls.some((c) => c.fn === 'astro_delete_message'));
+  check('the reply says the unsent e-mail was withdrawn with it',
+    document.querySelector('.toast')?.textContent.includes('2 unsent e-mail withdrawn'),
+    document.querySelector('.toast')?.textContent || 'no toast');
+}
+deleteReply = { ok: true, mode: 'hidden' };
+if (delBtn) {
+  delBtn.click();
+  await settle(6);
+  check('a "hidden" reply is not reported as a delete',
+    document.querySelector('.toast')?.textContent.includes('family'),
+    document.querySelector('.toast')?.textContent || 'no toast');
 }
 
 // ------------------------------------------------------ settings round-trip ---
@@ -273,6 +288,31 @@ await settle(6);
 check('message thread shows the school message', studentHost.textContent.includes('You were late 3 times'));
 check('message thread has a composer', Boolean(studentHost.querySelector('textarea')));
 check('opening the thread marks it read', rpcCalls.some((c) => c.fn === 'astro_mark_thread_read'));
+
+// "Delete" must mean something different on each side of the conversation.
+const bubbleBtn = (title) => [...studentHost.querySelectorAll('.bubble button.icon-btn')]
+  .find((b) => b.title === title);
+check('a school message can only be removed from the family\'s view',
+  Boolean(bubbleBtn('Remove from my view')));
+check('the family\'s own message says plain "Delete message"',
+  Boolean(bubbleBtn('Delete message')));
+const schoolDel = bubbleBtn('Remove from my view');
+if (schoolDel) {
+  deleteReply = { ok: true, mode: 'hidden' };
+  schoolDel.click();
+  await settle(6);
+  check('removing a school message is not reported as a delete',
+    document.querySelector('.toast')?.textContent.includes('Removed from your view'),
+    document.querySelector('.toast')?.textContent || 'no toast');
+  const ownDel = bubbleBtn('Delete message');
+  deleteReply = { ok: true, mode: 'deleted', emails_withdrawn: 0 };
+  ownDel.click();
+  await settle(6);
+  check('deleting the family\'s own message is final',
+    document.querySelector('.toast')?.textContent.includes('Message deleted')
+    && rpcCalls.filter((c) => c.fn === 'astro_delete_message').length >= 2);
+  deleteReply = { ok: true, mode: 'deleted', emails_withdrawn: 2 };
+}
 
 const writer = studentHost.querySelector('textarea');
 const sendBtn = () => [...studentHost.querySelectorAll('.composer button')]
