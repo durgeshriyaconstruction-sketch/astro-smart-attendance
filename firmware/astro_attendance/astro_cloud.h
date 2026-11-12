@@ -189,6 +189,88 @@ class AstroCloud {
     return r;
   }
 
+  // ---- remote commands (the dashboard's Devices tab) ---------------------
+  // The database hands out at most a few commands per poll and expires anything
+  // the terminal never collected, so a terminal that was switched off does not
+  // wake up to a week of stale LCD messages.
+  // The database normalises every payload before it is stored, so these fields
+  // are the ones that actually arrive:
+  //   lcd_text      { line1, line2, hold_seconds }   (already split to 16 chars)
+  //   rfid_capture  { student_id, name }             (empty when nobody was named)
+  //   fp_enroll     { slot, student_id, name }       (the server picks the slot)
+  //   fp_delete     { slot }
+  //   fp_check / reboot / refresh  {}
+  struct AstroCommand {
+    bool   ok = false;
+    String id;
+    String kind;
+    String line1, line2;  // lcd_text
+    int    holdSec = 5;   // lcd_text
+    String name;          // suggested student name, when the office named one
+    String studentId;     // optional, fp_enroll / rfid_capture
+    int    slot = -1;     // fp_enroll / fp_delete
+    long   expiresInSec = 0;
+  };
+
+  bool pollCommand(AstroCommand& out) {
+    out = AstroCommand();
+    if (!ensureWifi()) return false;
+
+    JsonDocument req;
+    req["p_device_code"]   = ASTRO_DEVICE_CODE;
+    req["p_device_secret"] = ASTRO_DEVICE_SECRET;
+    req["p_max"]           = 1;
+
+    JsonDocument res;
+    int httpCode = 0;
+    if (!postRpc("astro_poll_commands", req, res, httpCode)) return false;
+    if (!(res["ok"] | false)) return false;
+
+    JsonArray cmds = res["commands"].as<JsonArray>();
+    if (cmds.isNull() || cmds.size() == 0) return false;
+
+    JsonObject c = cmds[0];
+    out.id           = String((const char*)(c["id"] | ""));
+    out.kind         = String((const char*)(c["kind"] | ""));
+    out.expiresInSec = c["expires_in"] | 0;
+    JsonObject payload = c["payload"];
+    out.line1     = String((const char*)(payload["line1"] | ""));
+    out.line2     = String((const char*)(payload["line2"] | ""));
+    out.holdSec   = payload["hold_seconds"] | 5;
+    out.name      = String((const char*)(payload["name"] | ""));
+    out.slot      = payload["slot"] | -1;
+    out.studentId = String((const char*)(payload["student_id"] | ""));
+    out.ok        = out.id.length() > 0;
+    return out.ok;
+  }
+
+  // Report what happened. The database fills in the rest itself: for a card it
+  // works out who owns it, for an enrolment it links the slot to the student.
+  bool commandResult(const String& id, bool ok, JsonDocument& result) {
+    if (!ensureWifi()) return false;
+
+    JsonDocument req;
+    req["p_device_code"]   = ASTRO_DEVICE_CODE;
+    req["p_device_secret"] = ASTRO_DEVICE_SECRET;
+    req["p_command_id"]    = id;
+    req["p_ok"]            = ok;
+    req["p_result"]        = result.as<JsonVariantConst>();
+
+    JsonDocument res;
+    int httpCode = 0;
+    if (!postRpc("astro_command_result", req, res, httpCode)) return false;
+    if (!(res["ok"] | false)) {
+      Serial.printf("[cmd] result rejected: %s\n", (const char*)(res["code"] | "?"));
+      return false;
+    }
+    return true;
+  }
+
+  bool commandResult(const String& id, bool ok) {
+    JsonDocument empty;
+    return commandResult(id, ok, empty);
+  }
+
   // ---- offline queue -----------------------------------------------------
   int pendingEvents() { return (int)_queue.size(); }
 

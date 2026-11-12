@@ -125,7 +125,7 @@ npm install     # jsdom, once
 npm test
 ```
 
-Expected: `web dashboard: 74 passed, 0 failed`.
+Expected: `web dashboard: 77 passed, 0 failed`.
 
 ## Known limits
 

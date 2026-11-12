@@ -47,3 +47,17 @@
 #define ASTRO_HTTP_TIMEOUT_MS  6000
 #define ASTRO_SYNC_EVERY_MS   30000   // retry the offline queue
 #define ASTRO_PING_EVERY_MS  300000   // heartbeat / clock refresh (5 min)
+
+// ---------------------------------------------------------------- pins -----
+// Optional. The sketch defaults to the school's rev2 PCB, so you normally
+// leave these commented out. Uncomment to move a signal on a different board.
+//
+// #define PIN_RC522_SS      5
+// #define PIN_RC522_RST     4     // NOT 27: 27 is UART2 TX on the rev2 PCB
+// #define PIN_I2C_SDA       21
+// #define PIN_I2C_SCL       22
+// #define PIN_BUZZER        15
+// #define PIN_FINGER_RX     16    // ESP32 RX2 <- R307 TX
+// #define PIN_FINGER_TX     17    // ESP32 TX2 -> R307 RX
+// #define ASTRO_FP_POWER_PIN 13   // rev2: GPIO that switches the sensor's supply
+// #define ASTRO_LCD_ADDR    0x27  // use 0x3F if the 16x2 screen stays blank

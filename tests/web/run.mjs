@@ -159,6 +159,24 @@ for (const [label, needles] of Object.entries(expectTab)) {
 
 check('no console/rejection errors during the admin walk', consoleErrors.length === 0, consoleErrors.join(' | '));
 
+// ------------------------------------------------------ card scan flow ---
+tab('Students').click();
+await settle(6);
+[...document.querySelectorAll('button')].find((b) => b.textContent.trim() === '+ New student').click();
+await settle(2);
+const scanBtn = [...document.querySelectorAll('button')].find((b) => b.textContent.trim() === 'Scan a card');
+check('the add-student form offers a card scan', Boolean(scanBtn));
+if (scanBtn) {
+  const mark = rpcCalls.length;
+  scanBtn.click();
+  await settle(10);
+  check('scanning queues an rfid_capture command for the terminal',
+    rpcCalls.slice(mark).some((c) => c.fn === 'astro_queue_command' && c.body?.p_kind === 'rfid_capture'));
+  const cardField = [...document.querySelectorAll('input')]
+    .find((i) => (i.placeholder || '').startsWith('Card UID'));
+  check('the card the terminal read lands in the form', cardField?.value === 'A1B2C3D4');
+}
+
 // ------------------------------------------------------------ dm send ---
 tab('Inbox').click();
 await settle(6);

@@ -900,7 +900,6 @@ export function renderAdmin(root, state) {
 async function pollCommand(commandId, statusEl, { timeoutMs = 120000, everyMs = 2500 } = {}) {
   const started = Date.now();
   while (Date.now() - started < timeoutMs) {
-    await new Promise((r) => setTimeout(r, everyMs));
     try {
       const rows = await rest(`device_commands?${q({ id: `eq.${commandId}`, select: 'id,status,result' })}`);
       const row = rows && rows[0];
@@ -909,6 +908,7 @@ async function pollCommand(commandId, statusEl, { timeoutMs = 120000, everyMs = 
     } catch {
       /* keep waiting */
     }
+    await new Promise((r) => setTimeout(r, everyMs));
   }
   return null;
 }

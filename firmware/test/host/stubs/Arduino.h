@@ -139,6 +139,8 @@ extern SerialStub Serial;
 unsigned long millis();
 void delay(unsigned long ms);
 void pinMode(uint8_t pin, uint8_t mode);
+void digitalWrite(uint8_t pin, uint8_t value);
+int  digitalRead(uint8_t pin);
 void tone(uint8_t pin, unsigned int freq, unsigned long duration = 0);
 void noTone(uint8_t pin);
 void configTime(long gmtOffsetSec, int daylightOffsetSec, const char* s1, const char* s2 = nullptr, const char* s3 = nullptr);

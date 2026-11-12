@@ -28,3 +28,8 @@ echo
 echo "== syntax check: astro_attendance.ino =="
 g++ "${common[@]}" -x c++ -fsyntax-only "$fw/astro_attendance.ino"
 echo "sketch OK"
+
+echo
+echo "== syntax check: astro_attendance.ino with the fingerprint sensor enabled =="
+g++ "${common[@]}" -DASTRO_USE_FINGERPRINT=1 -x c++ -fsyntax-only "$fw/astro_attendance.ino"
+echo "sketch OK (fingerprint path)"

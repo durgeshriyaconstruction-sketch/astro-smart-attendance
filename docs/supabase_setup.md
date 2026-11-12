@@ -472,7 +472,7 @@ delete from public.students   where roll_no = 'DEMO-01';
 | `late_after` `08:20`, `day_end` `14:00` | guessed values — set the school's real timings |
 | ~~`site_url`, redirect list, open signups~~ | fixed 2026-11-12: `site_url` = the Firebase host, both hosts + localhost allowed, signups **disabled** (accounts are provisioned by an admin, then `members` / `student_links` grants access) |
 | No mail provider configured | rows reach `status='queued'` and stop there until `services/mailer` has a Resend key or a Gmail app password |
-| Screens built, not yet used on a real browser | `web/` now carries the staff and parent dashboards and `tests/web` boots them headlessly against a fake Supabase (74 assertions). Nothing in the build sandbox can reach `*.supabase.co`, so the first real sign-in is still to happen — see `web/README.md` |
+| Screens built, not yet used on a real browser | `web/` now carries the staff and parent dashboards and `tests/web` boots them headlessly against a fake Supabase (77 assertions). Nothing in the build sandbox can reach `*.supabase.co`, so the first real sign-in is still to happen — see `web/README.md` |
 | Region `ap-southeast-2` | chosen at creation, not changeable; ~90–140 ms from Renukoot |
 | Free tier | no point-in-time backups; pauses after ~7 days idle (cron keeps it warm) |
 
@@ -543,7 +543,7 @@ select public.astro_attendance_report(current_date - 30, current_date);
   school, leave request form
 * every write goes through an RPC — the dashboard never inserts into a table
 * `tests/web` boots the real modules in jsdom against a fake Supabase:
-  `cd tests/web && npm install && npm test` → `74 passed, 0 failed`
+  `cd tests/web && npm install && npm test` → `77 passed, 0 failed`
 
 Contracts were checked against the live project, not assumed: every RPC name
 and argument list was read from `pg_proc`, and `astro_update_settings`,
@@ -563,3 +563,29 @@ idempotent, safe to re-run): DEMO-01 joins on 1 Apr, then 2–12 Nov of mixed
 attendance, one approved leave (5–6 Nov) and a holiday on 19 Nov. As the
 guardian the calendar now reads present 5 · late 1 · absent 2 · leave 2 ·
 holiday 1 · weekly off 5 · **75%**.
+
+### The device-command channel, proved 2026-11-12
+
+The dashboard's Devices tab and the student form's *Scan a card* / *Enrol
+fingerprint* buttons write into `device_commands`; nothing was ever going to
+consume those rows, because the terminal firmware had no command loop. It has
+one now (`astro_poll_commands` every 3 s → do the work → `astro_command_result`),
+and the channel was exercised against this project with a throwaway device:
+
+```sql
+select public.astro_provision_device('ABPS-RNK','TEMP-BENCH-01','Bench',  '<secret>');
+-- as the demo admin: lcd_text "HELLO 9A" + rfid_capture queued
+set local role anon;                       -- what a real terminal is
+select public.astro_poll_commands('TEMP-BENCH-01','<secret>', 3);
+select public.astro_command_result('TEMP-BENCH-01','<secret>','<id>', true, '{"uid":"A1B2C3D4"}');
+```
+
+Results: the poll returned both commands with the payloads the firmware reads
+(`{line1, line2, hold_seconds}` — the server normalises `text` itself), the
+capture came back `status:'done'` with `known:true` and
+`owner:{name:'Demo Student', roll_no:'DEMO-01', active:true}`, and replaying the
+same result returned `ALREADY_RECORDED` instead of writing twice. The bench
+device and its commands were deleted; `ASTRO-RNK-01` was not modified.
+
+Two firmware bugs fell out of that test: it read `payload.text` (which the
+server never stores) and it ignored the server-chosen `slot`. Both fixed.
