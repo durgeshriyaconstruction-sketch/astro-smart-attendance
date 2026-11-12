@@ -162,7 +162,7 @@ Deno.serve(async (req) => {
   if (url.searchParams.get("ping") === "1") {
     return json({
       ok: true,
-      version: 3,
+      version: 4,
       provider: PROVIDER,
       from: FROM || null,
       api_key: Boolean(API_KEY),
@@ -191,18 +191,24 @@ Deno.serve(async (req) => {
   let deferred = 0;
   const errors: string[] = [];
 
-  for (const alert of claimed) {
+  for (let i = 0; i < claimed.length; i++) {
+    const alert = claimed[i];
     try {
       await send(alert);
       await rpc("astro_finish_email", { p_id: alert.id, p_ok: true, p_error: null });
       sent++;
     } catch (err) {
       if (err instanceof RateLimited) {
-        // Out of quota for today: hand the row back untouched and stop this
-        // pass — the next cron tick will pick it up once the cap resets.
-        await rpc("astro_defer_email", { p_id: alert.id, p_reason: String(err).slice(0, 300) })
-          .catch(() => {});
-        deferred++;
+        // Setup problem (quota, key, IP): hand back THIS row and every row we
+        // already claimed but have not touched. Breaking out without this left
+        // them stuck in 'sending' and they were never retried.
+        const rest = claimed.slice(i);
+        const reason = String(err).slice(0, 300);
+        for (const pending of rest) {
+          await rpc("astro_defer_email", { p_id: pending.id, p_reason: reason })
+            .catch(() => {});
+        }
+        deferred += rest.length;
         break;
       }
       failed++;
