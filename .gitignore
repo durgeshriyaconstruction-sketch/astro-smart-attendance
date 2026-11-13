@@ -12,3 +12,9 @@ cad/v3/assembly/
 # Blender autosave and the preview server log - regenerable, never shipped
 *.blend1
 serve.log
+
+# Device credentials: Wi-Fi password + Supabase secret. Never commit.
+astro_config.h
+
+# ...but the placeholder TEMPLATE is meant to be shipped.
+!firmware/esp32/src/proposed/astro_config.h

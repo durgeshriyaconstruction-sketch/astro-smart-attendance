@@ -1,0 +1,136 @@
+============================================================================
+ ASTRO SMART ATTENDANCE — main.cpp PATCH
+ The only 4 edits needed. Firmware stays v26.11.7.
+============================================================================
+
+WHY
+---
+Your main.cpp is not broken. The database was. 17 of the 23 astro_* RPC
+functions it calls did not exist, and the 6 that did had different parameter
+names, so every sync returned HTTP 404. That is now fixed on the server
+(supabase/migrations/).
+
+Two things still have to change ON THE DEVICE, because they are placeholders
+in the sketch itself.
+
+
+----------------------------------------------------------------------------
+PATCH 1 of 4  — real API key
+----------------------------------------------------------------------------
+FIND  (around line 47)
+
+    #ifndef ASTRO_SUPABASE_KEY
+    #define ASTRO_SUPABASE_KEY "sb_publishable_astro_public_key"
+    #endif
+
+LEAVE IT EXACTLY AS IT IS.
+
+Do not edit main.cpp for this. Instead put the real key in astro_config.h
+(see firmware/esp32/src/proposed/astro_config.h). main.cpp includes that file
+first, so the placeholder is never compiled in. This keeps your secret out of
+git and out of the shared .cpp.
+
+
+----------------------------------------------------------------------------
+PATCH 2 of 4  — send the device secret with every RPC
+----------------------------------------------------------------------------
+FIND  the function rpcCall()  (around line 3523)
+
+    h.addHeader("Content-Type", "application/json");
+    h.addHeader("apikey", String(ASTRO_SUPABASE_KEY));
+    h.addHeader("Authorization", "Bearer " + authBearer);
+    h.addHeader("X-Astro-Device", String(ASTRO_DEVICE_CODE));
+    code = h.POST(jsonPayload.length() ? jsonPayload : String("{}"));
+
+REPLACE WITH
+
+    h.addHeader("Content-Type", "application/json");
+    h.addHeader("apikey", String(ASTRO_SUPABASE_KEY));
+    h.addHeader("Authorization", "Bearer " + authBearer);
+    h.addHeader("X-Astro-Device", String(ASTRO_DEVICE_CODE));
+    h.addHeader("X-Astro-Secret", String(ASTRO_DEVICE_SECRET));   // <-- ADDED
+    code = h.POST(jsonPayload.length() ? jsonPayload : String("{}"));
+
+This single line is what lets the server trust the terminal. Every astro_*
+function verifies it against devices.secret_hash.
+
+
+----------------------------------------------------------------------------
+PATCH 3 of 4  — make the boot handshake actually authenticate
+----------------------------------------------------------------------------
+FIND  the function authenticate()  (around line 3576)
+
+    DynamicJsonDocument q(512);
+    q["device_code"] = String(ASTRO_DEVICE_CODE);
+    q["device_secret"] = String(ASTRO_DEVICE_SECRET);
+    q["firmware_version"] = String(FW_VERSION);
+
+This is already correct. No change needed — astro_device_handshake now exists
+on the server with exactly these three parameter names.
+
+But VERIFY the #ifndef default at line 53 is still:
+
+    #ifndef ASTRO_DEVICE_SECRET
+    #define ASTRO_DEVICE_SECRET ""
+    #endif
+
+If it is "" and astro_config.h does not define it, the device will boot, join
+Wi-Fi, and then loop forever on "DEVICE_SECRET_MISSING". The Serial log will
+say exactly that — check for it first when debugging.
+
+
+----------------------------------------------------------------------------
+PATCH 4 of 4  — stop trusting the 404 fallback
+----------------------------------------------------------------------------
+FIND  inside authenticate()  (around line 3594)
+
+    // If astro_device_handshake returns 404 (when publishable key calls
+    // stateless astro_* RPCs directly), use publishable key session
+    if (code == 404) {
+      token = String(ASTRO_SUPABASE_KEY);
+      tokenUntil = millis() + 3600000UL;
+      authFails = 0;
+      lastError = "";
+      return true;
+    }
+
+REPLACE WITH
+
+    // A 404 here always means the RPC is missing or the URL/API key is wrong.
+    // Never swallow it: pretending to be authenticated makes every later call
+    // fail with a confusing error instead of "not deployed".
+    if (code == 404) {
+      lastError = "astro_device_handshake missing (404) - check ASTRO_SUPABASE_KEY and that the bridge migration is applied";
+      authFails++;
+      nextAuth = millis() + min(180000UL, 15000UL * authFails);
+      return false;
+    }
+
+This does not change behaviour when everything works. It just makes a broken
+deployment obvious in the Serial log instead of silently "succeeding".
+
+
+============================================================================
+ WHAT THE SERIAL LOG SHOULD LOOK LIKE AFTER THE PATCH
+============================================================================
+
+    [WIFI] Connected to <your ssid> at 192.168.x.x
+    [SUPABASE] Device ASTRO-RNK-01 authenticated via astro_device_handshake
+    [BOOT] Supabase RPC Host: nrjchonjlncamfyzmfye.supabase.co
+           | RPC Reachable: YES (settings/counts/holidays loaded)
+    [BOOT] Sensor Status: RFID=OK | LCD=OK | FP=READY
+
+If you instead see:
+
+    RPC astro_device_handshake HTTP 404
+        -> astro_config.h not being picked up, or API key wrong.
+
+    RPC astro_device_handshake HTTP 401 - BAD_DEVICE_SECRET
+        -> ASTRO_DEVICE_SECRET does not match the database. Re-issue it:
+           select public.astro_rotate_device_secret('ASTRO-RNK-01');
+
+    RPC astro_device_handshake HTTP 401 - DEVICE_SECRET_MISSING
+        -> ASTRO_DEVICE_SECRET is still "". Patch 3 above.
+
+    RPC astro_device_handshake HTTP 400 - JWT
+        -> ASTRO_SUPABASE_KEY is still the placeholder string.
