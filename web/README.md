@@ -52,11 +52,47 @@ To preview without touching the live site:
 firebase hosting:channel:deploy test
 ```
 
-## Making it show real data
+## Real data: `supabase-bridge.js`
 
-`localApiFallback(path, method, body)` is the single seam between the UI and its
-data source. Replacing its answers with Supabase/PostgREST calls would light up
-the same screens from the real database (`students`, `attendance`, `notices`,
-`devices`, …) without touching any of the UI code.
+The app asks `/api/...` for everything. `supabase-bridge.js` (loaded after the
+app) replaces those answers with the live Supabase database, and replaces the
+fake login with real Supabase Auth.
 
-That is a deliberate next step, not something this file does today.
+| Route | Now served by |
+|---|---|
+| `POST /api/login` | Supabase Auth — email + password, or a student's full name via `resolve_login_email` |
+| `GET /api/students` | `students` + `classes` + `rfid_cards` + `attendance` |
+| `GET /api/calendar` | `attendance` history + `school_holidays` |
+| `GET /api/notices` | `notices` |
+| `GET /api/leaves` | `leave_requests` |
+| `GET /api/cloud` | `devices.last_seen` — the pill is **offline** unless the ESP32 checked in within 15 minutes |
+| `GET /api/health` | `devices` row + live counts; hardware sensors report 0 rather than inventing numbers |
+| `POST /api/student/save` | inserts into `students` (+ `rfid_cards`), creating the class if needed |
+| `POST /api/attendance/mark` | select-then-write on `attendance` (the unique index is an expression index, so no `ON CONFLICT`) |
+| `POST /api/notice` | inserts into `notices` |
+
+Everything else (Wi-Fi, fingerprint, OTA, LCD…) still falls through to the app's
+own simulated layer — those are physical hardware, and a website cannot reach it.
+
+A floating **“+ Add student (cloud)”** button opens a plain form (name, roll,
+class, section, optional card UID) so students can be added from the browser
+without the RC522 reader that the app's own registration screen requires.
+
+### Testing it without a browser
+
+```bash
+node tools/test_bridge.mjs      # 24 assertions, stubbed fetch, no network
+```
+
+## Deploying
+
+```bash
+npm i -g firebase-tools
+firebase login
+firebase use --add
+firebase deploy --only hosting
+```
+
+`firebase.json` deliberately has **no catch-all rewrite**: `/api/**` must 404 so
+the app reaches its fallback, which the bridge intercepts. A rewrite would return
+`index.html` with status 200 and every screen would stay empty.
