@@ -1,0 +1,24 @@
+# ---------------------------------------------------------------- credentials
+# Never commit the real Wi-Fi password or the device secret.
+firmware/esp32/astro_config.h
+astro_config.h
+*.secret.h
+
+# ------------------------------------------------------------------ build junk
+build/
+.pio/
+.pioenvs/
+.piolibdeps/
+*.bin
+*.elf
+*.map
+.vscode/
+.DS_Store
+Thumbs.db
+__pycache__/
+*.pyc
+node_modules
+
+# ------------------------------------------------------------ firebase CLI
+.firebase/
+*-debug.log

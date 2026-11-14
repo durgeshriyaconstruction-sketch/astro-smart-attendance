@@ -1,0 +1,14 @@
+{
+  "name": "astro-web-e2e",
+  "private": true,
+  "type": "module",
+  "description": "Headless-browser tests for the website: test_bridge.mjs (against an in-memory stand-in for Supabase) and live_check.mjs (read-only check of the published site)",
+  "scripts": {
+    "test": "node test_bridge.mjs",
+    "live": "node live_check.mjs"
+  },
+  "devDependencies": {
+    "@sparticuz/chromium": "153.0.0",
+    "puppeteer-core": "25.17.0"
+  }
+}
