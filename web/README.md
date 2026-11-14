@@ -1,7 +1,16 @@
 # Astro Smart Attendance — web front end
 
 A single page that reads your data straight from Supabase. No build step, no
-`npm install`, no framework. One file: `index.html`.
+`npm install`, no framework. Two files:
+
+| File | What it is |
+|---|---|
+| `index.html` | markup + logic (≈22 KB) |
+| `astro-ui.css` | the **exact** design system the ESP32 serves at `192.168.4.1`, extracted verbatim from the firmware's gzipped `UI_GZ` blob |
+
+That second file is why the cloud page and the device page look identical — it
+literally is the device's stylesheet, not a re-creation of it. Regenerate it any
+time with `tools/extract_esp_ui.py`.
 
 This is the "Supabase = brain, Firebase = front end" split, implemented:
 

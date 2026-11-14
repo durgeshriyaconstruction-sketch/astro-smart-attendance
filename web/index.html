@@ -1,326 +1,497 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" data-theme="dark">
 <head>
-<meta charset="utf-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1" />
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="theme-color" content="#05080F">
 <title>Astro Smart Attendance</title>
-<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🎓</text></svg>" />
+<!-- The exact design system the ESP32 serves at 192.168.4.1, extracted from
+     the firmware's gzipped UI blob so both pages look identical. -->
+<link rel="stylesheet" href="astro-ui.css">
 <style>
-  :root{
-    --bg:#0b1020; --card:#151b32; --line:#26304f; --ink:#e8ecf8; --dim:#8d97b8;
-    --ok:#2ecc71; --late:#f5a623; --absent:#e74c3c; --accent:#5b8cff;
-  }
-  *{box-sizing:border-box}
-  body{
-    margin:0;font:15px/1.5 system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;
-    background:radial-gradient(1200px 600px at 50% -10%,#1a2444,#0b1020 60%);
-    color:var(--ink);min-height:100vh;
-  }
-  .wrap{max-width:1000px;margin:0 auto;padding:28px 18px 60px}
-  h1{font-size:22px;margin:0 0 2px;letter-spacing:-.3px}
-  .sub{color:var(--dim);font-size:13px;margin-bottom:22px}
-  .card{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:18px}
-  label{display:block;font-size:12px;color:var(--dim);margin:0 0 6px;text-transform:uppercase;letter-spacing:.6px}
-  input{
-    width:100%;padding:11px 13px;border-radius:10px;border:1px solid var(--line);
-    background:#0e1428;color:var(--ink);font-size:15px;margin-bottom:14px;outline:none;
-  }
-  input:focus{border-color:var(--accent)}
-  button{
-    padding:11px 18px;border-radius:10px;border:0;background:var(--accent);color:#fff;
-    font-size:15px;font-weight:600;cursor:pointer;transition:filter .15s;
-  }
-  button:hover{filter:brightness(1.1)}
-  button:disabled{opacity:.55;cursor:default}
-  button.ghost{background:transparent;border:1px solid var(--line);color:var(--dim);font-weight:500}
-  .err{color:#ff8a80;font-size:13px;margin-top:12px;display:none}
-  .hide{display:none!important}
-
-  .login{max-width:390px;margin:9vh auto 0}
-  .brand{text-align:center;margin-bottom:22px}
-  .brand .mark{font-size:40px}
-  .hint{color:var(--dim);font-size:12px;text-align:center;margin-top:16px;line-height:1.6}
-
-  .top{display:flex;justify-content:space-between;align-items:flex-start;gap:12px;margin-bottom:20px;flex-wrap:wrap}
-  .who{font-size:13px;color:var(--dim)}
-  .dot{display:inline-block;width:7px;height:7px;border-radius:50%;background:var(--ok);margin-right:6px;vertical-align:middle}
-  .dot.dead{background:var(--absent)}
-
-  .stats{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:18px}
-  @media(max-width:640px){.stats{grid-template-columns:repeat(2,1fr)}}
-  .stat{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:16px}
-  .stat b{display:block;font-size:28px;letter-spacing:-1px;line-height:1.15}
-  .stat span{font-size:12px;color:var(--dim);text-transform:uppercase;letter-spacing:.6px}
-  .s-ok b{color:var(--ok)} .s-late b{color:var(--late)}
-  .s-absent b{color:var(--absent)} .s-total b{color:var(--ink)}
-
-  table{width:100%;border-collapse:collapse;font-size:14px}
-  th{text-align:left;font-size:11px;text-transform:uppercase;letter-spacing:.7px;color:var(--dim);
-     padding:0 10px 10px;font-weight:600;border-bottom:1px solid var(--line)}
-  td{padding:11px 10px;border-bottom:1px solid #1c2340}
-  tr:last-child td{border-bottom:0}
-  .pill{font-size:11px;font-weight:700;padding:3px 9px;border-radius:99px;text-transform:uppercase;letter-spacing:.4px}
-  .p-present{background:rgba(46,204,113,.15);color:var(--ok)}
-  .p-late{background:rgba(245,166,35,.15);color:var(--late)}
-  .p-absent{background:rgba(231,76,60,.15);color:var(--absent)}
-  .p-none{background:rgba(141,151,184,.13);color:var(--dim)}
-  .mono{font-variant-numeric:tabular-nums;color:var(--dim);font-size:13px}
-  .empty{padding:26px 10px;text-align:center;color:var(--dim);font-size:14px}
-  .notice{padding:12px 0;border-bottom:1px solid #1c2340}
-  .notice:last-child{border-bottom:0}
-  .notice h3{margin:0 0 3px;font-size:14px}
-  .notice p{margin:0;color:var(--dim);font-size:13px}
-  .sec-title{font-size:13px;color:var(--dim);text-transform:uppercase;letter-spacing:.7px;margin:0 0 12px}
-  .mt{margin-top:18px}
+  /* only what the extracted stylesheet doesn't already provide */
+  #splash{transition:opacity .45s ease}
+  #splash.out{opacity:0;pointer-events:none}
+  .navback{position:fixed;inset:0;background:rgba(3,6,12,.62);backdrop-filter:blur(2px);
+           z-index:99;display:none}
+  .navback.on{display:block}
+  .nlist{display:flex;flex-direction:column}
+  .nitem{display:flex;gap:12px;padding:14px 4px;border-bottom:1px solid var(--line)}
+  .nitem:last-child{border-bottom:none}
+  .nitem .ndot{width:7px;height:7px;border-radius:50%;margin-top:7px;flex:none;
+               background:var(--cyan);box-shadow:0 0 9px rgba(63,203,245,.8)}
+  .nitem .nt{font-size:13.5px;font-weight:700}
+  .nitem .nb{font-size:12.5px;color:var(--txt2);margin-top:2px;line-height:1.55}
+  .nitem .nm{font-size:10.5px;color:var(--txt3);margin-top:5px;font-family:var(--fm)}
+  .empty{padding:34px 12px;text-align:center;color:var(--txt3);font-size:13px}
+  .qrbx{display:flex;gap:12px;align-items:center;padding:12px;border:1px solid var(--line2);
+        border-radius:var(--r-md);background:rgba(148,166,190,.04)}
+  .qrg{width:46px;height:46px;border-radius:10px;flex:none;
+       background:var(--grad-soft);border:1px solid rgba(63,203,245,.3);
+       display:flex;align-items:center;justify-content:center;font-size:20px}
 </style>
 </head>
 <body>
 
-<!-- ───────────────────────── LOGIN ───────────────────────── -->
-<div class="wrap login" id="loginView">
-  <div class="brand">
-    <div class="mark">🎓</div>
-    <h1>Astro Smart Attendance</h1>
-    <div class="sub">Sign in with the account the school gave you</div>
+<!-- ══════════════════════ SPLASH ══════════════════════ -->
+<div id="splash">
+  <div class="orbwrap">
+    <div class="planet"></div><div class="ring"></div>
+    <div class="orb"></div><div class="orb"></div>
   </div>
+  <div class="st1">ASTRO <span>SMART ATTENDANCE</span></div>
+  <div class="st2">Smart attendance · Automated · Connected</div>
+  <div class="stag">AI + IoT School Attendance Platform</div>
+  <div class="sprog"><i id="splash-bar"></i></div>
+  <div class="sstep" id="splash-step">Connecting to cloud…</div>
+  <div class="sver">Cloud · v26.11.7</div>
+  <div class="steam"><b>Team Sun Rises India</b><br>The Aditya Birla Public School, Renukoot<br>© 2026 Shaurya Gupta</div>
+</div>
 
-  <div class="card">
-    <form id="loginForm">
-      <label for="email">Email</label>
-      <input id="email" type="email" autocomplete="username" required placeholder="principal@astro-school.test" />
-      <label for="password">Password</label>
-      <input id="password" type="password" autocomplete="current-password" required placeholder="••••••••" />
-      <button id="loginBtn" type="submit" style="width:100%">Sign in</button>
-      <div class="err" id="loginErr"></div>
-    </form>
-  </div>
+<!-- ══════════════════════ LOGIN ══════════════════════ -->
+<div id="login">
+  <div class="login-grid">
+    <div class="login-left">
+      <div style="position:relative;display:flex;flex-direction:column;height:100%">
+        <div style="display:flex;align-items:center;gap:12px">
+          <span style="width:46px;height:46px;border-radius:13px;background:var(--grad-soft);
+                       border:1px solid rgba(63,203,245,.3);display:flex;align-items:center;
+                       justify-content:center;font-size:22px">🎓</span>
+          <div>
+            <div style="font-size:19px;font-weight:800;letter-spacing:.05em">ASTRO
+              <span style="background:var(--grad);-webkit-background-clip:text;background-clip:text;color:transparent">SMART ATTENDANCE</span></div>
+            <div style="font-size:10px;letter-spacing:.26em;color:var(--txt3);text-transform:uppercase;margin-top:2px">
+              Smart attendance · Automated · Connected</div>
+          </div>
+        </div>
 
-  <div class="hint">
-    Staff: the account your school created.<br />
-    Parents: the email you gave the office.
+        <div style="margin-top:auto;padding-bottom:8px">
+          <div style="font-size:22px;font-weight:800;line-height:1.35;letter-spacing:-.015em">
+            One morning scan.<br>The whole day, handled.</div>
+          <div style="font-size:13px;color:var(--txt2);margin-top:10px;line-height:1.65;max-width:400px">
+            The ESP32 marks attendance with RC522 RFID, applies your timing rules,
+            and syncs every record to the cloud. This page reads that cloud data live.</div>
+          <div class="chipbar" style="margin-top:18px">
+            <span class="pill p-ok"><span class="dt pulse-dot"></span>Cloud · live</span>
+            <span class="pill p-info"><span class="dt"></span>Supabase</span>
+            <span class="pill p-half"><span class="dt"></span>Offline-first device</span>
+          </div>
+        </div>
+
+        <div style="padding-top:18px;border-top:1px solid var(--line);margin-top:26px">
+          <div class="qrbx">
+            <div class="qrg">📶</div>
+            <div>
+              <div style="font-size:12px;font-weight:700">Device panel needs the local Wi-Fi</div>
+              <div class="tiny muted3" style="margin-top:3px">
+                <span class="mono">192.168.4.1</span> only works next to the ESP32.<br>
+                This page works anywhere.</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="login-right">
+      <div style="text-align:center;margin-bottom:18px">
+        <div style="width:52px;height:52px;margin:0 auto 10px;border-radius:15px;
+                    background:var(--grad-soft);border:1px solid rgba(63,203,245,.3);
+                    display:flex;align-items:center;justify-content:center;font-size:24px">🎓</div>
+        <div style="font-size:17px;font-weight:800">Welcome back</div>
+        <div class="tiny muted3" style="margin-top:3px">Sign in to the Astro platform</div>
+      </div>
+
+      <form id="loginForm">
+        <div class="field">
+          <label>Email</label>
+          <input class="inp" id="email" type="email" autocomplete="username"
+                 placeholder="principal@astro-school.test" required>
+          <div class="fhint">The account your school created for you.</div>
+        </div>
+        <div class="field">
+          <label>Password</label>
+          <input class="inp" id="password" type="password" autocomplete="current-password"
+                 placeholder="••••••••" required>
+        </div>
+        <button class="btn btn-pri btn-lg btn-block" id="loginBtn" type="submit">Sign in</button>
+      </form>
+
+      <div id="loginErr" class="hidden"
+           style="margin-top:12px;font-size:12px;color:var(--c-err);
+                  background:var(--red-bg);border:1px solid rgba(244,105,90,.32);
+                  padding:9px 12px;border-radius:var(--r-sm)"></div>
+
+      <div style="display:flex;gap:7px;justify-content:center;margin-top:16px;flex-wrap:wrap">
+        <span class="pill p-idle"><span class="dt"></span>Cloud: Supabase</span>
+        <span class="pill p-idle"><span class="dt"></span>Device: ESP32</span>
+      </div>
+    </div>
   </div>
 </div>
 
-<!-- ───────────────────────── DASHBOARD ───────────────────────── -->
-<div class="wrap hide" id="appView">
-  <div class="top">
-    <div>
-      <h1 id="schoolName">Dashboard</h1>
-      <div class="sub" style="margin:0"><span class="dot" id="liveDot"></span><span id="liveText">Live</span></div>
+<!-- ══════════════════════ APP ══════════════════════ -->
+<div id="app">
+  <aside class="sidebar" id="sidebar">
+    <div class="brandbox">
+      <span class="bx" style="width:34px;height:34px;border-radius:10px;background:var(--grad-soft);
+            border:1px solid rgba(63,203,245,.3);display:flex;align-items:center;
+            justify-content:center;font-size:17px">🎓</span>
+      <div style="min-width:0"><div class="bt">ASTRO <span>SMART</span></div><div class="bs">Attendance</div></div>
     </div>
-    <div style="display:flex;gap:10px;align-items:center">
-      <div class="who" id="whoami"></div>
-      <button class="ghost" id="refreshBtn">Refresh</button>
-      <button class="ghost" id="logoutBtn">Sign out</button>
+    <div class="navscroll" id="side-nav"></div>
+    <div class="devmini" id="side-dev"></div>
+    <div class="sidefoot">
+      <div class="sideuser" id="side-user">
+        <span class="av" style="width:30px;height:30px;border-radius:9px;background:var(--grad-soft);
+              border:1px solid rgba(63,203,245,.3);display:flex;align-items:center;
+              justify-content:center;font-size:11px;font-weight:800">A</span>
+        <div style="flex:1;min-width:0">
+          <div class="un" id="side-un" style="font-size:12px;font-weight:700;white-space:nowrap;
+               overflow:hidden;text-overflow:ellipsis"></div>
+          <div class="ur" id="side-ur" style="font-size:10.5px;color:var(--txt3)">staff</div>
+        </div>
+      </div>
     </div>
-  </div>
+  </aside>
 
-  <div class="stats">
-    <div class="stat s-total"><span>Students</span><b id="nTotal">–</b></div>
-    <div class="stat s-ok"><span>Present</span><b id="nPresent">–</b></div>
-    <div class="stat s-late"><span>Late</span><b id="nLate">–</b></div>
-    <div class="stat s-absent"><span>Absent</span><b id="nAbsent">–</b></div>
-  </div>
+  <div class="navback" id="navback"></div>
 
-  <div class="card">
-    <div class="sec-title" id="todayTitle">Today's attendance</div>
-    <table>
-      <thead>
-        <tr><th>Roll</th><th>Student</th><th>Class</th><th>Status</th><th>Time</th></tr>
-      </thead>
-      <tbody id="rows">
-        <tr><td colspan="5" class="empty">Loading…</td></tr>
-      </tbody>
-    </table>
-  </div>
-
-  <div class="card mt">
-    <div class="sec-title">Notices</div>
-    <div id="notices"><div class="empty">Loading…</div></div>
+  <div class="mainwrap">
+    <header class="topbar">
+      <button class="ibtn" id="menuBtn" style="display:none">☰</button>
+      <div style="min-width:0">
+        <div class="tb-crumb" id="tb-crumb">Overview</div>
+        <div class="tb-title" id="tb-title">Home</div>
+      </div>
+      <div class="tsp"></div>
+      <div class="conncluster">
+        <span class="pill p-ok" id="pillCloud"><span class="dt pulse-dot"></span>Cloud</span>
+        <span class="pill p-idle" id="pillDev"><span class="dt"></span>Device</span>
+      </div>
+      <div class="clockbox">
+        <div class="ct" id="clock-t">--:--:--</div>
+        <div class="cd" id="clock-d">—</div>
+      </div>
+      <button class="ibtn" id="refreshBtn" title="Refresh">⟳</button>
+      <button class="ibtn" id="logoutBtn" title="Sign out">⏻</button>
+    </header>
+    <main class="content"><div id="view"></div></main>
   </div>
 </div>
 
 <script type="module">
-/* ═══════════════════════════════════════════════════════════════
-   CONFIG — this is the ONLY part you normally touch.
-   Both values are public (they ship to every browser that opens
-   the site). The secret that protects your data is your login.
-   ═══════════════════════════════════════════════════════════════ */
-const SUPABASE_URL = 'https://nrjchonjlncamfyzmfye.supabase.co';
-const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im5yamNob25qbG5jYW1meXptZnllIiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTQ0NzUwNDUsImV4cCI6MjExMDA1MTA0NX0.MtiRrja_PYMWauT-ORzcOcdKHRAIXh3HtjyKeE5AoVM';
+/* ═══════════════════════════════════════════════════════════
+   CONFIG — the only lines you normally edit.
+   Both values are public: they ship to every browser. Your
+   login is the secret; RLS decides what each account sees.
+   ═══════════════════════════════════════════════════════════ */
+const SUPABASE_URL  = 'https://nrjchonjlncamfyzmfye.supabase.co';
+const SUPABASE_ANON = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im5yamNob25qbG5jYW1meXptZnllIiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTQ0NzUwNDUsImV4cCI6MjExMDA1MTA0NX0.MtiRrja_PYMWauT-ORzcOcdKHRAIXh3HtjyKeE5AoVM';
 const TZ = 'Asia/Kolkata';
-/* ═══════════════════════════════════════════════════════════════ */
+/* ═══════════════════════════════════════════════════════════ */
 
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2';
+const db = createClient(SUPABASE_URL, SUPABASE_ANON);
 
-const supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+const $ = id => document.getElementById(id);
+const esc = s => String(s ?? '').replace(/[&<>"']/g,
+  c => ({ '&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;' }[c]));
 
-const $ = (id) => document.getElementById(id);
-const loginView = $('loginView'), appView = $('appView');
+const todayISO = () => new Date().toLocaleDateString('en-CA', { timeZone: TZ });
+const hhmm = iso => iso
+  ? new Date(iso).toLocaleTimeString('en-GB', { timeZone: TZ, hour:'2-digit', minute:'2-digit' })
+  : '–';
+const niceDate = iso => new Date(iso).toLocaleDateString('en-GB',
+  { timeZone: TZ, day:'2-digit', month:'short' });
+
+let session = null;
+let data = { students: [], att: new Map(), notices: [], device: null };
+let view = 'overview';
 let timer = null;
 
-/* ---------- helpers ---------- */
-const todayISO = () =>
-  new Date().toLocaleDateString('en-CA', { timeZone: TZ });   // YYYY-MM-DD
+/* ─────────────── splash ─────────────── */
+const bar = $('splash-bar');
+requestAnimationFrame(() => { bar.style.width = '100%'; });
+setTimeout(() => {
+  $('splash').classList.add('out');
+  setTimeout(() => $('splash').remove(), 450);
+}, 1500);
 
-const hhmm = (iso) =>
-  iso ? new Date(iso).toLocaleTimeString('en-GB', { timeZone: TZ, hour: '2-digit', minute: '2-digit' }) : '–';
+/* ─────────────── clock ─────────────── */
+setInterval(() => {
+  const now = new Date();
+  $('clock-t').textContent = now.toLocaleTimeString('en-GB', { timeZone: TZ });
+  $('clock-d').textContent = now.toLocaleDateString('en-GB',
+    { timeZone: TZ, weekday:'short', day:'2-digit', month:'short' });
+}, 1000);
 
-function showErr(el, msg) {
-  el.textContent = msg;
-  el.style.display = 'block';
-}
-function clearErr(el) {
-  el.style.display = 'none';
-}
-
-/* ---------- auth ---------- */
-$('loginForm').addEventListener('submit', async (e) => {
+/* ─────────────── login ─────────────── */
+$('loginForm').addEventListener('submit', async e => {
   e.preventDefault();
   const btn = $('loginBtn'), err = $('loginErr');
-  clearErr(err);
-  btn.disabled = true;
-  btn.textContent = 'Signing in…';
+  err.classList.add('hidden');
+  btn.disabled = true; btn.textContent = 'Signing in…';
 
-  const { error } = await supabase.auth.signInWithPassword({
+  const { data: s, error } = await db.auth.signInWithPassword({
     email: $('email').value.trim(),
     password: $('password').value,
   });
 
-  btn.disabled = false;
-  btn.textContent = 'Sign in';
+  btn.disabled = false; btn.textContent = 'Sign in';
 
   if (error) {
-    showErr(err, error.message === 'Invalid login credentials'
-      ? 'Wrong email or password.'
-      : error.message);
+    err.textContent = error.message === 'Invalid login credentials'
+      ? 'Wrong email or password.' : error.message;
+    err.classList.remove('hidden');
     return;
   }
-  await start();
+  session = s.session;
+  enterApp();
 });
 
 $('logoutBtn').addEventListener('click', async () => {
   if (timer) clearInterval(timer);
-  await supabase.auth.signOut();
-  appView.classList.add('hide');
-  loginView.classList.remove('hide');
+  await db.auth.signOut();
+  $('app').classList.remove('on');
+  $('login').classList.add('on');
 });
 
+/* ─────────────── navigation ─────────────── */
+const NAV = [
+  { id:'overview',  label:'Overview',  icon:'◈', sec:'Main' },
+  { id:'students',  label:'Students',  icon:'☰', sec:null },
+  { id:'attendance',label:'Attendance',icon:'✓', sec:null },
+  { id:'notices',   label:'Notices',   icon:'◉', sec:null },
+];
+
+function renderNav() {
+  $('side-nav').innerHTML = NAV.map(n => `
+    ${n.sec ? `<div class="nav-sec">${n.sec}</div>` : ''}
+    <button class="nav-it ${view === n.id ? 'on' : ''}" data-nav="${n.id}">
+      <span style="width:16px;text-align:center;opacity:.9">${n.icon}</span>${n.label}
+    </button>`).join('');
+
+  $('side-nav').querySelectorAll('[data-nav]').forEach(b =>
+    b.addEventListener('click', () => { view = b.dataset.nav; closeNav(); render(); }));
+}
+
+function closeNav() {
+  $('sidebar').classList.remove('open');
+  $('navback').classList.remove('on');
+}
+
+$('menuBtn').addEventListener('click', () => {
+  $('sidebar').classList.toggle('open');
+  $('navback').classList.toggle('on');
+});
+$('navback').addEventListener('click', closeNav);
 $('refreshBtn').addEventListener('click', () => loadAll());
 
-/* ---------- data ---------- */
+/* ─────────────── data ─────────────── */
 async function loadAll() {
-  const { data: { user } } = await supabase.auth.getUser();
-  if (!user) return;
-
-  $('whoami').textContent = user.email;
-
   const date = todayISO();
-  $('todayTitle').textContent = `Today's attendance — ${date}`;
 
-  const [studentsRes, attRes, noticesRes] = await Promise.all([
-    supabase.from('students')
-      .select('id, roll_no, full_name, classes(name, section)')
-      .eq('active', true)
-      .order('roll_no', { ascending: true }),
-    supabase.from('attendance')
-      .select('student_id, status, marked_at')
-      .eq('attendance_date', date)
-      .eq('session', 'daily'),
-    supabase.from('notices')
-      .select('title, body, priority, created_at')
-      .order('created_at', { ascending: false })
-      .limit(6),
+  const [st, at, nt, dv] = await Promise.all([
+    db.from('students').select('id, roll_no, full_name, classes(name, section)')
+      .eq('active', true).order('roll_no'),
+    db.from('attendance').select('student_id, status, marked_at, method')
+      .eq('attendance_date', date).eq('session', 'daily'),
+    db.from('notices').select('title, body, priority, created_at, audience')
+      .order('created_at', { ascending:false }).limit(12),
+    db.from('devices').select('device_code, firmware, last_seen, active').limit(1),
   ]);
 
-  if (studentsRes.error) {
-    return renderFatal(studentsRes.error);
-  }
+  data.students = st.data ?? [];
+  data.att = new Map((at.data ?? []).map(a => [a.student_id, a]));
+  data.notices = nt.data ?? [];
+  data.device = (dv.data ?? [])[0] ?? null;
 
-  const students = studentsRes.data ?? [];
-  const attByStudent = new Map((attRes.data ?? []).map(a => [a.student_id, a]));
+  const devicesOk = !dv.error && data.device;
+  $('pillDev').className = 'pill ' + (devicesOk ? 'p-ok' : 'p-idle');
+  $('pillDev').innerHTML = `<span class="dt ${devicesOk ? 'pulse-dot' : ''}"></span>` +
+    (devicesOk ? esc(data.device.device_code) : 'Device');
 
-  /* stats */
+  renderDevice();
+  render();
+}
+
+function counts() {
+  const total = data.students.length;
   let present = 0, late = 0;
-  for (const s of students) {
-    const a = attByStudent.get(s.id);
-    if (!a) continue;
+  for (const a of data.att.values()) {
     if (a.status === 'present') present++;
     else if (a.status === 'late') late++;
   }
-  const marked = [...attByStudent.values()].filter(a => a.status !== 'leave').length;
-  const absent = Math.max(0, students.length - marked);
+  const marked = [...data.att.values()].filter(a => a.status !== 'leave').length;
+  return { total, present, late, absent: Math.max(0, total - marked) };
+}
 
-  $('nTotal').textContent   = students.length;
-  $('nPresent').textContent = present;
-  $('nLate').textContent    = late;
-  $('nAbsent').textContent  = absent;
+const STATUS_PILL = {
+  present: 'p-ok', late: 'p-important', absent: 'p-critical',
+  leave: 'p-info', excused: 'p-info', half_day: 'p-important', left: 'p-half',
+};
 
-  /* table */
-  const tbody = $('rows');
-  if (!students.length) {
-    tbody.innerHTML = `<tr><td colspan="5" class="empty">
-      No students linked to this account's school yet.
-    </td></tr>`;
-  } else {
-    tbody.innerHTML = students.map(s => {
-      const a = attByStudent.get(s.id);
-      const st = a?.status ?? null;
-      const cls = s.classes ? `${s.classes.name}-${s.classes.section}` : '–';
-      const pill = st
-        ? `<span class="pill p-${st}">${st.replace('_', ' ')}</span>`
-        : `<span class="pill p-none">not marked</span>`;
-      return `<tr>
-        <td class="mono">${esc(s.roll_no ?? '–')}</td>
-        <td>${esc(s.full_name ?? '')}</td>
-        <td class="mono">${esc(cls)}</td>
-        <td>${pill}</td>
-        <td class="mono">${hhmm(a?.marked_at)}</td>
-      </tr>`;
-    }).join('');
+function statusCell(a) {
+  if (!a) return '<span class="pill p-idle"><span class="dt"></span>Not marked</span>';
+  const cls = STATUS_PILL[a.status] ?? 'p-idle';
+  return `<span class="pill ${cls}"><span class="dt"></span>${
+    esc(a.status.replace('_',' '))}</span>`;
+}
+
+function renderDevice() {
+  const d = data.device;
+  if (!d) { $('side-dev').innerHTML = ''; return; }
+  const live = d.last_seen && (Date.now() - new Date(d.last_seen).getTime()) < 6 * 3600e3;
+  $('side-dev').innerHTML = `
+    <div style="border:1px solid var(--line2);border-radius:var(--r-sm);
+                padding:10px;background:rgba(148,166,190,.04)">
+      <div style="display:flex;align-items:center;gap:7px;font-size:11px;font-weight:800;
+                  letter-spacing:.06em;text-transform:uppercase;color:var(--txt3)">
+        <span class="dt ${live ? 'pulse-dot' : ''}" style="width:6px;height:6px;border-radius:50%;
+              background:${live ? 'var(--green)' : 'var(--txt3)'}"></span>ESP32
+      </div>
+      <div class="mono" style="font-size:11.5px;margin-top:5px">${esc(d.device_code)}</div>
+      <div style="font-size:10.5px;color:var(--txt3);margin-top:2px">
+        fw ${esc(d.firmware ?? '—')} · seen ${d.last_seen ? hhmm(d.last_seen) : 'never'}</div>
+    </div>`;
+}
+
+/* ─────────────── views ─────────────── */
+function render() {
+  renderNav();
+  const titles = {
+    overview:  ['Overview', 'Home'],
+    students:  ['People',   'Students'],
+    attendance:['Records',  'Attendance'],
+    notices:   ['Board',    'Notices'],
+  };
+  const [crumb, title] = titles[view];
+  $('tb-crumb').textContent = crumb;
+  $('tb-title').textContent = title;
+
+  const c = counts();
+  const head = `
+    <div class="grid" style="grid-template-columns:repeat(4,1fr);margin-bottom:14px">
+      <div class="card stat cyan"><div class="lb">Students</div>
+        <div class="vl">${c.total}</div><div class="ft">enrolled &amp; active</div></div>
+      <div class="card stat green"><div class="lb">Present</div>
+        <div class="vl">${c.present}</div><div class="ft">on time today</div></div>
+      <div class="card stat amber"><div class="lb">Late</div>
+        <div class="vl">${c.late}</div><div class="ft">after the cut-off</div></div>
+      <div class="card stat red"><div class="lb">Not marked</div>
+        <div class="vl">${c.absent}</div><div class="ft">no scan yet</div></div>
+    </div>`;
+
+  if (view === 'overview') {
+    $('view').innerHTML = head + `
+      <div class="card" style="margin-bottom:14px">
+        <div class="card-h"><div><div class="card-t">Today's attendance</div>
+          <div class="card-s">${todayISO()} · updates every 10 s</div></div></div>
+        ${attTable(8)}
+      </div>
+      <div class="card">
+        <div class="card-h"><div><div class="card-t">Latest notices</div>
+          <div class="card-s">published by the school</div></div></div>
+        ${noticesList(4)}
+      </div>`;
   }
 
-  /* notices */
-  const nd = noticesRes.data ?? [];
-  $('notices').innerHTML = nd.length
-    ? nd.map(n => `<div class="notice">
-        <h3>${esc(n.title ?? '')}</h3>
-        <p>${esc(n.body ?? '')}</p>
-      </div>`).join('')
-    : `<div class="empty">No notices yet.</div>`;
+  if (view === 'students') {
+    $('view').innerHTML = head + `
+      <div class="card">
+        <div class="card-h"><div><div class="card-t">All students</div>
+          <div class="card-s">${c.total} active</div></div></div>
+        <div class="tblwrap"><table class="tbl">
+          <thead><tr><th>Roll</th><th>Name</th><th>Class</th><th>Today</th><th>Time</th></tr></thead>
+          <tbody>${data.students.length ? data.students.map(s => {
+            const a = data.att.get(s.id);
+            const cl = s.classes ? `${s.classes.name}-${s.classes.section}` : '–';
+            return `<tr><td class="num mono">${esc(s.roll_no ?? '–')}</td>
+              <td style="font-weight:600">${esc(s.full_name ?? '')}</td>
+              <td class="mono">${esc(cl)}</td>
+              <td>${statusCell(a)}</td>
+              <td class="num mono">${hhmm(a?.marked_at)}</td></tr>`;
+          }).join('') : `<tr><td colspan="5" class="empty">
+            No students linked to this account's school.</td></tr>`}</tbody>
+        </table></div>
+      </div>`;
+  }
 
-  /* live dot */
-  $('liveDot').classList.remove('dead');
-  $('liveText').textContent =
-    `Live — ${present + late} of ${students.length} marked today`;
+  if (view === 'attendance') {
+    $('view').innerHTML = head + `
+      <div class="card">
+        <div class="card-h"><div><div class="card-t">Attendance register — ${todayISO()}</div>
+          <div class="card-s">method and exact scan time</div></div></div>
+        ${attTable(999)}
+      </div>`;
+  }
+
+  if (view === 'notices') {
+    $('view').innerHTML = `
+      <div class="card">
+        <div class="card-h"><div><div class="card-t">Notice board</div>
+          <div class="card-s">${data.notices.length} published</div></div></div>
+        ${noticesList(99)}
+      </div>`;
+  }
 }
 
-function renderFatal(error) {
-  // RLS returns an empty set rather than an error, so an error here is unusual.
-  // The common "signed in but sees nothing" case is a missing members row.
-  $('liveDot').classList.add('dead');
-  $('liveText').textContent = 'Could not load data';
-  $('rows').innerHTML = `<tr><td colspan="5" class="empty">
-    ${esc(error.message)}
-  </td></tr>`;
+function attTable(limit) {
+  const rows = data.students.slice(0, limit).map(s => {
+    const a = data.att.get(s.id);
+    const cl = s.classes ? `${s.classes.name}-${s.classes.section}` : '–';
+    return `<tr>
+      <td class="num mono">${esc(s.roll_no ?? '–')}</td>
+      <td style="font-weight:600">${esc(s.full_name ?? '')}</td>
+      <td class="mono">${esc(cl)}</td>
+      <td>${statusCell(a)}</td>
+      <td class="num mono">${hhmm(a?.marked_at)}</td>
+    </tr>`;
+  }).join('');
+
+  if (!rows) return `<div class="empty">No students linked to this account's school yet.</div>`;
+
+  return `<div class="tblwrap"><table class="tbl">
+    <thead><tr><th>Roll</th><th>Student</th><th>Class</th><th>Status</th><th>Time</th></tr></thead>
+    <tbody>${rows}</tbody></table></div>`;
 }
 
-function esc(s) {
-  return String(s).replace(/[&<>"']/g, c =>
-    ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+function noticesList(limit) {
+  if (!data.notices.length) return `<div class="empty">No notices yet.</div>`;
+  return `<div class="nlist">${data.notices.slice(0, limit).map(n => `
+    <div class="nitem">
+      <span class="ndot" style="background:${
+        n.priority === 'critical' ? 'var(--red)' :
+        n.priority === 'important' ? 'var(--amber)' : 'var(--cyan)'}"></span>
+      <div style="min-width:0">
+        <div class="nt">${esc(n.title ?? '')}</div>
+        <div class="nb">${esc(n.body ?? '')}</div>
+        <div class="nm">${niceDate(n.created_at)} · ${esc(n.audience ?? 'all')} · ${
+          esc(n.priority ?? 'normal')}</div>
+      </div>
+    </div>`).join('')}</div>`;
 }
 
-/* ---------- boot ---------- */
-async function start() {
-  loginView.classList.add('hide');
-  appView.classList.remove('hide');
-  await loadAll();
+/* ─────────────── boot ─────────────── */
+function enterApp() {
+  $('login').classList.remove('on');
+  $('app').classList.add('on');
+  const email = session?.user?.email ?? '';
+  $('side-un').textContent = email.split('@')[0] || 'staff';
+  $('side-ur').textContent = 'staff';
+  if (window.innerWidth < 900) $('menuBtn').style.display = 'flex';
+  loadAll();
   if (timer) clearInterval(timer);
-  timer = setInterval(loadAll, 10000);   // auto-refresh every 10 s
+  timer = setInterval(loadAll, 10000);
 }
 
-const { data: { session } } = await supabase.auth.getSession();
-if (session) start();
+window.addEventListener('resize', () => {
+  $('menuBtn').style.display = window.innerWidth < 900 ? 'flex' : 'none';
+});
+
+const { data: { session: existing } } = await db.auth.getSession();
+if (existing) { session = existing; enterApp(); }
+else $('login').classList.add('on');
 </script>
 </body>
 </html>
