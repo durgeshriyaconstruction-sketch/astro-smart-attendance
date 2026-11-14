@@ -2,10 +2,10 @@ name: Publish website to Firebase
 
 # Publishes the web/ folder to https://astro-smart-attendence.web.app
 #
-# Needs ONE repository secret, added once:
-#   FIREBASE_SERVICE_ACCOUNT = the whole JSON key file from
-#   Firebase console > Project settings > Service accounts > Generate new private key
-#   (GitHub: Settings > Secrets and variables > Actions > New repository secret)
+# Needs ONE repository secret holding the Firebase key file
+# (Firebase console > Project settings > Service accounts > Generate new private key).
+# The secret may be named ASTRO or FIREBASE_SERVICE_ACCOUNT.
+# GitHub: Settings > Secrets and variables > Actions > New repository secret
 
 on:
   push:
@@ -30,9 +30,9 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 10
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
 
-      - uses: actions/setup-node@v4
+      - uses: actions/setup-node@v5
         with:
           node-version: 22
 
@@ -52,10 +52,10 @@ jobs:
       - name: Read the Firebase key
         id: key
         env:
-          FIREBASE_KEY: ${{ secrets.FIREBASE_SERVICE_ACCOUNT }}
+          FIREBASE_KEY: ${{ secrets.FIREBASE_SERVICE_ACCOUNT || secrets.ASTRO }}
         run: |
           if [ -z "$FIREBASE_KEY" ]; then
-            echo "::error::Not published. Add the repository secret FIREBASE_SERVICE_ACCOUNT (Firebase console > Project settings > Service accounts > Generate new private key; paste the whole file), then re-run this job."
+            echo "::error::Not published. No Firebase key found: this repository has no Actions secret named ASTRO or FIREBASE_SERVICE_ACCOUNT. Add it under Settings > Secrets and variables > Actions > Secrets (not Variables), then re-run this job."
             exit 1
           fi
           printf '%s' "$FIREBASE_KEY" > "$RUNNER_TEMP/firebase-key.json"
@@ -65,7 +65,7 @@ jobs:
               key = json.load(open(sys.argv[1]))
               assert key.get("type") == "service_account" and key.get("project_id") and key.get("private_key")
           except Exception:
-              print("::error::FIREBASE_SERVICE_ACCOUNT is not a Firebase service-account key file. Paste the whole .json file, from the first { to the last }.")
+              print("::error::The secret is not a Firebase key file. It must be the whole .json file from Firebase console > Project settings > Service accounts > Generate new private key, pasted from the first { to the last }.")
               sys.exit(1)
           print("Firebase project of this key:", key["project_id"])
           with open(os.environ["GITHUB_OUTPUT"], "a") as out:
@@ -75,18 +75,30 @@ jobs:
       - name: Publish
         env:
           GOOGLE_APPLICATION_CREDENTIALS: ${{ runner.temp }}/firebase-key.json
-        run: npx --yes firebase-tools@15.36.0 deploy --only hosting --project "${{ steps.key.outputs.project }}" --non-interactive
+          FIREBASE_PROJECT: ${{ steps.key.outputs.project }}
+        run: |
+          set +e
+          npx --yes firebase-tools@15.36.0 deploy --only hosting --project "$FIREBASE_PROJECT" --non-interactive 2>&1 | tee "$RUNNER_TEMP/publish.log"
+          status=${PIPESTATUS[0]}
+          if [ "$status" -ne 0 ]; then
+            # put the reason on the run page, where it can be read without opening the log
+            reason=$(sed 's/\x1b\[[0-9;]*m//g' "$RUNNER_TEMP/publish.log" | tr -d '\r' | grep -v '^[[:space:]]*$' | tail -n 8 | cut -c1-300)
+            reason=${reason//'%'/'%25'}
+            reason=${reason//$'\n'/'%0A'}
+            echo "::error title=Firebase did not accept the publish (project $FIREBASE_PROJECT)::$reason"
+          fi
+          exit "$status"
 
       - name: Remove the key from the runner
         if: always()
-        run: rm -f "$RUNNER_TEMP/firebase-key.json"
+        run: rm -f "$RUNNER_TEMP/firebase-key.json" "$RUNNER_TEMP/publish.log"
 
       - name: Check the live site
         run: |
           for attempt in 1 2 3 4 5 6; do
             if curl -fsS "$SITE_URL/" | grep -q 'supabase-bridge.js' \
                && curl -fsS "$SITE_URL/supabase-bridge.js" | grep -q 'astro_web_bundle'; then
-              echo "Live: $SITE_URL now serves the Supabase-connected dashboard."
+              echo "::notice::Live: $SITE_URL now serves the Supabase-connected dashboard."
               exit 0
             fi
             sleep 10
