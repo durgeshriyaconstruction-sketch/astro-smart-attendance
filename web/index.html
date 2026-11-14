@@ -2,14 +2,15 @@
 <html lang="en" data-theme="dark">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="viewport" content="width=device-width,initial-scale=1">
 <meta name="theme-color" content="#05080F">
-<title>Astro Smart Attendance</title>
-<!-- The exact design system the ESP32 serves at 192.168.4.1, extracted from
-     the firmware's gzipped UI blob so both pages look identical. -->
+<title>Astro Smart Attendance — Cloud</title>
+<!-- The design system and the 136 icons below are extracted verbatim from the
+     ESP32 firmware's gzipped UI blob, so this page and the device page at
+     192.168.4.1 are the same design, not two similar designs. -->
 <link rel="stylesheet" href="astro-ui.css">
 <style>
-  /* only what the extracted stylesheet doesn't already provide */
+  /* only the handful of things the extracted stylesheet doesn't provide */
   #splash{transition:opacity .45s ease}
   #splash.out{opacity:0;pointer-events:none}
   .navback{position:fixed;inset:0;background:rgba(3,6,12,.62);backdrop-filter:blur(2px);
@@ -18,22 +19,22 @@
   .nlist{display:flex;flex-direction:column}
   .nitem{display:flex;gap:12px;padding:14px 4px;border-bottom:1px solid var(--line)}
   .nitem:last-child{border-bottom:none}
-  .nitem .ndot{width:7px;height:7px;border-radius:50%;margin-top:7px;flex:none;
-               background:var(--cyan);box-shadow:0 0 9px rgba(63,203,245,.8)}
+  .nitem .ndot{width:7px;height:7px;border-radius:50%;margin-top:7px;flex:none}
   .nitem .nt{font-size:13.5px;font-weight:700}
   .nitem .nb{font-size:12.5px;color:var(--txt2);margin-top:2px;line-height:1.55}
   .nitem .nm{font-size:10.5px;color:var(--txt3);margin-top:5px;font-family:var(--fm)}
   .empty{padding:34px 12px;text-align:center;color:var(--txt3);font-size:13px}
+  .linkrow{display:flex;gap:7px;flex-wrap:wrap;margin-top:9px}
   .qrbx{display:flex;gap:12px;align-items:center;padding:12px;border:1px solid var(--line2);
         border-radius:var(--r-md);background:rgba(148,166,190,.04)}
-  .qrg{width:46px;height:46px;border-radius:10px;flex:none;
-       background:var(--grad-soft);border:1px solid rgba(63,203,245,.3);
-       display:flex;align-items:center;justify-content:center;font-size:20px}
+  .qrg{width:46px;height:46px;border-radius:12px;flex:none;background:var(--grad-soft);
+       border:1px solid rgba(63,203,245,.3);display:flex;align-items:center;
+       justify-content:center}
 </style>
 </head>
 <body>
 
-<!-- ══════════════════════ SPLASH ══════════════════════ -->
+<!-- ═══════════════════════════ SPLASH ═══════════════════════════ -->
 <div id="splash">
   <div class="orbwrap">
     <div class="planet"></div><div class="ring"></div>
@@ -48,19 +49,20 @@
   <div class="steam"><b>Team Sun Rises India</b><br>The Aditya Birla Public School, Renukoot<br>© 2026 Shaurya Gupta</div>
 </div>
 
-<!-- ══════════════════════ LOGIN ══════════════════════ -->
+<!-- ═══════════════════════════ LOGIN ═══════════════════════════ -->
 <div id="login">
   <div class="login-grid">
     <div class="login-left">
+      <div class="stars"></div><div class="bigorb"></div>
       <div style="position:relative;display:flex;flex-direction:column;height:100%">
         <div style="display:flex;align-items:center;gap:12px">
-          <span style="width:46px;height:46px;border-radius:13px;background:var(--grad-soft);
-                       border:1px solid rgba(63,203,245,.3);display:flex;align-items:center;
-                       justify-content:center;font-size:22px">🎓</span>
+          <span id="login-logo" style="width:46px;height:46px;flex:none"></span>
           <div>
             <div style="font-size:19px;font-weight:800;letter-spacing:.05em">ASTRO
-              <span style="background:var(--grad);-webkit-background-clip:text;background-clip:text;color:transparent">SMART ATTENDANCE</span></div>
-            <div style="font-size:10px;letter-spacing:.26em;color:var(--txt3);text-transform:uppercase;margin-top:2px">
+              <span style="background:var(--grad);-webkit-background-clip:text;
+                           background-clip:text;color:transparent">SMART ATTENDANCE</span></div>
+            <div style="font-size:10px;letter-spacing:.26em;color:var(--txt3);
+                        text-transform:uppercase;margin-top:2px">
               Smart attendance · Automated · Connected</div>
           </div>
         </div>
@@ -70,22 +72,30 @@
             One morning scan.<br>The whole day, handled.</div>
           <div style="font-size:13px;color:var(--txt2);margin-top:10px;line-height:1.65;max-width:400px">
             The ESP32 marks attendance with RC522 RFID, applies your timing rules,
-            and syncs every record to the cloud. This page reads that cloud data live.</div>
+            syncs every record to Supabase — and this page reads that cloud data
+            live, from anywhere.</div>
           <div class="chipbar" style="margin-top:18px">
             <span class="pill p-ok"><span class="dt pulse-dot"></span>Cloud · live</span>
             <span class="pill p-info"><span class="dt"></span>Supabase</span>
-            <span class="pill p-half"><span class="dt"></span>Offline-first device</span>
+            <span class="pill p-ai"><span class="dt"></span>Astro AI</span>
+            <span class="pill p-half"><span class="dt"></span>Offline-first</span>
           </div>
         </div>
 
         <div style="padding-top:18px;border-top:1px solid var(--line);margin-top:26px">
           <div class="qrbx">
-            <div class="qrg">📶</div>
+            <div class="qrg" id="login-qr"></div>
             <div>
-              <div style="font-size:12px;font-weight:700">Device panel needs the local Wi-Fi</div>
+              <div style="font-size:12px;font-weight:700">Open the cloud app on any phone</div>
               <div class="tiny muted3" style="margin-top:3px">
-                <span class="mono">192.168.4.1</span> only works next to the ESP32.<br>
-                This page works anywhere.</div>
+                <span class="mono">astro-smart-attendence.web.app</span> works anywhere.<br>
+                <span class="mono">192.168.4.1</span> only works next to the ESP32.</div>
+              <div class="linkrow">
+                <a href="https://astro-smart-attendence.web.app" target="_blank" rel="noopener">
+                  <button class="btn btn-sm btn-ok">Cloud — open anywhere</button></a>
+                <a href="http://192.168.4.1" target="_blank" rel="noopener">
+                  <button class="btn btn-sm">ESP32 — local panel</button></a>
+              </div>
             </div>
           </div>
         </div>
@@ -94,9 +104,7 @@
 
     <div class="login-right">
       <div style="text-align:center;margin-bottom:18px">
-        <div style="width:52px;height:52px;margin:0 auto 10px;border-radius:15px;
-                    background:var(--grad-soft);border:1px solid rgba(63,203,245,.3);
-                    display:flex;align-items:center;justify-content:center;font-size:24px">🎓</div>
+        <div id="form-logo" style="width:52px;height:52px;margin:0 auto 10px"></div>
         <div style="font-size:17px;font-weight:800">Welcome back</div>
         <div class="tiny muted3" style="margin-top:3px">Sign in to the Astro platform</div>
       </div>
@@ -129,68 +137,66 @@
   </div>
 </div>
 
-<!-- ══════════════════════ APP ══════════════════════ -->
+<!-- ═══════════════════════════ APP ═══════════════════════════ -->
 <div id="app">
   <aside class="sidebar" id="sidebar">
     <div class="brandbox">
-      <span class="bx" style="width:34px;height:34px;border-radius:10px;background:var(--grad-soft);
-            border:1px solid rgba(63,203,245,.3);display:flex;align-items:center;
-            justify-content:center;font-size:17px">🎓</span>
-      <div style="min-width:0"><div class="bt">ASTRO <span>SMART</span></div><div class="bs">Attendance</div></div>
+      <span class="bx" id="side-logo"></span>
+      <div style="min-width:0"><div class="bt">ASTRO <span>SMART</span></div>
+        <div class="bs">Attendance</div></div>
     </div>
     <div class="navscroll" id="side-nav"></div>
     <div class="devmini" id="side-dev"></div>
     <div class="sidefoot">
       <div class="sideuser" id="side-user">
-        <span class="av" style="width:30px;height:30px;border-radius:9px;background:var(--grad-soft);
-              border:1px solid rgba(63,203,245,.3);display:flex;align-items:center;
-              justify-content:center;font-size:11px;font-weight:800">A</span>
+        <span class="av" id="side-av"></span>
         <div style="flex:1;min-width:0">
-          <div class="un" id="side-un" style="font-size:12px;font-weight:700;white-space:nowrap;
-               overflow:hidden;text-overflow:ellipsis"></div>
-          <div class="ur" id="side-ur" style="font-size:10.5px;color:var(--txt3)">staff</div>
+          <div class="un" id="side-un"></div>
+          <div class="ur" id="side-ur">staff</div>
         </div>
+        <span id="ic-out" style="color:var(--txt3)"></span>
       </div>
     </div>
   </aside>
 
   <div class="navback" id="navback"></div>
 
-  <div class="mainwrap">
+  <div class="mainwrap" id="mainwrap">
     <header class="topbar">
-      <button class="ibtn" id="menuBtn" style="display:none">☰</button>
+      <button class="ibtn" id="menuBtn" style="display:none" title="Menu"></button>
       <div style="min-width:0">
         <div class="tb-crumb" id="tb-crumb">Overview</div>
         <div class="tb-title" id="tb-title">Home</div>
       </div>
       <div class="tsp"></div>
-      <div class="conncluster">
-        <span class="pill p-ok" id="pillCloud"><span class="dt pulse-dot"></span>Cloud</span>
-        <span class="pill p-idle" id="pillDev"><span class="dt"></span>Device</span>
+      <div class="conncluster" id="conn-cluster">
+        <span class="cpill on" id="pillCloud"></span>
+        <span class="cpill" id="pillDev"></span>
       </div>
       <div class="clockbox">
         <div class="ct" id="clock-t">--:--:--</div>
         <div class="cd" id="clock-d">—</div>
       </div>
-      <button class="ibtn" id="refreshBtn" title="Refresh">⟳</button>
-      <button class="ibtn" id="logoutBtn" title="Sign out">⏻</button>
+      <button class="ibtn tip" id="refreshBtn" data-tip="Refresh data"></button>
+      <button class="ibtn tip" id="logoutBtn" data-tip="Sign out"></button>
     </header>
     <main class="content"><div id="view"></div></main>
   </div>
 </div>
 
 <script type="module">
-/* ═══════════════════════════════════════════════════════════
+/* ═══════════════════════════════════════════════════════════════
    CONFIG — the only lines you normally edit.
-   Both values are public: they ship to every browser. Your
-   login is the secret; RLS decides what each account sees.
-   ═══════════════════════════════════════════════════════════ */
+   Both values are public: they ship to every browser by design.
+   Your login is the secret, and RLS decides what each account sees.
+   ═══════════════════════════════════════════════════════════════ */
 const SUPABASE_URL  = 'https://nrjchonjlncamfyzmfye.supabase.co';
 const SUPABASE_ANON = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im5yamNob25qbG5jYW1meXptZnllIiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTQ0NzUwNDUsImV4cCI6MjExMDA1MTA0NX0.MtiRrja_PYMWauT-ORzcOcdKHRAIXh3HtjyKeE5AoVM';
 const TZ = 'Asia/Kolkata';
-/* ═══════════════════════════════════════════════════════════ */
 
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2';
+import { ic, LOGO_SVG } from './icons.js';
+
 const db = createClient(SUPABASE_URL, SUPABASE_ANON);
 
 const $ = id => document.getElementById(id);
@@ -207,9 +213,23 @@ const niceDate = iso => new Date(iso).toLocaleDateString('en-GB',
 let session = null;
 let data = { students: [], att: new Map(), notices: [], device: null };
 let view = 'overview';
+let attFilter = 'all';
 let timer = null;
 
-/* ─────────────── splash ─────────────── */
+/* ─────────────────────────── logos & icons ─────────────────────────── */
+$('side-logo').innerHTML  = LOGO_SVG(34);
+$('login-logo').innerHTML = LOGO_SVG(46);
+$('form-logo').innerHTML  = LOGO_SVG(52);
+$('login-qr').innerHTML   = LOGO_SVG(26);
+$('menuBtn').innerHTML    = ic('menu', 18);
+$('refreshBtn').innerHTML = ic('refresh', 17);
+$('refreshBtn').dataset.tip = 'Refresh data';
+$('logoutBtn').innerHTML  = ic('logout', 17);
+$('logoutBtn').dataset.tip = 'Sign out';
+$('ic-out').innerHTML     = ic('chevR', 15);
+$('side-av').innerHTML    = ic('user', 15);
+
+/* ─────────────────────────────── splash ─────────────────────────────── */
 const bar = $('splash-bar');
 requestAnimationFrame(() => { bar.style.width = '100%'; });
 setTimeout(() => {
@@ -217,7 +237,7 @@ setTimeout(() => {
   setTimeout(() => $('splash').remove(), 450);
 }, 1500);
 
-/* ─────────────── clock ─────────────── */
+/* ─────────────────────────────── clock ─────────────────────────────── */
 setInterval(() => {
   const now = new Date();
   $('clock-t').textContent = now.toLocaleTimeString('en-GB', { timeZone: TZ });
@@ -225,7 +245,7 @@ setInterval(() => {
     { timeZone: TZ, weekday:'short', day:'2-digit', month:'short' });
 }, 1000);
 
-/* ─────────────── login ─────────────── */
+/* ─────────────────────────────── login ─────────────────────────────── */
 $('loginForm').addEventListener('submit', async e => {
   e.preventDefault();
   const btn = $('loginBtn'), err = $('loginErr');
@@ -256,20 +276,23 @@ $('logoutBtn').addEventListener('click', async () => {
   $('login').classList.add('on');
 });
 
-/* ─────────────── navigation ─────────────── */
+/* ───────────────────────────── navigation ───────────────────────────── */
 const NAV = [
-  { id:'overview',  label:'Overview',  icon:'◈', sec:'Main' },
-  { id:'students',  label:'Students',  icon:'☰', sec:null },
-  { id:'attendance',label:'Attendance',icon:'✓', sec:null },
-  { id:'notices',   label:'Notices',   icon:'◉', sec:null },
+  { sec: 'Main', items: [
+    { id:'overview',   label:'Overview',   icon:'grid' },
+    { id:'students',   label:'Students',   icon:'users' },
+    { id:'attendance', label:'Attendance', icon:'listcheck' },
+    { id:'notices',    label:'Notices',    icon:'megaphone' },
+  ]},
 ];
 
 function renderNav() {
-  $('side-nav').innerHTML = NAV.map(n => `
-    ${n.sec ? `<div class="nav-sec">${n.sec}</div>` : ''}
-    <button class="nav-it ${view === n.id ? 'on' : ''}" data-nav="${n.id}">
-      <span style="width:16px;text-align:center;opacity:.9">${n.icon}</span>${n.label}
-    </button>`).join('');
+  $('side-nav').innerHTML = NAV.map(g =>
+    `<div class="nav-sec">${g.sec}</div>` + g.items.map(it =>
+      `<button class="nav-it ${view === it.id ? 'on' : ''}" data-nav="${it.id}">
+         ${ic(it.icon, 16)}${it.label}
+       </button>`).join('')
+  ).join('');
 
   $('side-nav').querySelectorAll('[data-nav]').forEach(b =>
     b.addEventListener('click', () => { view = b.dataset.nav; closeNav(); render(); }));
@@ -287,7 +310,7 @@ $('menuBtn').addEventListener('click', () => {
 $('navback').addEventListener('click', closeNav);
 $('refreshBtn').addEventListener('click', () => loadAll());
 
-/* ─────────────── data ─────────────── */
+/* ─────────────────────────────── data ─────────────────────────────── */
 async function loadAll() {
   const date = todayISO();
 
@@ -297,7 +320,7 @@ async function loadAll() {
     db.from('attendance').select('student_id, status, marked_at, method')
       .eq('attendance_date', date).eq('session', 'daily'),
     db.from('notices').select('title, body, priority, created_at, audience')
-      .order('created_at', { ascending:false }).limit(12),
+      .order('created_at', { ascending: false }).limit(12),
     db.from('devices').select('device_code, firmware, last_seen, active').limit(1),
   ]);
 
@@ -306,10 +329,9 @@ async function loadAll() {
   data.notices = nt.data ?? [];
   data.device = (dv.data ?? [])[0] ?? null;
 
-  const devicesOk = !dv.error && data.device;
-  $('pillDev').className = 'pill ' + (devicesOk ? 'p-ok' : 'p-idle');
-  $('pillDev').innerHTML = `<span class="dt ${devicesOk ? 'pulse-dot' : ''}"></span>` +
-    (devicesOk ? esc(data.device.device_code) : 'Device');
+  const live = !dv.error && !!data.device;
+  $('pillDev').className = 'cpill' + (live ? ' on' : '');
+  $('pillDev').innerHTML = ic('cpu', 13) + esc(data.device?.device_code ?? 'Device');
 
   renderDevice();
   render();
@@ -317,13 +339,17 @@ async function loadAll() {
 
 function counts() {
   const total = data.students.length;
-  let present = 0, late = 0;
+  let present = 0, late = 0, leave = 0, half = 0, marked = 0;
   for (const a of data.att.values()) {
     if (a.status === 'present') present++;
     else if (a.status === 'late') late++;
+    else if (a.status === 'leave') leave++;
+    else if (a.status === 'half_day') half++;
+    if (a.status !== 'leave') marked++;
   }
-  const marked = [...data.att.values()].filter(a => a.status !== 'leave').length;
-  return { total, present, late, absent: Math.max(0, total - marked) };
+  return { total, present, late, leave, half,
+           scanned: present + late + half,
+           absent: Math.max(0, total - marked) };
 }
 
 const STATUS_PILL = {
@@ -332,10 +358,10 @@ const STATUS_PILL = {
 };
 
 function statusCell(a) {
-  if (!a) return '<span class="pill p-idle"><span class="dt"></span>Not marked</span>';
+  if (!a) return '<span class="pill p-idle"><span class="dt"></span>Not scanned</span>';
   const cls = STATUS_PILL[a.status] ?? 'p-idle';
   return `<span class="pill ${cls}"><span class="dt"></span>${
-    esc(a.status.replace('_',' '))}</span>`;
+    esc(String(a.status).replace('_', ' '))}</span>`;
 }
 
 function renderDevice() {
@@ -343,12 +369,13 @@ function renderDevice() {
   if (!d) { $('side-dev').innerHTML = ''; return; }
   const live = d.last_seen && (Date.now() - new Date(d.last_seen).getTime()) < 6 * 3600e3;
   $('side-dev').innerHTML = `
-    <div style="border:1px solid var(--line2);border-radius:var(--r-sm);
-                padding:10px;background:rgba(148,166,190,.04)">
-      <div style="display:flex;align-items:center;gap:7px;font-size:11px;font-weight:800;
-                  letter-spacing:.06em;text-transform:uppercase;color:var(--txt3)">
-        <span class="dt ${live ? 'pulse-dot' : ''}" style="width:6px;height:6px;border-radius:50%;
-              background:${live ? 'var(--green)' : 'var(--txt3)'}"></span>ESP32
+    <div style="border:1px solid var(--line2);border-radius:var(--r-sm);padding:10px;
+                background:rgba(148,166,190,.04)">
+      <div style="display:flex;align-items:center;gap:7px;font-size:10.5px;font-weight:800;
+                  letter-spacing:.09em;text-transform:uppercase;color:var(--txt3)">
+        <span style="width:6px;height:6px;border-radius:50%;
+              background:${live ? 'var(--green)' : 'var(--txt3)'};
+              ${live ? 'box-shadow:0 0 8px var(--green)' : ''}"></span>ESP32
       </div>
       <div class="mono" style="font-size:11.5px;margin-top:5px">${esc(d.device_code)}</div>
       <div style="font-size:10.5px;color:var(--txt3);margin-top:2px">
@@ -356,51 +383,69 @@ function renderDevice() {
     </div>`;
 }
 
-/* ─────────────── views ─────────────── */
+/* stat tiles — same helper shape the firmware uses */
+function statTile(icon, label, val, foot, color) {
+  const cmap = {
+    green:'var(--green-bg);color:var(--c-ok)',  amber:'var(--amber-bg);color:var(--c-warn)',
+    red:'var(--red-bg);color:var(--c-err)',      blue:'var(--blue-bg);color:var(--c-info)',
+    cyan:'var(--cyan-bg);color:var(--c-cyan)',   purple:'var(--purple-bg);color:var(--c-ai)',
+    teal:'var(--teal-bg);color:#7AE7D9',
+  };
+  return `<div class="stat ${color}"><div class="lb">${label}</div>
+    <div class="vl">${val}</div><div class="ft">${foot}</div>
+    <span class="tico" style="background:${cmap[color]}">${ic(icon, 16)}</span></div>`;
+}
+
+function statBand() {
+  const c = counts();
+  return `<div class="statband stagger" style="margin-bottom:14px">
+    ${statTile('users',        'Total',       c.total,   'students on roster', 'cyan')}
+    ${statTile('check',        'Present',     c.present, 'on time today',      'green')}
+    ${statTile('clock',        'Late',        c.late,    'after the cut-off',  'amber')}
+    ${statTile('x',            'Absent',      c.absent,  'not scanned',        'red')}
+    ${statTile('calendarcheck','Leave',       c.leave,   'approved',           'blue')}
+    ${statTile('scan',         'Scanned',     c.scanned, 'RFID reads',         'purple')}
+  </div>`;
+}
+
+/* ─────────────────────────────── views ─────────────────────────────── */
+const TITLES = {
+  overview:   ['Overview', 'Home'],
+  students:   ['People',   'Students'],
+  attendance: ['Records',  'Attendance'],
+  notices:    ['Board',    'Notices'],
+};
+
 function render() {
   renderNav();
-  const titles = {
-    overview:  ['Overview', 'Home'],
-    students:  ['People',   'Students'],
-    attendance:['Records',  'Attendance'],
-    notices:   ['Board',    'Notices'],
-  };
-  const [crumb, title] = titles[view];
+  const [crumb, title] = TITLES[view];
   $('tb-crumb').textContent = crumb;
   $('tb-title').textContent = title;
 
-  const c = counts();
-  const head = `
-    <div class="grid" style="grid-template-columns:repeat(4,1fr);margin-bottom:14px">
-      <div class="card stat cyan"><div class="lb">Students</div>
-        <div class="vl">${c.total}</div><div class="ft">enrolled &amp; active</div></div>
-      <div class="card stat green"><div class="lb">Present</div>
-        <div class="vl">${c.present}</div><div class="ft">on time today</div></div>
-      <div class="card stat amber"><div class="lb">Late</div>
-        <div class="vl">${c.late}</div><div class="ft">after the cut-off</div></div>
-      <div class="card stat red"><div class="lb">Not marked</div>
-        <div class="vl">${c.absent}</div><div class="ft">no scan yet</div></div>
-    </div>`;
-
   if (view === 'overview') {
-    $('view').innerHTML = head + `
-      <div class="card" style="margin-bottom:14px">
-        <div class="card-h"><div><div class="card-t">Today's attendance</div>
-          <div class="card-s">${todayISO()} · updates every 10 s</div></div></div>
-        ${attTable(8)}
-      </div>
-      <div class="card">
-        <div class="card-h"><div><div class="card-t">Latest notices</div>
-          <div class="card-s">published by the school</div></div></div>
-        ${noticesList(4)}
+    $('view').innerHTML = statBand() + `
+      <div class="grid" style="grid-template-columns:1.55fr 1fr">
+        <div class="card">
+          <div class="card-h"><div><div class="card-t">Today's register</div>
+            <div class="card-s">${todayISO()} · refreshes every 10 s</div></div>
+            <button class="btn btn-sm" data-goto="attendance">Open full register</button></div>
+          ${attTable(8)}
+        </div>
+        <div class="card">
+          <div class="card-h"><div><div class="card-t">Latest notices</div>
+            <div class="card-s">published by the school</div></div></div>
+          ${noticesList(4)}
+        </div>
       </div>`;
+    bindGoto();
   }
 
   if (view === 'students') {
-    $('view').innerHTML = head + `
+    const c = counts();
+    $('view').innerHTML = statBand() + `
       <div class="card">
         <div class="card-h"><div><div class="card-t">All students</div>
-          <div class="card-s">${c.total} active</div></div></div>
+          <div class="card-s">${c.total} active on the roster</div></div></div>
         <div class="tblwrap"><table class="tbl">
           <thead><tr><th>Roll</th><th>Name</th><th>Class</th><th>Today</th><th>Time</th></tr></thead>
           <tbody>${data.students.length ? data.students.map(s => {
@@ -418,12 +463,14 @@ function render() {
   }
 
   if (view === 'attendance') {
-    $('view').innerHTML = head + `
+    $('view').innerHTML = statBand() + `
       <div class="card">
-        <div class="card-h"><div><div class="card-t">Attendance register — ${todayISO()}</div>
-          <div class="card-s">method and exact scan time</div></div></div>
-        ${attTable(999)}
+        <div class="card-h"><div><div class="card-t">Attendance register</div>
+          <div class="card-s">${todayISO()} · every scan, with method and time</div></div></div>
+        <div class="chipbar" style="margin-bottom:12px">${chips()}</div>
+        <div id="att-body">${attTable(999)}</div>
       </div>`;
+    bindChips();
   }
 
   if (view === 'notices') {
@@ -436,8 +483,46 @@ function render() {
   }
 }
 
+function bindGoto() {
+  document.querySelectorAll('[data-goto]').forEach(b => b.addEventListener('click', () => {
+    view = b.dataset.goto; render();
+  }));
+}
+
+const FILTERS = [
+  ['all','All'], ['present','P · Present'], ['late','L · Late'], ['absent','A · Absent'],
+  ['leave','E · Leave'], ['half','HD · Half day'],
+];
+
+function chips() {
+  return FILTERS.map(([k, label]) => {
+    const n = k === 'all' ? data.students.length : filterList(k).length;
+    return `<button class="chip ${attFilter === k ? 'on' : ''}" data-filter="${k}">${label}
+      <b class="mono" style="margin-left:6px;opacity:.7">${n}</b></button>`;
+  }).join('');
+}
+
+function bindChips() {
+  document.querySelectorAll('[data-filter]').forEach(b => b.addEventListener('click', () => {
+    attFilter = b.dataset.filter;
+    document.querySelector('.chipbar').innerHTML = chips();
+    $('att-body').innerHTML = attTable(999);
+    bindChips();
+  }));
+}
+
+function filterList(k) {
+  return data.students.filter(s => {
+    const a = data.att.get(s.id);
+    if (k === 'absent') return !a || a.status === 'absent';
+    if (k === 'half')   return a?.status === 'half_day';
+    return a?.status === k;
+  });
+}
+
 function attTable(limit) {
-  const rows = data.students.slice(0, limit).map(s => {
+  const list = attFilter === 'all' ? data.students : filterList(attFilter);
+  const rows = list.slice(0, limit).map(s => {
     const a = data.att.get(s.id);
     const cl = s.classes ? `${s.classes.name}-${s.classes.section}` : '–';
     return `<tr>
@@ -449,7 +534,7 @@ function attTable(limit) {
     </tr>`;
   }).join('');
 
-  if (!rows) return `<div class="empty">No students linked to this account's school yet.</div>`;
+  if (!rows) return `<div class="empty">Nothing here yet for this filter.</div>`;
 
   return `<div class="tblwrap"><table class="tbl">
     <thead><tr><th>Roll</th><th>Student</th><th>Class</th><th>Status</th><th>Time</th></tr></thead>
@@ -461,8 +546,11 @@ function noticesList(limit) {
   return `<div class="nlist">${data.notices.slice(0, limit).map(n => `
     <div class="nitem">
       <span class="ndot" style="background:${
-        n.priority === 'critical' ? 'var(--red)' :
-        n.priority === 'important' ? 'var(--amber)' : 'var(--cyan)'}"></span>
+        n.priority === 'critical'  ? 'var(--red)' :
+        n.priority === 'important' ? 'var(--amber)' : 'var(--cyan)'};
+        box-shadow:0 0 9px ${
+        n.priority === 'critical'  ? 'rgba(244,105,90,.8)' :
+        n.priority === 'important' ? 'rgba(245,185,62,.8)' : 'rgba(63,203,245,.8)'}"></span>
       <div style="min-width:0">
         <div class="nt">${esc(n.title ?? '')}</div>
         <div class="nb">${esc(n.body ?? '')}</div>
@@ -472,21 +560,23 @@ function noticesList(limit) {
     </div>`).join('')}</div>`;
 }
 
-/* ─────────────── boot ─────────────── */
+/* ─────────────────────────────── boot ─────────────────────────────── */
 function enterApp() {
   $('login').classList.remove('on');
   $('app').classList.add('on');
   const email = session?.user?.email ?? '';
-  $('side-un').textContent = email.split('@')[0] || 'staff';
+  const who = email.split('@')[0] || 'staff';
+  $('side-un').textContent = who;
   $('side-ur').textContent = 'staff';
-  if (window.innerWidth < 900) $('menuBtn').style.display = 'flex';
+  $('side-av').innerHTML = ic('user', 15);
+  if (window.innerWidth <= 1024) $('menuBtn').style.display = 'flex';
   loadAll();
   if (timer) clearInterval(timer);
   timer = setInterval(loadAll, 10000);
 }
 
 window.addEventListener('resize', () => {
-  $('menuBtn').style.display = window.innerWidth < 900 ? 'flex' : 'none';
+  $('menuBtn').style.display = window.innerWidth <= 1024 ? 'flex' : 'none';
 });
 
 const { data: { session: existing } } = await db.auth.getSession();
