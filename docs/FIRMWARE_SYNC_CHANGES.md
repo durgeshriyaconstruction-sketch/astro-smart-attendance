@@ -101,8 +101,27 @@ Every added line carries the tag `ASTRO-SYNC-2`, so you can search for it.
 | Student added on the website | name and roll only, class shown as 9-A | class and section from the website |
 | Device's own page | shows cloud changes only after a reload | refreshes by itself |
 | Cloud refuses an item | "all records synced" | Serial and cloud status say `Cloud refused N item(s): reason` |
-| Device address and Wi-Fi signal | unknown to the website | sent once a minute, shown on the website's device pages |
+| Device address and Wi-Fi signal | unknown to the website | sent once a minute, shown on the website's device pages - even while a sync is failing |
 
+### Online / Offline on the website (`ASTRO-HEARTBEAT-1`)
+
+The website counts the device as **Online** when it has reported within the last
+90 seconds (`ONLINE_S` in `web/supabase-bridge.js`). The device reports every 60
+seconds, so a healthy connection shows Online within about a minute of booting,
+and flips to Offline roughly 90 seconds after the Wi-Fi goes away.
+
+That report used to run only on the "nothing left to sync" path of
+`Cloud::service()`. A device that was authenticated and on Wi-Fi but still
+retrying a failed batch therefore never reported itself: the website said
+Offline for a device that was in fact working, and `devices.ip` and
+`devices.wifi_rssi` stayed empty for ever. The report now runs before the sync
+step, so the Online/Offline pill reflects the connection instead of the sync
+queue. Every added line carries the tag `ASTRO-HEARTBEAT-1`.
+
+Note that reading data does **not** refresh `devices.last_seen` - only
+`astro_device_handshake`, `astro_device_ping` and `astro_sync_batch` do. A
+`last_seen` that stops moving therefore means "no handshake, no report and no
+batch", not merely "no reads".
 Safety nets: nothing is removed when the request fails or the reply is cut off;
 an empty cloud list must arrive twice in a row (about a minute apart) before it
 removes anyone; a student still waiting to be sent is never removed. If the

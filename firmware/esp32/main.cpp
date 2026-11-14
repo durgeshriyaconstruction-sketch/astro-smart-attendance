@@ -4343,6 +4343,15 @@ static void service() {
     settingsPushAt = millis();
     pushSettings();
   }
+  // ASTRO-HEARTBEAT-1: report this device to the cloud once a minute even while a
+  // sync batch is still being retried. The ping used to live only in the
+  // "nothing left to sync" path at the bottom of this function, so a device that
+  // was authenticated and on Wi-Fi but stuck retrying a failed batch never
+  // reported itself - the website showed it as Offline and never learned its IP
+  // or signal strength. reportDeviceStatus() rate-limits itself to once a minute,
+  // so calling it here on every tick is cheap.
+  reportDeviceStatus();
+
   uint32_t gen = Data::generation;
   if (gen != lastGeneration || immediateSync) {
     state = State::BATCH;
