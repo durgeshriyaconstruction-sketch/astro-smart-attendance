@@ -84,14 +84,31 @@ calls whose argument names do not match the real database functions.
 It does not talk to the real project. After changing a database function,
 check the real thing as well.
 
-## Deploying
+## Publishing to https://astro-smart-attendence.web.app
+
+**Automatic.** `.github/workflows/deploy-website.yml` publishes `web/` on every
+push to `main` and to the working branch `arena/5084b081-astro-smart-attendance`,
+then checks that the live site really serves the new files. It needs one
+repository secret, added once:
+
+- name: `FIREBASE_SERVICE_ACCOUNT`
+- value: the whole JSON key file from Firebase console → Project settings →
+  Service accounts → **Generate new private key**
+- where: GitHub → Settings → Secrets and variables → Actions → New repository secret
+
+Without the secret the run stops with "Not published" and changes nothing.
+
+**By hand**, from a computer with Node.js:
 
 ```bash
-npm i -g firebase-tools
-firebase login
-firebase use --add
-firebase deploy --only hosting
+npx firebase-tools login
+npx firebase-tools deploy --only hosting
 ```
+
+`firebase.json` names the Hosting site (`astro-smart-attendence`) and has no
+rewrites on purpose: the dashboard's `/api/...` calls are answered in the browser
+by `supabase-bridge.js`, and a catch-all rewrite to `index.html` would hide a
+missing `supabase-bridge.js` behind a 200 OK page.
 
 ## Before real student data goes in
 

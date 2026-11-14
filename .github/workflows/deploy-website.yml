@@ -1,0 +1,95 @@
+name: Publish website to Firebase
+
+# Publishes the web/ folder to https://astro-smart-attendence.web.app
+#
+# Needs ONE repository secret, added once:
+#   FIREBASE_SERVICE_ACCOUNT = the whole JSON key file from
+#   Firebase console > Project settings > Service accounts > Generate new private key
+#   (GitHub: Settings > Secrets and variables > Actions > New repository secret)
+
+on:
+  push:
+    branches:
+      - main
+      - arena/5084b081-astro-smart-attendance
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: firebase-hosting-live
+  cancel-in-progress: false
+
+env:
+  SITE_URL: https://astro-smart-attendence.web.app
+
+jobs:
+  publish:
+    name: Publish web/ to Firebase Hosting
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+
+      - name: Check the website files before publishing
+        run: |
+          test -f web/index.html && test -f web/supabase-bridge.js
+          node --check web/supabase-bridge.js
+          # index.html must be the website edition (bridge loaded before the app)
+          python3 tools/patch_web_index.py web/index.html
+          git diff --exit-code -- web/index.html
+          # the public key is fine in the page; a service-role key must never be
+          if grep -rIl -e 'c2VydmljZV9yb2xl' -e 'InNlcnZpY2Vfcm9sZSI' -e 'sb_secret_' web/; then
+            echo "::error::A Supabase service-role key is inside web/. Not publishing."
+            exit 1
+          fi
+
+      - name: Read the Firebase key
+        id: key
+        env:
+          FIREBASE_KEY: ${{ secrets.FIREBASE_SERVICE_ACCOUNT }}
+        run: |
+          if [ -z "$FIREBASE_KEY" ]; then
+            echo "::error::Not published. Add the repository secret FIREBASE_SERVICE_ACCOUNT (Firebase console > Project settings > Service accounts > Generate new private key; paste the whole file), then re-run this job."
+            exit 1
+          fi
+          printf '%s' "$FIREBASE_KEY" > "$RUNNER_TEMP/firebase-key.json"
+          python3 - "$RUNNER_TEMP/firebase-key.json" <<'PY'
+          import json, os, sys
+          try:
+              key = json.load(open(sys.argv[1]))
+              assert key.get("type") == "service_account" and key.get("project_id") and key.get("private_key")
+          except Exception:
+              print("::error::FIREBASE_SERVICE_ACCOUNT is not a Firebase service-account key file. Paste the whole .json file, from the first { to the last }.")
+              sys.exit(1)
+          print("Firebase project of this key:", key["project_id"])
+          with open(os.environ["GITHUB_OUTPUT"], "a") as out:
+              out.write("project=" + key["project_id"] + "\n")
+          PY
+
+      - name: Publish
+        env:
+          GOOGLE_APPLICATION_CREDENTIALS: ${{ runner.temp }}/firebase-key.json
+        run: npx --yes firebase-tools@15.36.0 deploy --only hosting --project "${{ steps.key.outputs.project }}" --non-interactive
+
+      - name: Remove the key from the runner
+        if: always()
+        run: rm -f "$RUNNER_TEMP/firebase-key.json"
+
+      - name: Check the live site
+        run: |
+          for attempt in 1 2 3 4 5 6; do
+            if curl -fsS "$SITE_URL/" | grep -q 'supabase-bridge.js' \
+               && curl -fsS "$SITE_URL/supabase-bridge.js" | grep -q 'astro_web_bundle'; then
+              echo "Live: $SITE_URL now serves the Supabase-connected dashboard."
+              exit 0
+            fi
+            sleep 10
+          done
+          echo "::error::Published, but $SITE_URL does not show the new files yet. Is astro-smart-attendence a site of this Firebase project?"
+          exit 1

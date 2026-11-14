@@ -1,24 +1,31 @@
 {
   "hosting": {
+    "site": "astro-smart-attendence",
     "public": "web",
-    "ignore": ["firebase.json", "**/.*", "**/node_modules/**"],
-    "_rewrites_note": [
-      "Deliberately NO catch-all rewrite to /index.html.",
-      "The app asks /api/... for data. On the device the ESP32 answers; on Hosting",
-      "nothing does, so the request must 404 — that is the signal the app uses to",
-      "reach localApiFallback(), which supabase-bridge.js then answers from Supabase.",
-      "A catch-all rewrite would return index.html with status 200 for /api/*,",
-      "the app would get HTML instead of JSON, and every screen would stay empty.",
-      "The app routes with #hash (/#/home), so deep links never need a rewrite."
+    "ignore": [
+      "firebase.json",
+      "**/.*",
+      "**/node_modules/**",
+      "README.md"
     ],
     "headers": [
       {
         "source": "**",
-        "headers": [{ "key": "Cache-Control", "value": "no-cache" }]
+        "headers": [
+          {
+            "key": "Cache-Control",
+            "value": "no-cache"
+          }
+        ]
       },
       {
         "source": "/supabase-bridge.js",
-        "headers": [{ "key": "Cache-Control", "value": "no-cache, max-age=0" }]
+        "headers": [
+          {
+            "key": "Cache-Control",
+            "value": "no-cache, max-age=0"
+          }
+        ]
       }
     ]
   }
