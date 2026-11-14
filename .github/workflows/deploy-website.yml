@@ -28,7 +28,7 @@ jobs:
   publish:
     name: Publish web/ to Firebase Hosting
     runs-on: ubuntu-latest
-    timeout-minutes: 10
+    timeout-minutes: 15
     steps:
       - uses: actions/checkout@v5
 
@@ -48,6 +48,12 @@ jobs:
             echo "::error::A Supabase service-role key is inside web/. Not publishing."
             exit 1
           fi
+
+      - name: Test the dashboard in a browser (stand-in database)
+        working-directory: tools/e2e
+        run: |
+          npm ci --no-audit --no-fund --loglevel=error
+          npm test
 
       - name: Read the Firebase key
         id: key
@@ -105,3 +111,9 @@ jobs:
           done
           echo "::error::Published, but $SITE_URL does not show the new files yet. Is astro-smart-attendence a site of this Firebase project?"
           exit 1
+
+      # Read-only: signs in with the admin login the page itself shows (if it still
+      # shows one), loads the dashboard from Supabase, signs out. Changes nothing.
+      - name: Sign in on the live site with a real browser
+        working-directory: tools/e2e
+        run: node live_check.mjs

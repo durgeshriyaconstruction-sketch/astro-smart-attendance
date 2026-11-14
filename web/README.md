@@ -82,21 +82,34 @@ token refresh, notices, messages, settings, sign-out. The stand-in refuses
 calls whose argument names do not match the real database functions.
 
 It does not talk to the real project. After changing a database function,
-check the real thing as well.
+check the real thing as well:
+
+```bash
+npm run live                  # read-only check of the published site against the real Supabase
+```
 
 ## Publishing to https://astro-smart-attendence.web.app
 
-**Automatic.** `.github/workflows/deploy-website.yml` publishes `web/` on every
-push to `main` and to the working branch `arena/5084b081-astro-smart-attendance`,
-then checks that the live site really serves the new files. It needs one
-repository secret, added once:
+**Automatic.** `.github/workflows/deploy-website.yml` runs on every push to
+`main` and to the working branch `arena/5084b081-astro-smart-attendance`:
 
-- name: `FIREBASE_SERVICE_ACCOUNT`
-- value: the whole JSON key file from Firebase console → Project settings →
-  Service accounts → **Generate new private key**
-- where: GitHub → Settings → Secrets and variables → Actions → New repository secret
+1. runs the browser test below; a failing test stops the publish
+2. publishes `web/` to Firebase Hosting
+3. checks that the live site serves the new files
+4. opens the live site in a real browser, signs in with the admin login the
+   sign-in page shows, loads the dashboard from Supabase and signs out
+   (`tools/e2e/live_check.mjs`; read-only, it changes nothing)
 
-Without the secret the run stops with "Not published" and changes nothing.
+The result of each step is written on the run page under the repository's
+**Actions** tab.
+
+It needs one repository secret, named `ASTRO` (or `FIREBASE_SERVICE_ACCOUNT`):
+the whole JSON key file from Firebase console → Project settings → Service
+accounts → **Generate new private key**, stored under GitHub → Settings →
+Secrets and variables → Actions. Without it the run stops with "Not published"
+and changes nothing.
+
+To undo a publish: Firebase console → Hosting → release history → **Rollback**.
 
 **By hand**, from a computer with Node.js:
 

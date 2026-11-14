@@ -11,9 +11,7 @@ import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { createFake } from './fake_supabase.mjs';
 
-process.env.AWS_LAMBDA_JS_RUNTIME ??= 'nodejs22.x';      // must be set before the import below
-const { default: chromium } = await import('@sparticuz/chromium');
-const { default: puppeteer } = await import('puppeteer-core');
+import { launchBrowser, report } from './browser.mjs';
 
 const WEB = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '../../web');
 const SHOTS = process.env.SHOTS || '';
@@ -38,8 +36,7 @@ const ORIGIN = 'http://127.0.0.1:' + server.address().port;
 // ---- browser + fake Supabase ----
 const fake = createFake();
 const db = fake.db;
-const browser = await puppeteer.launch({ executablePath: await chromium.executablePath(), headless: 'shell',
-  args: [...chromium.args, '--no-sandbox', '--disable-dev-shm-usage', '--hide-scrollbars'] });
+const browser = await launchBrowser(['--hide-scrollbars']);
 const page = await browser.newPage();
 await page.setViewport({ width: 1280, height: 860 });
 await page.emulateTimezone('Asia/Kolkata');
@@ -60,7 +57,10 @@ page.on('request', (req) => {
 let passed = 0, failed = 0;
 const check = (name, cond, detail) => {
   if (cond) { passed++; console.log('  ok   ' + name); }
-  else { failed++; console.log('  FAIL ' + name + (detail !== undefined ? '\n         got: ' + JSON.stringify(detail) : '')); }
+  else {
+    failed++; console.log('  FAIL ' + name + (detail !== undefined ? '\n         got: ' + JSON.stringify(detail) : ''));
+    if (process.env.GITHUB_ACTIONS) report('error', 'Dashboard test failed: ' + name + (detail !== undefined ? ' (got: ' + JSON.stringify(detail).slice(0, 400) + ')' : ''));
+  }
 };
 const ev = (fn, ...a) => page.evaluate(fn, ...a);
 const until = async (fn, ms = 15000, ...a) => {
@@ -278,6 +278,7 @@ try {
 } catch (e) {
   failed++;
   console.log('  FAIL test crashed: ' + (e && e.stack || e));
+  if (process.env.GITHUB_ACTIONS) report('error', 'Dashboard test crashed: ' + String((e && e.stack) || e).slice(0, 600));
   await shot('crash');
 }
 
