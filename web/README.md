@@ -73,6 +73,11 @@ and in the "Cloud" light:
 While the cloud is out of reach the page tries again every 5 seconds and comes
 back by itself, without a reload.
 
+If the gate device has **never** checked in, the home page and the device pages
+say so ("The gate device has never connected to the cloud") and name what it
+needs: its secret key in `astro_config.h` and a Wi-Fi with internet. See
+`docs/FIRMWARE_SYNC_CHANGES.md`.
+
 To see the website and the device's own page on one computer at the same time,
 put the device on a Wi-Fi that has internet (device page → WiFi Manager) and keep
 the computer on that same Wi-Fi. The device's page is then at the address shown

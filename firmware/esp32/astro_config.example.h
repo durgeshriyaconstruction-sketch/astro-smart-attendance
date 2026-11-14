@@ -42,7 +42,7 @@
 //   select public.astro_rotate_device_secret('ASTRO-RNK-01');
 //
 // Every astro_* RPC call is authenticated with this value. Leave it empty and
-// the device will get 401 DEVICE_SECRET_REQUIRED on every single call.
+// the device will get 403 DEVICE_SECRET_REQUIRED on every single call.
 #ifndef ASTRO_DEVICE_SECRET
 #define ASTRO_DEVICE_SECRET ""
 #endif

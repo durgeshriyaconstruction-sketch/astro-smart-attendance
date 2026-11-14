@@ -315,7 +315,25 @@ try {
   await login('astro@gmail.com', 'admin123');
   check('a lost first request is sent again: sign-in still succeeds, no error shown', await until(() => document.querySelector('#app').classList.contains('on') && SESSION.role === 'admin', 15000) && (await loginError()) === '', await loginError());
 
-  console.log('\n10. Nothing leaked, nothing crashed');
+  console.log('\n10. A gate device that has never connected');
+  const seen = { last_seen: db.device.last_seen, last_boot: db.device.last_boot };
+  db.device.last_seen = null; db.device.last_boot = null;       // registered, but it never reached the cloud
+  await ev(() => AstroWeb.refresh());
+  await ev(() => go('home'));
+  await sleep(500);
+  const homeText = await ev(() => document.querySelector('#app').innerText);
+  check('home page says the device never connected, and what it needs', /gate device has never connected to the cloud/i.test(homeText) && /astro_config\.h/.test(homeText) && /Wi-Fi that has internet/.test(homeText), homeText.slice(0, 300));
+  check('...and it is not shown as a device that was seen', await ev(() => DEVICE.online === false && /never connected/.test(DEVICE.wifiSsid)), await ev(() => [DEVICE.online, DEVICE.wifiSsid]));
+  await ev(() => go('device'));
+  await sleep(400);
+  check('...the device page says the same', /never connected/.test(await ev(() => document.querySelector('#app').innerText)));
+  Object.assign(db.device, seen);
+  await ev(() => AstroWeb.refresh());
+  await ev(() => go('home'));
+  await sleep(500);
+  check('once the device has checked in, the note is gone', !/never connected to the cloud/i.test(await ev(() => document.querySelector('#app').innerText)));
+
+  console.log('\n11. Nothing leaked, nothing crashed');
   check('no /api request ever reached the web host (the pretend database never ran)', leaks.length === 0, leaks.slice(0, 5));
   check('no script errors', pageErrors.length === 0, pageErrors.slice(0, 5));
 } catch (e) {

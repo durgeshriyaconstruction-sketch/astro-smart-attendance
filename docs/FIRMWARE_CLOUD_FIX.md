@@ -38,7 +38,7 @@ out of date and will cost you marks in a viva — see the note at the end.
 | # | Defect | Effect |
 |---|--------|--------|
 | 1 | `ASTRO_SUPABASE_KEY` was `"sb_publishable_astro_public_key"` — a placeholder, not a real key | 401 on every request |
-| 2 | `rpcCall()` never sent the device secret | 401 `DEVICE_SECRET_REQUIRED` |
+| 2 | `rpcCall()` never sent the device secret | 403 `DEVICE_SECRET_REQUIRED` |
 | 3 | `authenticate()` treated **HTTP 404 as success** | a completely broken cloud reported "online" |
 | 4 | `cloudWorker()` retried `bootLoadInitialState()` every **10 ms** | request storm at Supabase while offline |
 | 5 | RPC parameters were `p_device_code` while the sketch sends `device_code` | `PGRST202` function-not-found on all 23 calls |
@@ -98,8 +98,11 @@ All test rows were removed afterwards.
 
 ## 5. What you must do
 
-1. **Put `astro_config.h` next to `main.cpp`.** The file is already in
-   `firmware/esp32/astro_config.h` and is git-ignored. Fill in your 2.4 GHz Wi-Fi.
+1. **Create `astro_config.h` next to `main.cpp`** (copy `astro_config.example.h`)
+   and fill in your 2.4 GHz Wi-Fi and the device secret. The file is git-ignored,
+   so it is **never in this repository**: a sketch built from GitHub alone has no
+   secret and gets `403 DEVICE_SECRET_REQUIRED` on every call. See
+   `docs/FIRMWARE_SYNC_CHANGES.md`.
 2. **Flash `firmware/esp32/main.cpp`.**
 3. Open Serial Monitor at **115200** and check the banner:
 

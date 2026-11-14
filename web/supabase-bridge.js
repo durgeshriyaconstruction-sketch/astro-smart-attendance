@@ -55,6 +55,7 @@
   var RESERVED = { CA4FBE2C: 'Admin', BA6ECD2C: 'Guardian', '5A77C22C': 'Delete' };
   var CARD_HELP = 'A card number is 8 to 20 characters using only 0-9 and A-F, for example 04A3B2C1. ' +
                   'Press Auto if the student has no card yet.';
+  var NEVER_HELP = 'It needs two things: its secret key (the file <b>astro_config.h</b> next to main.cpp) and a Wi-Fi that has internet.';
   var DEVICE_ONLY = 'That control lives on the school device. Open the device\u2019s own page on the school Wi-Fi to use it.';
 
   var realFetch = window.fetch ? window.fetch.bind(window) : null;
@@ -884,7 +885,8 @@
       DEVICE.online = k.online;
       DEVICE.state = k.online ? 'green' : 'red';
       DEVICE.ip = DEVICE.stationIp = k.known ? (k.ip || k.code) : '\u2014';
-      DEVICE.wifiSsid = k.online ? 'gate device online' : 'gate device offline';   // the network name stays on the device
+      DEVICE.wifiSsid = k.online ? 'gate device online'                           // the network name stays on the device
+                      : k.known && k.age == null ? 'gate device never connected' : 'gate device offline';
       if (k.rssi == null) DEVICE.rssi = '\u2014';             // signal strength: only if the device reported one
       if (k.firmware) { DEVICE.fw = k.firmware; DEVICE.fwNew = k.firmware; }
       /* The cloud only hears "the device checked in". Heap, temperature, storage and the
@@ -902,6 +904,7 @@
     else pill('sys-cloud', 'p-idle', 'Cloud: checking\u2026');
     if (!k.known) pill('sys-dev', 'p-idle', 'Device: shown after sign-in');
     else if (k.online) pill('sys-dev', 'p-ok', 'Device: online', true);
+    else if (k.age == null) pill('sys-dev', 'p-idle', 'Device: never connected');
     else pill('sys-dev', 'p-idle', 'Device: offline \u00b7 seen ' + ago(k.age));
     var lc = document.getElementById('lg-cloud'), ld = document.getElementById('lg-device');
     if (lc) lc.className = 'pill ' + (S.cloudUp === false ? 'p-err' : 'p-ok');
@@ -975,6 +978,13 @@
           html = html.replace(/WiFi<small>[^<]*<\/small><\/div><div class="sv" style="color:var\(--c-ok\)">Strong<\/div>/,
             'WiFi<small>the gate device\u2019s own network</small></div><div class="sv" style="color:var(--txt3)">On device</div>');
         }
+        /* A device that never reached the cloud is the usual reason for "the device shows
+           students and scans that the website does not": say so on the first page people see. */
+        var k = kiosk();
+        if (k.known && k.age == null) {
+          html = '<div class="web-note"><b>The gate device has never connected to the cloud.</b> ' +
+                 'Students and scans made on the device cannot appear here until it does. ' + NEVER_HELP + '</div>' + html;
+        }
         return html;
       };
       ['device', 'devicecheck', 'health', 'wifi', 'updater', 'fingerprint'].forEach(function (name) {
@@ -986,7 +996,8 @@
           return '<div class="web-note"><b>This page belongs to the gate device.</b> Its hardware readings and controls ' +
                  '(Wi-Fi, fingerprint, firmware update, reader tests) work on the device\u2019s own page, opened on the school Wi-Fi. ' +
                  'The website only knows when the device last checked in: <b>' +
-                 (!k.known ? 'no device registered' : k.online ? 'online now' : ago(k.age)) + '</b>.</div>' + html;
+                 (!k.known ? 'no device registered' : k.online ? 'online now' : ago(k.age)) + '</b>.' +
+                 (k.known && k.age == null ? ' ' + NEVER_HELP : '') + '</div>' + html;
         };
       });
     } catch (e) {}

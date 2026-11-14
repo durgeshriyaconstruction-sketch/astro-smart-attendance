@@ -73,8 +73,10 @@ export function createFake() {
   function devices() {
     const d = db.device;
     return [{ code: d.code, name: d.name, location: d.location, firmware: d.firmware, ip: d.ip, rssi: d.rssi, active: d.active,
-              last_seen: new Date(d.last_seen).toISOString(), last_boot: new Date(d.last_boot).toISOString(),
-              age_s: Math.max(0, Math.round((Date.now() - d.last_seen) / 1000)) }];
+              // a device that has never checked in has no times at all (as in the real database)
+              last_seen: d.last_seen == null ? null : new Date(d.last_seen).toISOString(),
+              last_boot: d.last_boot == null ? null : new Date(d.last_boot).toISOString(),
+              age_s: d.last_seen == null ? null : Math.max(0, Math.round((Date.now() - d.last_seen) / 1000)) }];
   }
 
   const normUid = (u) => (u == null ? null : String(u).toUpperCase().replace(/[^0-9A-Z]/g, '') || null);

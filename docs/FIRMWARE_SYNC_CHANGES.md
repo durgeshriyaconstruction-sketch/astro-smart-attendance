@@ -2,8 +2,18 @@
 
 ## What was wrong
 
-The gate device showed 18 students and the website showed 0. Two things caused it.
+The gate device showed 18 students and the website showed 0. Three things caused it.
 
+0. **The device has never connected to the cloud (this is the one that needs you).**
+   Every call the device makes must carry its secret key. The key belongs in a
+   file called `astro_config.h` next to `main.cpp`. That file is deliberately
+   never stored in this repository, so a sketch built from GitHub alone has an
+   empty key, and the cloud answers every call with
+   `403 DEVICE_SECRET_REQUIRED`. The database's own statistics show it: since
+   the device was registered, not one call from it has ever succeeded. (The
+   "last seen" times that used to be on the website came from test calls made
+   while setting the database up; they are cleared now, and the website says
+   "never connected" until the real device checks in.)
 1. **Database (fixed, nothing for you to do).** The function that stores a
    student sent by the device failed for every student
    (`there is no unique or exclusion constraint matching the ON CONFLICT specification`).
@@ -21,8 +31,26 @@ the device starts with empty storage.
 
 ## What to do
 
-**Easiest:** download the ready file and flash it. Keep your own `astro_config.h`
-next to it, unchanged.
+**1. Create `astro_config.h` in the same folder as `main.cpp`** with these lines
+(copy `astro_config.example.h` if you prefer the long version):
+
+```cpp
+#pragma once
+#define ASTRO_WIFI_SSID     "your Wi-Fi name"        // 2.4 GHz, with internet
+#define ASTRO_WIFI_PASS     "your Wi-Fi password"
+#define ASTRO_DEVICE_CODE   "ASTRO-RNK-01"
+#define ASTRO_DEVICE_SECRET "the 48-character device secret"
+```
+
+- The device secret is not written anywhere in this repository (the repository
+  is public). It was given to the owner directly on 14 Nov 2026. If it is lost,
+  make a new one in the Supabase SQL editor; the old one stops working at once:
+  `select public.astro_rotate_device_secret('ASTRO-RNK-01');`
+- The two Wi-Fi lines are only used when the device has no Wi-Fi saved yet.
+  A Wi-Fi saved on the device's own WiFi Manager page wins.
+- Do not upload `astro_config.h` to GitHub.
+
+**2. Flash `main.cpp`.** Easiest: download the ready file.
 
 <https://github.com/durgeshriyaconstruction-sketch/astro-smart-attendance/raw/arena/5084b081-astro-smart-attendance/firmware/esp32/main.cpp>
 
@@ -56,12 +84,29 @@ built-in demo list again at the next start.
 
 ## After flashing
 
-1. Open Serial Monitor at 115200 and wait for
+1. Open Serial Monitor at 115200. The start-up lines must say
+   `[BOOT] Device Secret: SET (len 48)` and, once the Wi-Fi is up,
    `[SUPABASE] Device ASTRO-RNK-01 authenticated`.
-2. Within about two minutes the device notices that the cloud does not have its
-   students, sends them (6 per batch), and the website shows them.
-3. If Serial prints `[SUPABASE] Cloud refused ...`, send that line to whoever
-   maintains the database; it is the exact reason.
+2. On the website the note "The gate device has never connected" disappears and
+   the device shows as online.
+3. Students and scans now travel both ways within a minute or two.
+4. If it does not work, the Serial line tells why:
+
+| Serial says | Meaning |
+|---|---|
+| `Device Secret: MISSING` | `astro_config.h` is not next to `main.cpp`, or the secret line is empty |
+| `Handshake FAILED (HTTP 403) :: ... DEVICE_SECRET_REQUIRED` | same as above |
+| `Handshake FAILED (HTTP 403) :: ... BAD_DEVICE_SECRET` | the secret is not the current one |
+| `Supabase DNS/TLS preflight pending` | the Wi-Fi has no internet, or it blocks `supabase.co` |
+| `waiting-wifi` | the device has not joined a Wi-Fi (wrong name or password, or a 5 GHz network) |
+| `Cloud refused N item(s): ...` | the cloud answered but refused something; the text is the exact reason |
+
+The 18 demo students of the sketch (Shaurya Gupta ... Aditya Rana) are already
+in the cloud: they were sent on 14 Nov 2026 from outside the device, in the same
+format the device uses, to prove the path. When the device connects it finds
+them there and does not create duplicates. Their made-up parent e-mail addresses
+(`parent1@gmail.com` ...) are **not** stored, so the school's absence and arrival
+e-mails never go to those strangers (`supabase/migrations/20261114000006`).
 
 ## How this was checked, and what was not
 
@@ -73,6 +118,10 @@ built-in demo list again at the next start.
   rolled back: a batch of three of the demo students is stored, sending one again
   makes no duplicate, the device list and the website both show them, and
   `astro_device_ping` accepts the five names the sketch sends.
+- The cloud side was also exercised over real HTTPS on 14 Nov 2026, with the
+  same address, key, headers and JSON the sketch sends: the handshake, three
+  student batches of six, the six list calls and the status ping all answered
+  200; the same handshake without the secret, or with a wrong one, answered 403.
 - **Not done:** the whole sketch was not compiled with the Arduino IDE / ESP32
   core, and nothing was run on a real ESP32. If the IDE reports an error, it will
   be in one of the six places below.
