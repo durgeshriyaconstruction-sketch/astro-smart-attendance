@@ -20,8 +20,13 @@ from pathlib import Path
 
 def extract(main_cpp: Path) -> bytes:
     src = main_cpp.read_text(encoding="utf-8", errors="replace")
-    start = src.index("const uint8_t UI_GZ[] PROGMEM")
-    end = src.index("};", start)
+    # NB: the file also has "extern const uint8_t UI_GZ[] PROGMEM;" near the top,
+    # so match the DEFINITION (the one followed by "={") or we'd read the extern.
+    m = re.search(r"const uint8_t UI_GZ\[\]\s*PROGMEM\s*=\s*\{", src)
+    if not m:
+        raise SystemExit("UI_GZ definition not found in main.cpp")
+    start = m.start()
+    end = src.index("};", m.end())
     hexes = re.findall(r"0x([0-9A-Fa-f]{2})", src[start:end])
     if not hexes:
         raise SystemExit("no bytes found in UI_GZ")
