@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <meta name="theme-color" content="#05080F">
-<title>Astro Smart Attendance — Cloud</title>
+<title>Astro Smart Attendance — v26.11.7</title>
 <!-- The design system and the 136 icons below are extracted verbatim from the
      ESP32 firmware's gzipped UI blob, so this page and the device page at
      192.168.4.1 are the same design, not two similar designs. -->
@@ -44,8 +44,8 @@
   <div class="st2">Smart attendance · Automated · Connected</div>
   <div class="stag">AI + IoT School Attendance Platform</div>
   <div class="sprog"><i id="splash-bar"></i></div>
-  <div class="sstep" id="splash-step">Connecting to cloud…</div>
-  <div class="sver">Cloud · v26.11.7</div>
+  <div class="sstep" id="splash-step">LCD 1602 · I2C bus OK</div>
+  <div class="sver">Cloud · v26.11.7 · UI v3.3R</div>
   <div class="steam"><b>Team Sun Rises India</b><br>The Aditya Birla Public School, Renukoot<br>© 2026 Shaurya Gupta</div>
 </div>
 
@@ -75,8 +75,8 @@
             syncs every record to Supabase — and this page reads that cloud data
             live, from anywhere.</div>
           <div class="chipbar" style="margin-top:18px">
-            <span class="pill p-ok"><span class="dt pulse-dot"></span>Cloud · live</span>
-            <span class="pill p-info"><span class="dt"></span>Supabase</span>
+            <span class="pill p-ok"><span class="dt pulse-dot"></span>Cloud · Firebase</span>
+            <span class="pill p-info"><span class="dt"></span>ESP32 Device</span>
             <span class="pill p-ai"><span class="dt"></span>Astro AI</span>
             <span class="pill p-half"><span class="dt"></span>Offline-first</span>
           </div>
@@ -86,15 +86,15 @@
           <div class="qrbx">
             <div class="qrg" id="login-qr"></div>
             <div>
-              <div style="font-size:12px;font-weight:700">Open the cloud app on any phone</div>
+              <div style="font-size:12px;font-weight:700">Open the Cloud App on any phone</div>
               <div class="tiny muted3" style="margin-top:3px">
-                <span class="mono">astro-smart-attendence.web.app</span> works anywhere.<br>
-                <span class="mono">192.168.4.1</span> only works next to the ESP32.</div>
+                Scan the QR — no ESP32 WiFi needed.<br>
+                <span class="mono">astro-smart-attendence.web.app</span></div>
               <div class="linkrow">
                 <a href="https://astro-smart-attendence.web.app" target="_blank" rel="noopener">
                   <button class="btn btn-sm btn-ok">Cloud — open anywhere</button></a>
                 <a href="http://192.168.4.1" target="_blank" rel="noopener">
-                  <button class="btn btn-sm">ESP32 — local panel</button></a>
+                  <button class="btn btn-sm">ESP32 — hardware controls</button></a>
               </div>
             </div>
           </div>
@@ -111,15 +111,18 @@
 
       <form id="loginForm">
         <div class="field">
-          <label>Email</label>
-          <input class="inp" id="email" type="email" autocomplete="username"
-                 placeholder="principal@astro-school.test" required>
-          <div class="fhint">The account your school created for you.</div>
+          <label>Email or full name</label>
+          <input class="inp" id="email" type="text" autocomplete="username"
+                 placeholder="astro@gmail.com" required>
+          <div class="fhint">One login for everyone — admins sign in with email,
+            students with their registered name.</div>
         </div>
         <div class="field">
           <label>Password</label>
           <input class="inp" id="password" type="password" autocomplete="current-password"
                  placeholder="••••••••" required>
+          <div class="fhint">Admin: your password · Student: your password
+            (default: card UID in lowercase).</div>
         </div>
         <button class="btn btn-pri btn-lg btn-block" id="loginBtn" type="submit">Sign in</button>
       </form>
@@ -246,23 +249,43 @@ setInterval(() => {
 }, 1000);
 
 /* ─────────────────────────────── login ─────────────────────────────── */
+function loginError(msg) {
+  const err = $('loginErr');
+  err.textContent = msg;
+  err.classList.remove('hidden');
+}
+
 $('loginForm').addEventListener('submit', async e => {
   e.preventDefault();
   const btn = $('loginBtn'), err = $('loginErr');
   err.classList.add('hidden');
   btn.disabled = true; btn.textContent = 'Signing in…';
 
+  let ident = $('email').value.trim();
+
+  /* One login for everyone: a full name is resolved to that student's email
+     by a database function; an email is used as typed. */
+  if (ident && !ident.includes('@')) {
+    const { data: resolved, error: rErr } =
+      await db.rpc('resolve_login_email', { p_name: ident });
+    if (rErr || !resolved) {
+      btn.disabled = false; btn.textContent = 'Sign in';
+      loginError(`No student account is linked to “${ident}”. Ask the office to link it, or sign in with your email.`);
+      return;
+    }
+    ident = resolved;
+  }
+
   const { data: s, error } = await db.auth.signInWithPassword({
-    email: $('email').value.trim(),
+    email: ident,
     password: $('password').value,
   });
 
   btn.disabled = false; btn.textContent = 'Sign in';
 
   if (error) {
-    err.textContent = error.message === 'Invalid login credentials'
-      ? 'Wrong email or password.' : error.message;
-    err.classList.remove('hidden');
+    loginError(error.message === 'Invalid login credentials'
+      ? 'Wrong email or password.' : error.message);
     return;
   }
   session = s.session;

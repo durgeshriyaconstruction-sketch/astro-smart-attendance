@@ -25,6 +25,20 @@ Firebase and Supabase never talk to each other. The browser does both.
 
 ---
 
+## Signing in
+
+| Who | Credentials |
+|---|---|
+| Admin | `astro@gmail.com` / `admin123` — created for this project, `members.role = admin` |
+| Admin (test) | `principal@astro-school.test` |
+| Student | their full name + password (the login form resolves the name to that student's email via `public.resolve_login_email`) |
+
+`admin123` is the password used by the currently deployed v26.9.12 site. It is
+fine for a review build but should be changed before this goes in front of a
+real school — see the note about the published password further down.
+
+---
+
 ## Before you deploy — read this
 
 Your existing site lives at the **same** Firebase Hosting site
