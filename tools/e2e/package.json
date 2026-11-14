@@ -1,0 +1,11 @@
+{
+  "name": "astro-web-e2e",
+  "private": true,
+  "type": "module",
+  "description": "Headless-browser test for web/supabase-bridge.js against an in-memory stand-in for Supabase",
+  "scripts": { "test": "node test_bridge.mjs" },
+  "devDependencies": {
+    "@sparticuz/chromium": "153.0.0",
+    "puppeteer-core": "25.17.0"
+  }
+}
