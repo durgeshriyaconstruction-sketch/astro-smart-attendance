@@ -34,7 +34,12 @@
   var STORE = 'astro.cloud.session.v1';   // where the Supabase session lives
   var POLL_MS = 8000;                     // how often to ask "anything new?"
   var HISTORY_DAYS = 100;                 // days of attendance kept in the browser
-  var ONLINE_S = 90;                      // kiosk counts as online if seen this recently
+  // The device reports itself every 60 seconds (reportDeviceStatus in the
+  // firmware). A 90-second window tolerated no jitter at all, so one delayed
+  // report flipped the dashboard to Offline. Real intervals measured on
+  // 14 Nov 2026 were 95 s and 161 s. 180 s tolerates one missed report while
+  // still showing a genuinely dead device as Offline within three minutes.
+  var ONLINE_S = 180;                     // kiosk counts as online if seen this recently
   var TIMEOUT_MS = 20000;
   var PROBE_MS = 5000;                    // "is anything reachable?" checks give up after this
   var RETRY_MS = 5000;                    // while the cloud is out of reach: knock this often

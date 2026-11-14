@@ -4306,8 +4306,13 @@ static void pull() {
 // ASTRO-SYNC-2: once a minute tell the cloud this device's address on the school
 // Wi-Fi and its signal strength, so the website can show them.
 static void reportDeviceStatus() {
-  static uint32_t lastReport = 0;
-  if (lastReport && millis() - lastReport < 60000UL) return;
+  // ASTRO-HEARTBEAT-2: a report that failed used to cost a full minute, because
+  // lastReport was stamped before the call. On a flaky link that stretched the
+  // gap between successful reports past the website's online window. Retry a
+  // failed report after 15 s; keep the 60 s cadence once one succeeds.
+  static uint32_t lastReport = 0, lastFail = 0;
+  uint32_t wait = lastFail ? 15000UL : 60000UL;
+  if (lastReport && millis() - lastReport < wait) return;
   lastReport = millis();
   DynamicJsonDocument q(512);
   q["p_device_code"] = String(ASTRO_DEVICE_CODE);
@@ -4315,7 +4320,8 @@ static void reportDeviceStatus() {
   q["p_rssi"] = (int)WiFi.RSSI();
   q["p_ip"] = WiFi.localIP().toString();
   q["p_firmware"] = String(FW_VERSION);
-  rpcCall("astro_device_ping", jsonString(q));
+  int code = rpcCall("astro_device_ping", jsonString(q));
+  lastFail = (code < 200 || code >= 300) ? millis() : 0;   // ASTRO-HEARTBEAT-2
 }
 
 static void safePull() {
