@@ -1369,6 +1369,15 @@ end $$;
 -- ============================================================================
 -- 8. PERMISSIONS (the kiosk authenticates with the public anon key)
 -- ============================================================================
+-- Only the firmware-facing RPCs defined in this file are opened to `anon`.
+-- They are recognisable by their "device_secret" argument, and every one of
+-- them calls astro_fw_auth() before doing anything.
+--
+-- NOTE: as first applied (2026-11-14) this section granted EXECUTE on EVERY
+-- public.astro_* function to anon, which also exposed the staff and worker
+-- functions to anyone holding the public key. That was reverted by
+-- 20261114000003_lock_down_anon_rpc.sql; this file is corrected so that
+-- re-running it cannot re-open the hole.
 do $$
 declare
   r record;
@@ -1378,10 +1387,20 @@ begin
       from pg_proc p
       join pg_namespace n on n.oid = p.pronamespace
      where n.nspname = 'public'
+       and p.prokind = 'f'
        and p.proname like 'astro\_%'
+       and 'device_secret' = any (coalesce(p.proargnames, '{}'))
   loop
+    execute format('revoke execute on function %s from public', r.sig);
     execute format('grant execute on function %s to anon, authenticated, service_role', r.sig);
   end loop;
 end $$;
+
+-- helpers created above are implementation detail, never endpoints
+revoke execute on function public.astro_fw_auth(text, text) from public, anon, authenticated;
+revoke execute on function public.astro_fw_map_entity(uuid, text, bigint) from public, anon, authenticated;
+revoke execute on function public.astro_fw_map_local(uuid, text, uuid) from public, anon, authenticated;
+revoke execute on function public.astro_fw_map_put(uuid, text, bigint, uuid) from public, anon, authenticated;
+revoke all on table public.astro_fw_id_map from public, anon, authenticated;
 
 notify pgrst, 'reload schema';
