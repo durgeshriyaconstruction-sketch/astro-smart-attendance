@@ -131,6 +131,10 @@ select public.astro_rotate_device_secret('ASTRO-RNK-01');
 
 ## 6. Still outstanding
 
+* Students sent up by the device were refused by the database until migration
+  `20261114000005`, and the sketch hid that. See `docs/FIRMWARE_SYNC_CHANGES.md`
+  for the fix and the second set of `main.cpp` edits.
+
 * `README.md` describes Firebase; the code runs Supabase.
 * The repo contains real passwords in the sketch (`ADMIN_PASS "admin123"`,
   `OTA_PASS "admin"`, `UPDATER_PASS "Astro#5211"`) and a Gmail address. If this

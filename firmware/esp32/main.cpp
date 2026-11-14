@@ -4057,8 +4057,21 @@ static bool sync() {
 
   String payload = jsonString(d);
   d.clear();
-  int code = rpcCall("astro_sync_batch", payload);
+  String syncReply;
+  int code = rpcCall("astro_sync_batch", payload, &syncReply);
   if (code < 200 || code >= 300) return false;
+  // ASTRO-SYNC-2: the cloud answers 200 even when it refused some items; keep the reason
+  String syncRejected = "";
+  {
+    DynamicJsonDocument rd(1024);
+    if (!deserializeJson(rd, syncReply) && rd.is<JsonObject>()) {
+      int refused = rd["failed"] | 0;
+      if (refused > 0) {
+        syncRejected = String("Cloud refused ") + String(refused) + " item(s): " + jsonStr(rd["last_error"], "no reason given");
+        Serial.println("[SUPABASE] " + syncRejected);
+      }
+    }
+  }
 
   for (auto& t : sentTombs) Data::deletedStudents.erase(std::remove(Data::deletedStudents.begin(), Data::deletedStudents.end(), t), Data::deletedStudents.end());
   for (auto& id : sentNoticeTombs) Data::deletedNotices.erase(std::remove(Data::deletedNotices.begin(), Data::deletedNotices.end(), id), Data::deletedNotices.end());
@@ -4074,7 +4087,7 @@ static bool sync() {
 
   Data::markCloudAck();
   batchMore = pendingEntities();
-  lastError = "";
+  lastError = syncRejected;   // ASTRO-SYNC-2 (was: "")
   lastSuccess = nowEpoch();
   if (!batchMore) {
     lastGeneration = Data::generation;
@@ -4105,10 +4118,12 @@ static void pull() {
     if (rpcCall("astro_list_students", reqBody, &raw) == 200 && raw.length() <= 45000) {
       DynamicJsonDocument d(safeJsonCap(32768, 12288));
       if (!deserializeJson(d, raw) && d.is<JsonArray>()) {
+        std::vector<String> cloudCards;   // ASTRO-SYNC-2: every card number the cloud just listed
         for (JsonVariant v : d.as<JsonArray>()) {
           JsonObject o = v.as<JsonObject>();
           String id = upper(jsonStr(o["rfid_uid"], jsonStr(o["rfid"])));
           if (!id.length()) continue;
+          cloudCards.push_back(id);
           if (std::find(Data::deletedStudents.begin(), Data::deletedStudents.end(), id) != Data::deletedStudents.end()) continue;
           Student* x = Data::student(id);
           if (!x && Data::students.size() < MAX_STUDENTS) {
@@ -4124,8 +4139,47 @@ static void pull() {
           if (rl != x->roll) { x->roll = rl; changed = true; }
           String sid = jsonStr(o["student_id"], x->studentId);
           if (sid.length() && sid != x->studentId) { x->studentId = sid; changed = true; }
+          // ASTRO-SYNC-2: class and section also come from the cloud (students added on the website)
+          String cloudClass = jsonStr(o["class_name"], x->className);
+          if (cloudClass != x->className) { x->className = cloudClass; changed = true; }
+          String cloudSection = jsonStr(o["section"], x->section);
+          if (cloudSection != x->section) { x->section = cloudSection; changed = true; }
+          if (!x->displayName.length()) x->displayName = x->name;
           x->clouded = true;
         }
+        // ASTRO-SYNC-2: make this device's list match the cloud's list.
+        //  - a student the cloud never stored (it has no cloud id yet) is sent again;
+        //  - a student the cloud knew and no longer lists was removed, or given a new
+        //    card, on the website: it is removed here too.
+        // An empty cloud list must be seen twice in a row before it removes anyone.
+        static uint8_t emptyCloudLists = 0;
+        if (cloudCards.empty()) { if (emptyCloudLists < 2) emptyCloudLists++; } else emptyCloudLists = 0;
+        bool mayRemove = !cloudCards.empty() || emptyCloudLists >= 2;
+        bool resendStudents = false;
+        std::vector<String> goneCards;
+        for (auto& s : Data::students) {
+          if (!s.clouded) continue;
+          if (std::find(cloudCards.begin(), cloudCards.end(), s.rfid) != cloudCards.end()) continue;
+          bool cloudKnew = s.studentId.length() == 36 && s.studentId.charAt(8) == '-';
+          if (!cloudKnew) { s.clouded = false; resendStudents = true; }
+          else if (mayRemove) goneCards.push_back(s.rfid);
+        }
+        for (auto& gone : goneCards) {
+          Data::students.erase(std::remove_if(Data::students.begin(), Data::students.end(), [&](const Student& st) { return st.rfid == gone; }), Data::students.end());
+          Data::records.erase(std::remove_if(Data::records.begin(), Data::records.end(), [&](const Record& rc) { return rc.rfid == gone; }), Data::records.end());
+          Data::periodMarks.erase(std::remove_if(Data::periodMarks.begin(), Data::periodMarks.end(), [&](const PeriodRecord& pm) { return pm.rfid == gone; }), Data::periodMarks.end());
+          Data::leaves.erase(std::remove_if(Data::leaves.begin(), Data::leaves.end(), [&](const Leave& lv) { return lv.rfid == gone; }), Data::leaves.end());
+          changed = true;
+        }
+        if (!goneCards.empty() && Data::students.empty() && !Data::freshWiped) {
+          // the website removed every student: do not bring the built-in demo list back at the next start
+          Preferences wp;
+          wp.begin("astro-wipe", false);
+          wp.putBool("freshWipe", true);
+          wp.end();
+          Data::freshWiped = true;
+        }
+        if (resendStudents) { changed = true; triggerSyncNow(); }
       }
     }
   } else if (current == 2) {
@@ -4245,7 +4299,23 @@ static void pull() {
   if (changed) {
     Data::recountAll();
     Data::markCloudAck();
+    Data::generation++;   // ASTRO-SYNC-2: the device's own page reloads its data
   }
+}
+
+// ASTRO-SYNC-2: once a minute tell the cloud this device's address on the school
+// Wi-Fi and its signal strength, so the website can show them.
+static void reportDeviceStatus() {
+  static uint32_t lastReport = 0;
+  if (lastReport && millis() - lastReport < 60000UL) return;
+  lastReport = millis();
+  DynamicJsonDocument q(512);
+  q["p_device_code"] = String(ASTRO_DEVICE_CODE);
+  q["p_device_secret"] = String(ASTRO_DEVICE_SECRET);
+  q["p_rssi"] = (int)WiFi.RSSI();
+  q["p_ip"] = WiFi.localIP().toString();
+  q["p_firmware"] = String(FW_VERSION);
+  rpcCall("astro_device_ping", jsonString(q));
 }
 
 static void safePull() {
@@ -4295,6 +4365,7 @@ static void service() {
   }
   state = State::ONLINE;
   message = "Supabase RPC sync active";
+  reportDeviceStatus();   // ASTRO-SYNC-2
   if (millis() - lastPull > 12000UL) pull();
 }
 }
