@@ -18,10 +18,14 @@ an in-memory database, persisted to `localStorage`.
 
 That is why the deployed site works with no hardware attached. It also means:
 
-> **The data on screen is demo data baked into the file — not your Supabase
-> database.** Students, attendance, device telemetry and cloud status are all
-> seeded from constants inside `index.html`. Nothing is read from or written to
-> Supabase in this build.
+> **The data on screen is browser-local — not your Supabase database.**
+> Students, attendance, notices and device telemetry are held in `localStorage`.
+> Nothing is read from or written to Supabase in this build.
+>
+> The demo seed (18 students, 35 days of attendance, sample notices/leaves/
+> messages) has been **emptied** (`NAMES=[]` and friends), so the app now starts
+> with a genuinely empty school. Adding a student in the app writes to this
+> browser only — it is not yet visible to the ESP32 or to other devices.
 
 ## Signing in
 

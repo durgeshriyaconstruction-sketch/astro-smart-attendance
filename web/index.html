@@ -1055,7 +1055,7 @@ html[data-theme="light"] .cmdk-ov{background:rgba(20,24,32,.4)}
       <div id="login-load" class="hidden" style="text-align:center;margin-top:12px;font-size:12px;color:var(--txt2)"></div>
       <div class="login-note" style="margin-top:16px">
         <span id="ic-info"></span>
-        <div>Same form for both roles — Admin: <b class="mono">astro@gmail.com</b> / <b class="mono">admin123</b> · Student: <b>Shaurya Gupta</b> / <b class="mono">1001</b> (1001–1018).&nbsp;
+        <div>Admin: <b class="mono">astro@gmail.com</b> / <b class="mono">admin123</b> · Students sign in with the name and password you give them.&nbsp;
         <a href="javascript:void(0)" style="font-weight:700" onclick="fillDemo('admin')">Fill Admin</a> · <a href="javascript:void(0)" style="font-weight:700" onclick="fillDemo('student')">Fill Student (Shaurya · 1001)</a></div>
       </div>
       <div style="display:flex;gap:7px;justify-content:center;margin-top:13px;flex-wrap:wrap">
@@ -1297,15 +1297,15 @@ const HW={rfid:{name:'RC522 RFID Reader',state:'ok',detail:'SPI · SS 5 · RST 4
 const DEVICE={online:true,state:'green',failStreak:0,lastOkAt:Date.now(),chip:'ESP32-WROOM-32 · rev1',mac:'—',ip:location.host||'192.168.4.1',ap:'Attendance_System',apPass:'12345678',fw:'26.11.7',fwNew:'26.11.7',uptimeStart:Date.now(),heap:'—',storage:'—',temp:'—',rssi:0,flash:'4 MB',psram:'—'};
 const CLOUD={mode:'online',lastSync:'just now',synced:0,pending:0,queue:[],host:'nrjchonjlncamfyzmfye.supabase.co'};
 const SPECIAL={admin:{uid:'CA4FBE2C',label:'Admin Card'},guardian:{uid:'BA6ECD2C',label:'Guardian Card'},del:{uid:'5A77C22C',label:'Delete Card'}};
-const NAMES=[['Shaurya Gupta','9A-01','04A3B2C1',0],['Aarav Mishra','9A-02','13D7F9AA',1],['Ishita Verma','9A-03','7C21E4B8',2],['Kabir Singh','9A-04','9F04CD32',3],['Ananya Rai','9A-05','51B8A7E0',4],['Vihaan Srivastava','9A-06','2E6C31F9',5],['Diya Sharma','9A-07','C89012DB',0],['Arjun Patel','9A-08','40EE77A1',1],['Myra Agarwal','9A-09','B5D2F043',2],['Reyansh Yadav','9A-10','6813C2E7',3],['Saanvi Tiwari','9A-11','D97A5B18',4],['Aryan Khan','9A-12','23F8E6C4',5],['Navya Dubey','9A-13','8A31D05F',0],['Kunal Sahu','9A-14','F4C92B70',1],['Riya Chaturvedi','9B-01','31E8A4D2',2],['Devansh Kaushik','9B-02','77B0F19C',3],['Pari Sinha','9B-03','1CD468EA',4],['Aditya Rana','9B-04','E02B97F5',5]];
+const NAMES=[];
 const DB={students:[],records:{},leaves:[],notices:[],messages:[],notifications:[],exports:[],corrections:[],scans:[],holidays:[],inboxRead:{},qtHidden:[],qtOrder:null};
 
 function genData(){
   CFG.nextStudentPassword=1001+NAMES.length;
   DB.students=NAMES.map((n,i)=>({rfid:n[2].toUpperCase(),studentId:n[0],displayName:n[0],name:n[0],roll:n[1],cls:n[1].split('-')[0].slice(0,-1)||'9',sec:n[1].split('-')[0].slice(-1)||'A',passwordSeq:1001+i,password:String(1001+i),mustChangePassword:false,fp:i<6?'2026-11-10 08:45':null,fpId:i<6?(i+1):0,fpDate:i<6?'2026-11-10 08:45':'',email:'student'+(i+1)+'@school.edu',phone:'+91 98'+String(10000000+i*72179).slice(0,8),pEmail:'parent'+(i+1)+'@gmail.com',pPhone:'+91 94'+String(10000000+i*53927).slice(0,8),active:true,goal:90,streak:0,best:0,pct:0,counts:{present:0,late:0,absent:0,leave:0,half:0,holiday:0},lastScan:null,history:{}}));
-  DB.holidays=['2026-08-15','2026-10-02','2026-10-12','2026-10-20','2026-11-08'];
+  DB.holidays=[];
   // leave requests
-  const L=[['Ishita Verma','2026-09-29','2026-09-30','Family function out of town','approved'],['Kabir Singh','2026-09-18','2026-09-18','Fever — medical rest','approved'],['Navya Dubey','2026-10-02','2026-10-03','Sister\u2019s wedding','pending'],['Aryan Khan','2026-10-06','2026-10-07','Pending family travel','pending'],['Reyansh Yadav','2026-09-10','2026-09-11','Not submitted in time — no reason given','rejected'],['Myra Agarwal','2026-09-24','2026-09-25','Medical check-up','approved'],['Devansh Kaushik','2026-09-26','2026-09-26','Village visit','pending']];
+  const L=[];
   DB.leaves=L.map((l,i)=>({id:100+i,rfid:(DB.students.find(s=>s.name===l[0])||{}).rfid||'X',name:l[0],from:l[1],to:l[2],reason:l[3],status:l[4],appliedOn:addDays(l[1],-2),rejectReason:l[4]==='rejected'?'Reason not valid for leave — attendance rules apply.':''}));
   // 35 days of records
   let d=addDays(todayISO(),-35);
@@ -1347,33 +1347,17 @@ function genData(){
     return{rfid:s.rfid,name:s.name,status:st,time:t,source:scanned?'rfid':(st==='absent'?'automatic':'—'),synced:CLOUD.mode==='online'&&rnd()<.9};
   })};
   // notices
-  DB.notices=[{id:1,title:'Annual Sports Day — 12 October',body:'All students report to the main ground by 8:30 AM in house uniforms. Attendance will be marked by RFID gate at the ground entrance.',priority:'important',audience:'All',pinned:true,date:addDays(td,-2),by:'Admin',status:'published'},
-  {id:2,title:'Unit Test II timetable released',body:'Unit Test II begins 6 October. Seating charts are on the notice board. Bring your own stationery.',priority:'normal',audience:'Class 9',pinned:false,date:addDays(td,-5),by:'Admin',status:'published'},
-  {id:3,title:'Parent–Teacher Meeting',body:'PTM for Class 9 on Saturday, 3:00–5:00 PM in the respective classrooms.',priority:'normal',audience:'Class 9A',pinned:false,date:addDays(td,-8),by:'Admin',status:'published'},
-  {id:4,title:'Science Exhibition registration closes Friday',body:'Teams of 2–3. Register with your science teacher. Astro Smart Attendance demo by Team Sun Rises India.',priority:'normal',audience:'All',pinned:false,date:addDays(td,-1),by:'Admin',status:'draft'}];
+  DB.notices=[];
   // messages (DM history)
-  DB.messages=[{id:1,to:['9A'],names:['Class 9A · 14 students'],subject:'Tomorrow\u2019s Unit Test II — seating plan',body:'The seating plan for Unit Test II is posted outside Lab 2. Check your roll number before the first bell.',date:addDays(td,-1),time:'09:12',sender:'Admin',delivery:'sent'},
-  {id:2,to:['Ishita Verma'],names:['Ishita Verma'],subject:'Leave approved for 29–30 Sep',body:'Your leave for 29–30 September is approved. Those days are excused and will show as Leave on your calendar.',date:addDays(td,-3),time:'14:40',sender:'Admin',delivery:'sent'},
-  {id:3,to:['Aryan Khan'],names:['Aryan Khan'],subject:'Attendance below 75%',body:'Your attendance has dropped below the 75% threshold. Please meet the class teacher this week with a parent.',date:addDays(td,-2),time:'11:05',sender:'Admin',delivery:'sent'}];
+  DB.messages=[];
   // notifications
-  DB.notifications=[
-  {id:1,type:'absent',title:'Auto-absent completed',body:'Aryan Khan, Reyansh Yadav marked Absent — no scan by 10:00. Parent alerts queued.',time:'Today · 10:00',read:false},
-  {id:2,type:'leave',title:'New leave request',body:'Navya Dubey requested leave 2–3 Oct (sister\u2019s wedding).',time:'Today · 09:41',read:false},
-  {id:3,type:'streak',title:'Attendance streak',body:'Ananya Rai reached a 21-day present streak.',time:'Today · 09:03',read:false},
-  {id:4,type:'low',title:'Below 75% threshold',body:'Aryan Khan attendance is 68% — below the safe threshold. Parent email sent.',time:'Yesterday · 15:30',read:true},
-  {id:5,type:'device',title:'ESP32 device online',body:'Astro device reconnected to WiFi and synced records.',time:'Yesterday · 07:58',read:true},
-  {id:6,type:'cloud',title:'Cloud sync complete',body:'1,284 records synced to Supabase. Offline queue empty.',time:'Yesterday · 07:59',read:true},
-  {id:7,type:'notice',title:'Notice published',body:'Annual Sports Day notice published to All.',time:'2 days ago',read:true}];
+  DB.notifications=[];
   // recent scans feed
   DB.scans=DB.records[td].items.filter(x=>x.time).slice(0,6).map((x,i)=>({uid:x.rfid,name:x.name,status:x.status,time:x.time,known:true,marked:x.status!=='none',synced:true}));
   // exports history
-  DB.exports=[{id:1,type:'Full attendance',format:'CSV',range:'1–25 Sep 2026',rows:412,date:addDays(td,-1),by:'Admin',size:'38 KB',status:'done'},
-  {id:2,type:'Class 9A report',format:'PDF',range:'Aug–Sep 2026',rows:'9 pages',date:addDays(td,-4),by:'Admin',size:'1.1 MB',status:'done'},
-  {id:3,type:'Leaves register',format:'CSV',range:'Sep 2026',rows:7,date:addDays(td,-6),by:'Admin',size:'2 KB',status:'done'}];
+  DB.exports=[];
   // corrections audit trail
-  DB.corrections=[{id:1,rfid:'7C21E4B8',name:'Ishita Verma',date:addDays(td,-1),period:'Full day',from:'absent',to:'leave',reason:'Leave was approved later — record corrected',by:'Admin',time:'15:42'},
-  {id:2,rfid:'13D7F9AA',name:'Aarav Mishra',date:addDays(td,-2),period:'P3',from:'absent',to:'present',reason:'Card failed — teacher confirmed present',by:'Admin',time:'12:10'},
-  {id:3,rfid:'40EE77A1',name:'Arjun Patel',date:addDays(td,-3),period:'Full day',from:'late',to:'present',reason:'School bus arrived late — whole bus excused',by:'Admin',time:'09:40'}];
+  DB.corrections=[];
   recount();
 }
 function recount(){
