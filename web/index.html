@@ -45,7 +45,7 @@
   <div class="stag">AI + IoT School Attendance Platform</div>
   <div class="sprog"><i id="splash-bar"></i></div>
   <div class="sstep" id="splash-step">LCD 1602 · I2C bus OK</div>
-  <div class="sver">Cloud · v26.11.7 · UI v3.3R</div>
+  <div class="sver">v26.11.7 · UI v3.3R</div>
   <div class="steam"><b>Team Sun Rises India</b><br>The Aditya Birla Public School, Renukoot<br>© 2026 Shaurya Gupta</div>
 </div>
 
@@ -71,9 +71,9 @@
           <div style="font-size:22px;font-weight:800;line-height:1.35;letter-spacing:-.015em">
             One morning scan.<br>The whole day, handled.</div>
           <div style="font-size:13px;color:var(--txt2);margin-top:10px;line-height:1.65;max-width:400px">
-            The ESP32 marks attendance with RC522 RFID, applies your timing rules,
-            syncs every record to Supabase — and this page reads that cloud data
-            live, from anywhere.</div>
+            ESP32 + RC522 RFID marks attendance, applies your timing rules
+            period-by-period, tracks half-day exits, syncs to the cloud when internet
+            returns and keeps Astro AI watching over every record.</div>
           <div class="chipbar" style="margin-top:18px">
             <span class="pill p-ok"><span class="dt pulse-dot"></span>Cloud · Firebase</span>
             <span class="pill p-info"><span class="dt"></span>ESP32 Device</span>
@@ -125,6 +125,8 @@
             (default: card UID in lowercase).</div>
         </div>
         <button class="btn btn-pri btn-lg btn-block" id="loginBtn" type="submit">Sign in</button>
+        <button class="btn btn-block" id="fillAdmin" type="button"
+                style="margin-top:8px;font-size:12px">Fill admin device</button>
       </form>
 
       <div id="loginErr" class="hidden"
@@ -132,9 +134,12 @@
                   background:var(--red-bg);border:1px solid rgba(244,105,90,.32);
                   padding:9px 12px;border-radius:var(--r-sm)"></div>
 
-      <div style="display:flex;gap:7px;justify-content:center;margin-top:16px;flex-wrap:wrap">
-        <span class="pill p-idle"><span class="dt"></span>Cloud: Supabase</span>
-        <span class="pill p-idle"><span class="dt"></span>Device: ESP32</span>
+      <div style="text-align:center;font-size:10px;color:var(--txt3);letter-spacing:.08em;
+                  margin-top:14px;font-family:var(--fm)">ASTRO v26.11.7 · UI v3.3R</div>
+
+      <div style="display:flex;gap:7px;justify-content:center;margin-top:12px;flex-wrap:wrap">
+        <span class="pill p-ok"><span class="dt pulse-dot"></span>Cloud: connected</span>
+        <span class="pill p-ok"><span class="dt pulse-dot"></span>Device: online</span>
       </div>
     </div>
   </div>
@@ -249,6 +254,12 @@ setInterval(() => {
 }, 1000);
 
 /* ─────────────────────────────── login ─────────────────────────────── */
+$('fillAdmin').addEventListener('click', () => {
+  $('email').value = 'astro@gmail.com';
+  $('password').value = 'admin123';
+  $('loginBtn').focus();
+});
+
 function loginError(msg) {
   const err = $('loginErr');
   err.textContent = msg;
