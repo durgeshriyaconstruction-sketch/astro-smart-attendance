@@ -94,6 +94,27 @@ supabase/migrations/20261114000002_bridge_hotfix.sql
 
 All test rows were removed afterwards.
 
+### A student with no RFID card yet (migration `20261114205524`)
+
+`astro_list_students` looked the card up with an **inner** `join lateral`, so a
+student created on the website before a card was assigned was silently dropped
+from the list the gate terminal pulls. Nothing logged it anywhere — the only
+symptom was a child visible on the website and missing on the device.
+
+Fixed to a `left join lateral` with `rfid_uid` coalesced to `''` instead of JSON
+null. The firmware already expected this: `main.cpp` carries the comment
+*"Support students added remotely on the website even before an RFID card is
+assigned"*, invents a **stable** placeholder via `generateUniqueRfid()`
+(`"A5"` + 6 hex chars) and stores the cloud `student_id`, so the placeholder
+does not change on the next pull and no duplicate appears. Pushing it back is
+guarded too — `astro_create_student` upserts on `(school_id, roll_no)` and
+explicitly refuses to reassign a card that already belongs to a different
+student.
+
+Verified read-only after applying: the definition has no inner join left, `anon`
+and `authenticated` can still execute it, and with a synthetic card-less student
+added to the pool the old join returned 17 rows where the new one returns 18.
+
 ---
 
 ## 5. What you must do
