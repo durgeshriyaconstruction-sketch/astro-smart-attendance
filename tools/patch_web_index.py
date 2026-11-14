@@ -25,7 +25,7 @@ Safe to run again and again; it does nothing if the edits are already there.
 import sys
 from pathlib import Path
 
-TAG = '<script src="supabase-bridge.js?v=3"></script>\n'
+TAG = '<script src="supabase-bridge.js?v=4"></script>\n'
 HOOK = "if(W.AstroWeb){W.AstroWeb.paint();return;}"
 
 EDITS = [

@@ -24,10 +24,11 @@ const server = http.createServer((req, res) => {
   const p = new URL(req.url, 'http://x').pathname;
   if (p.startsWith('/api/') || p === '/addStudent' || p === '/login') leaks.push(req.method + ' ' + p);
   const file = path.join(WEB, p === '/' ? '/index.html' : decodeURIComponent(p));
-  if (req.method !== 'GET' || !file.startsWith(WEB) || !fs.existsSync(file) || fs.statSync(file).isDirectory()) {
+  if (!['GET', 'HEAD'].includes(req.method) || !file.startsWith(WEB) || !fs.existsSync(file) || fs.statSync(file).isDirectory()) {
     res.writeHead(404); return res.end('not found');
   }
   res.writeHead(200, { 'content-type': MIME[path.extname(file)] || 'application/octet-stream', 'cache-control': 'no-store' });
+  if (req.method === 'HEAD') return res.end();
   fs.createReadStream(file).pipe(res);
 });
 await new Promise((r) => server.listen(0, '127.0.0.1', r));
@@ -43,10 +44,14 @@ await page.emulateTimezone('Asia/Kolkata');
 const pageErrors = [];
 page.on('pageerror', (e) => pageErrors.push(String(e.message || e)));
 page.on('console', (m) => { if (m.type() === 'error' && /astro cloud/.test(m.text())) pageErrors.push(m.text()); });
+// What the connection lets through: 'ok' = everything, 'blocked' = the website but not
+// the database address, 'offline' = nothing at all (e.g. joined to the device's own Wi-Fi).
+const net = { mode: 'ok' };
 await page.setRequestInterception(true);
 page.on('request', (req) => {
   const u = new URL(req.url());
-  if (!u.hostname.endsWith('supabase.co')) return req.continue();
+  if (!u.hostname.endsWith('supabase.co')) return net.mode === 'offline' ? req.abort('internetdisconnected') : req.continue();
+  if (net.mode !== 'ok') return req.abort(net.mode === 'offline' ? 'internetdisconnected' : 'namenotresolved');
   const cors = { 'access-control-allow-origin': '*', 'access-control-allow-headers': '*', 'access-control-allow-methods': '*' };
   if (req.method() === 'OPTIONS') return req.respond({ status: 204, headers: cors });
   const r = fake.handle(req.method(), req.url(), req.headers(), req.postData());
@@ -272,7 +277,45 @@ try {
   check('a session that is no longer valid lands back on the login screen', await until(() => document.querySelector('#login') && document.querySelector('#login').classList.contains('on') && !localStorage.getItem('astro_tok') && SESSION.role === null, 12000),
     await ev(() => [document.querySelector('#login').className, localStorage.getItem('astro_tok')]).catch(String));
 
-  console.log('\n9. Nothing leaked, nothing crashed');
+  console.log('\n9. When the cloud cannot be reached');
+  const cloudLight = () => ev(() => document.querySelector('#sys-cloud').textContent.trim());
+  const notice = (re, ms = 20000) => until((src) => {
+    const e = document.querySelector('#login-err'), b = document.querySelector('#login-btn');
+    return !e.classList.contains('hidden') && !b.disabled && new RegExp(src).test(e.textContent);
+  }, ms, re.source);
+
+  net.mode = 'blocked';                              // the website opens, the database address does not
+  await page.reload({ waitUntil: 'domcontentloaded' });
+  await until(() => document.querySelector('#login').classList.contains('on'), 8000);
+  check('database address blocked: the sign-in page says so without being asked', await notice(/internet works here.*database address \(nrjchonjlncamfyzmfye\.supabase\.co\) cannot be opened/), await loginError());
+  check('...and the cloud light names the cause', /blocked on this connection/.test(await cloudLight()), await cloudLight());
+  await login('astro@gmail.com', 'admin123');
+  await sleep(400);
+  check('...a sign-in attempt gets the same explanation and the button comes back', await notice(/database address .* cannot be opened/) && (await ev(() => AstroWeb.state().net)) === 'blocked', await loginError());
+  check('...nothing was stored: no session, dashboard stays shut', await ev(() => !localStorage.getItem('astro.cloud.session.v1') && !document.querySelector('#app').classList.contains('on')));
+
+  net.mode = 'offline';                              // now nothing answers, not even the website's own address
+  check('no internet at all: the page notices by itself and says what to do', await notice(/no internet right now.*Attendance_System/, 30000), await loginError());
+  check('...and the cloud light says "no internet"', /no internet here/.test(await cloudLight()), await cloudLight());
+
+  net.mode = 'ok';                                   // the connection is back
+  check('connection back: the light turns to "connected" by itself', await until(() => /Cloud: connected/.test(document.querySelector('#sys-cloud').textContent), 15000), await cloudLight());
+  check('...and the warning is taken back', await until(() => document.querySelector('#login-err').classList.contains('hidden'), 5000), await loginError());
+  await login('astro@gmail.com', 'admin123');
+  check('...and signing in works without reloading the page', await until(() => document.querySelector('#app').classList.contains('on') && SESSION.role === 'admin', 15000), await loginError());
+
+  // a hiccup: the first request is lost, the second one gets through
+  await ev(() => logout());
+  await until(() => [...document.querySelectorAll('#modals button')].some((x) => /Sign out/.test(x.textContent)), 5000);
+  await ev(() => { [...document.querySelectorAll('#modals button')].find((x) => /Sign out/.test(x.textContent)).click(); });
+  await until(() => document.querySelector('#login').classList.contains('on'));
+  await until(() => !localStorage.getItem('astro.cloud.session.v1'), 16000);
+  net.mode = 'blocked';
+  setTimeout(() => { net.mode = 'ok'; }, 700);
+  await login('astro@gmail.com', 'admin123');
+  check('a lost first request is sent again: sign-in still succeeds, no error shown', await until(() => document.querySelector('#app').classList.contains('on') && SESSION.role === 'admin', 15000) && (await loginError()) === '', await loginError());
+
+  console.log('\n10. Nothing leaked, nothing crashed');
   check('no /api request ever reached the web host (the pretend database never ran)', leaks.length === 0, leaks.slice(0, 5));
   check('no script errors', pageErrors.length === 0, pageErrors.slice(0, 5));
 } catch (e) {

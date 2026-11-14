@@ -58,6 +58,26 @@ The website cannot reach the hardware, and says so instead of pretending:
   when the device last checked in; the device light is **online** when that was
   within the last 90 seconds.
 
+## When the page cannot reach the cloud
+
+A request that gets no answer is first sent again (sign-in and reads only, never a
+save). If it still fails, the page finds out why and says so on the sign-in page
+and in the "Cloud" light:
+
+| The page says | What it checked | What to do |
+| --- | --- | --- |
+| **no internet here** | not even the website's own address answers | Connect the phone or computer to a Wi-Fi or mobile data that has internet. The device's own Wi-Fi `Attendance_System` has none. |
+| **blocked on this connection** | the website answers, the database address (`*.supabase.co`) does not | Use mobile data or another Wi-Fi, or turn on Secure DNS (Cloudflare 1.1.1.1) in the browser. |
+| **slow connection** | the database address answers, but the request ran out of time | Wait; the page keeps trying. |
+
+While the cloud is out of reach the page tries again every 5 seconds and comes
+back by itself, without a reload.
+
+To see the website and the device's own page on one computer at the same time,
+put the device on a Wi-Fi that has internet (device page → WiFi Manager) and keep
+the computer on that same Wi-Fi. The device's page is then at the address shown
+on its LCD.
+
 ## Updating `index.html` from a new device build
 
 ```bash

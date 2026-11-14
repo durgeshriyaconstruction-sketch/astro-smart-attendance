@@ -36,6 +36,22 @@
   var HISTORY_DAYS = 100;                 // days of attendance kept in the browser
   var ONLINE_S = 90;                      // kiosk counts as online if seen this recently
   var TIMEOUT_MS = 20000;
+  var PROBE_MS = 5000;                    // "is anything reachable?" checks give up after this
+  var RETRY_MS = 5000;                    // while the cloud is out of reach: knock this often
+  var SB_HOST = SB_URL.replace('https://', '');
+  /* What to say when a request never got an answer. Which one applies is found out
+     by diagnose(): can this browser open the website itself? the database address? */
+  var NET_TEXT = {
+    offline: 'This phone or computer has no internet right now. If it is joined to the school device\u2019s own Wi-Fi ' +
+             '(Attendance_System), switch to a Wi-Fi or mobile data that has internet. This page reconnects by itself.',
+    blocked: 'The internet works here, but the database address (' + SB_HOST + ') cannot be opened from this connection. ' +
+             'Try mobile data or another Wi-Fi, or turn on Secure DNS (Cloudflare 1.1.1.1) in the browser\u2019s privacy ' +
+             'settings. This page reconnects by itself.',
+    slow:    'The cloud database is taking too long to answer on this connection. This page keeps trying.',
+    unknown: 'Can\u2019t reach the cloud database. Check the internet connection. This page keeps trying.'
+  };
+  var NET_PILL = { offline: 'Cloud: no internet here', blocked: 'Cloud: blocked on this connection',
+                   slow: 'Cloud: slow connection', unknown: 'Cloud: unreachable' };
   var RESERVED = { CA4FBE2C: 'Admin', BA6ECD2C: 'Guardian', '5A77C22C': 'Delete' };
   var CARD_HELP = 'A card number is 8 to 20 characters using only 0-9 and A-F, for example 04A3B2C1. ' +
                   'Press Auto if the student has no card yet.';
@@ -53,6 +69,7 @@
     devices: [], devicesAt: 0,
     okAt: 0, error: '', inflight: null, lastFetch: 0,
     cloudUp: null,      // null = not checked yet
+    net: '', netAt: 0,  // why the cloud is out of reach (a NET_TEXT key), and when that was found out
     armedUntil: 0, loginAt: 0, loggingIn: false, reloading: false
   };
 
@@ -92,9 +109,9 @@
   function expired() { return new Fail('Session expired \u2014 sign in again.', 401, 'NO_SESSION'); }
 
   /* ------------------------------------------------------- Supabase transport */
-  function sb(path, opt) {
-    var ctl = window.AbortController ? new AbortController() : null;
-    var timer = ctl ? setTimeout(function () { ctl.abort(); }, TIMEOUT_MS) : 0;
+  function sbOnce(path, opt) {
+    var ctl = window.AbortController ? new AbortController() : null, timedOut = false;
+    var timer = ctl ? setTimeout(function () { timedOut = true; ctl.abort(); }, TIMEOUT_MS) : 0;
     var headers = { apikey: SB_KEY, 'Content-Type': 'application/json' };
     if (opt.bearer) headers.Authorization = 'Bearer ' + opt.bearer;
     return realFetch(SB_URL + path, {
@@ -106,14 +123,84 @@
         clearTimeout(timer);
         var j = null;
         try { j = t ? JSON.parse(t) : null; } catch (e) {}
-        S.cloudUp = true;
         return { status: r.status, ok: r.ok, json: j };
       });
-    }, function () {
+    }).then(null, function () {
       clearTimeout(timer);
-      S.cloudUp = false;
-      throw new Fail('Can\u2019t reach the cloud database. Check the internet connection and try again.', 500, 'NETWORK');
+      throw { timedOut: timedOut };
     });
+  }
+
+  /* opt.retry = how many more times a request that never got an answer may be sent.
+     Only for requests that are safe to repeat (sign-in, reads) - never for a save,
+     which may have reached the database even though the answer was lost. */
+  function sb(path, opt) {
+    var left = opt.retry || 0, t0 = now();
+    function attempt() {
+      return sbOnce(path, opt).then(function (r) {
+        var was = S.cloudUp;
+        S.cloudUp = true; S.net = '';
+        if (was === false) setTimeout(paint, 0);
+        return r;
+      }, function (why) {
+        if (left > 0 && !why.timedOut && now() - t0 < 6000) {      // a hiccup (the network changed, a reset): try again
+          left--;
+          return new Promise(function (go) { setTimeout(go, 1200); }).then(attempt);
+        }
+        S.cloudUp = false;
+        return diagnose(why.timedOut).then(function (net) {
+          watch();
+          throw new Fail(NET_TEXT[net] || NET_TEXT.unknown, 500, 'NETWORK');
+        });
+      });
+    }
+    return attempt();
+  }
+
+  /* ------------------------------------------- why did the cloud not answer? */
+  function knock(url, init) {             // true when anything at all came back
+    var ctl = window.AbortController ? new AbortController() : null;
+    var timer = ctl ? setTimeout(function () { ctl.abort(); }, PROBE_MS) : 0;
+    var p;
+    init.cache = 'no-store';
+    if (ctl) init.signal = ctl.signal;
+    try { p = realFetch(url, init); } catch (e) { p = Promise.reject(e); }
+    return p.then(function () { clearTimeout(timer); return true; }, function () { clearTimeout(timer); return false; });
+  }
+  var diagnosing = null;
+  function diagnose(timedOut) {
+    if (S.net && now() - S.netAt < 12000) return Promise.resolve(S.net);
+    if (diagnosing) return diagnosing;
+    function done(net) { diagnosing = null; S.net = net; S.netAt = now(); setTimeout(paint, 0); return net; }
+    if (navigator.onLine === false) return Promise.resolve(done('offline'));
+    /* 1. the website's own address: if even that fails, there is no internet here
+       2. the database address without any headers: if that fails while 1 worked,
+          this connection does not let the browser reach the database             */
+    diagnosing = knock(location.origin + '/supabase-bridge.js?net=' + now(), { method: 'HEAD' }).then(function (site) {
+      if (!site) return 'offline';
+      return knock(SB_URL + '/auth/v1/health', { method: 'GET', mode: 'no-cors' }).then(function (db) {
+        return db ? (timedOut ? 'slow' : 'unknown') : 'blocked';
+      });
+    }).then(done, function () { return done('unknown'); });
+    return diagnosing;
+  }
+
+  /* While the cloud is out of reach: knock every few seconds, so the page comes
+     back by itself the moment the connection does - no reload, no second try. */
+  var watching = 0, knocking = false;
+  function reknock() {
+    if (S.cloudUp !== false || knocking) return;
+    knocking = true;
+    sb('/auth/v1/settings', { method: 'GET' }).then(function () {
+      knocking = false; paint(); tick();
+    }, function () { knocking = false; paint(); });
+  }
+  function watch() {
+    if (watching) return;
+    watching = setInterval(function () {
+      if (S.cloudUp !== false) { clearInterval(watching); watching = 0; return; }
+      if (!document.hidden) reknock();
+    }, RETRY_MS);
   }
 
   var refreshing = null;
@@ -166,7 +253,7 @@
 
   function rpc(name, args, retried) {
     return accessToken().then(function (tok) {
-      return sb('/rest/v1/rpc/' + name, { body: args || {}, bearer: tok });
+      return sb('/rest/v1/rpc/' + name, { body: args || {}, bearer: tok, retry: name === 'astro_web_bundle' ? 1 : 0 });
     }).then(function (r) {
       if (r.ok) return r.json;
       var j = r.json || {};
@@ -388,7 +475,7 @@
       throw new Fail('Sign in with your staff email address. Students use the school device for now.');
     }
     S.loggingIn = true;
-    return sb('/auth/v1/token?grant_type=password', { body: { email: id.toLowerCase(), password: pw } }).then(function (r) {
+    return sb('/auth/v1/token?grant_type=password', { body: { email: id.toLowerCase(), password: pw }, retry: 2 }).then(function (r) {
       var j = r.json || {};
       if (!r.ok || !j.access_token) {
         var code = String(j.error_code || j.error || ''), msg = String(j.msg || j.error_description || j.message || '');
@@ -809,7 +896,8 @@
       HW.ram.detail = HW.temp.detail = HW.wifi.detail = 'live reading from the device';
       if ((was !== DEVICE.online || wasState !== DEVICE.state) && SESSION.role) { renderTopbar(); renderSidebar(); }
     } catch (e) {}
-    if (S.cloudUp === false) pill('sys-cloud', 'p-err', 'Cloud: unreachable');
+    var net = S.cloudUp === false ? (S.net || 'unknown') : '';
+    if (net) pill('sys-cloud', 'p-err', NET_PILL[net] || NET_PILL.unknown);
     else if (S.cloudUp) pill('sys-cloud', 'p-ok', 'Cloud: connected', true);
     else pill('sys-cloud', 'p-idle', 'Cloud: checking\u2026');
     if (!k.known) pill('sys-dev', 'p-idle', 'Device: shown after sign-in');
@@ -818,6 +906,26 @@
     var lc = document.getElementById('lg-cloud'), ld = document.getElementById('lg-device');
     if (lc) lc.className = 'pill ' + (S.cloudUp === false ? 'p-err' : 'p-ok');
     if (ld) ld.className = 'pill ' + (k.online ? 'p-ok' : 'p-idle');
+    loginNotice(net);
+  }
+
+  /* On the sign-in page: say why the cloud is out of reach without waiting for a
+     failed sign-in, and take the message back as soon as the cloud answers. */
+  function isNetText(t) {
+    for (var k in NET_TEXT) if (t.indexOf(NET_TEXT[k]) >= 0) return true;
+    return false;
+  }
+  function loginNotice(net) {
+    var box = document.getElementById('login-err'), page = document.getElementById('login'), btn = document.getElementById('login-btn');
+    if (!box || !page || !/(^| )on( |$)/.test(page.className) || (btn && btn.disabled)) return;
+    var text = box.textContent || '', showing = !/(^| )hidden( |$)/.test(box.className), mine = isNetText(text);
+    if (net) {
+      if (showing && (!mine || text.indexOf(NET_TEXT[net]) >= 0)) return;    // the app is saying something else, or it already says this
+      try { loginError(NET_TEXT[net]); }                                     // the app's own way of showing a sign-in problem
+      catch (e) { box.textContent = NET_TEXT[net]; box.classList.remove('hidden'); }
+    } else if (showing && mine) {
+      box.classList.add('hidden');
+    }
   }
 
   function swap(html, pairs) {
@@ -830,7 +938,11 @@
     css.textContent = '.field:has(#ns-pass),.field:has(#se-pass){display:none}' +
       '.web-stu th:nth-child(2),.web-stu td:nth-child(2){display:none}.kv:empty{display:none}' +
       '.web-note{margin:0 0 14px;padding:11px 14px;border:1px solid rgba(127,127,127,.28);border-radius:12px;' +
-      'font-size:12.5px;line-height:1.55;color:var(--txt2)}.web-note b{color:var(--txt)}';
+      'font-size:12.5px;line-height:1.55;color:var(--txt2)}.web-note b{color:var(--txt)}' +
+      /* the sign-in problem box: it now carries whole sentences, so give it a frame */
+      '#login-err{display:flex;gap:9px;align-items:flex-start;margin-top:12px;padding:10px 12px;border-radius:12px;' +
+      'border:1px solid rgba(248,113,113,.45);background:rgba(248,113,113,.09);font-size:12.5px;line-height:1.5;' +
+      'color:var(--txt);text-align:left}#login-err.hidden{display:none}#login-err>span{flex:none;margin-top:1px;color:#f87171}';
     document.head.appendChild(css);
 
     /* Student sign-in names and passwords are kept by the device. The website has none,
@@ -932,7 +1044,8 @@
   else if (!lsGet('astro_tok')) writeSession(null);
 
   window.AstroWeb = { paint: paint, refresh: function () { return refresh(true); }, replaceCard: replaceCard,
-                      state: function () { return { gen: S.gen, error: S.error, kiosk: kiosk(), signedIn: !!readSession() }; } };
+                      state: function () { return { gen: S.gen, error: S.error, kiosk: kiosk(), signedIn: !!readSession(),
+                                                     cloudUp: S.cloudUp, net: S.cloudUp === false ? (S.net || 'unknown') : '' }; } };
 
   function tick() {
     if (!readSession()) return;
@@ -945,13 +1058,18 @@
   }
   setInterval(tick, POLL_MS);
   setInterval(paint, 15000);
-  document.addEventListener('visibilitychange', function () { if (!document.hidden) tick(); });
+  document.addEventListener('visibilitychange', function () { if (!document.hidden) { tick(); reknock(); } });
+  window.addEventListener('online', reknock);       // the computer says the network is back: check at once
+  window.addEventListener('offline', function () {  // ...or gone: say so now rather than at the next request
+    S.cloudUp = false; S.net = 'offline'; S.netAt = now();
+    paint(); watch();
+  });
 
   function ready() {
     tidyUi();
     setTimeout(paint, 1600);                        // after the app's own start-up paints
     if (!readSession()) {                           // lets the login page say honestly whether the cloud answers
-      sb('/auth/v1/settings', { method: 'GET' }).then(paint, paint);
+      sb('/auth/v1/settings', { method: 'GET', retry: 1 }).then(paint, paint);
     }
   }
   if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', ready);
