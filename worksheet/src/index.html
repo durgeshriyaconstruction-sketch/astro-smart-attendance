@@ -1,0 +1,1274 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Astro Smart Attendance — Creative Ideation Worksheet · ABG STEM Quest 2026–27 · Team Sun Rises India</title>
+<link rel="stylesheet" href="../node_modules/@fontsource/inter/400.css">
+<link rel="stylesheet" href="../node_modules/@fontsource/inter/500.css">
+<link rel="stylesheet" href="../node_modules/@fontsource/inter/600.css">
+<link rel="stylesheet" href="../node_modules/@fontsource/inter/700.css">
+<link rel="stylesheet" href="../node_modules/@fontsource/inter/400-italic.css">
+<link rel="stylesheet" href="../node_modules/@fontsource/space-grotesk/500.css">
+<link rel="stylesheet" href="../node_modules/@fontsource/space-grotesk/600.css">
+<link rel="stylesheet" href="../node_modules/@fontsource/space-grotesk/700.css">
+<link rel="stylesheet" href="../node_modules/@fontsource/instrument-serif/400.css">
+<link rel="stylesheet" href="../node_modules/@fontsource/instrument-serif/400-italic.css">
+<link rel="stylesheet" href="../node_modules/@fontsource/jetbrains-mono/400.css">
+<link rel="stylesheet" href="../node_modules/@fontsource/jetbrains-mono/500.css">
+<link rel="stylesheet" href="../node_modules/@fontsource/jetbrains-mono/600.css">
+<link rel="stylesheet" href="styles.css">
+</head>
+<body>
+
+<!-- Reusable logo -->
+<svg width="0" height="0" style="position:absolute">
+  <defs>
+    <linearGradient id="sunGrad" x1="0" y1="1" x2="0" y2="0">
+      <stop offset="0" stop-color="#f36d25"/><stop offset="1" stop-color="#ffc25a"/>
+    </linearGradient>
+    <symbol id="logo" viewBox="0 0 48 48">
+      <ellipse cx="24" cy="25" rx="21.5" ry="8.6" transform="rotate(-18 24 25)" fill="none" stroke="#ffc25a" stroke-width="1.4" opacity=".9"/>
+      <path d="M11 29 A13 13 0 0 1 37 29 Z" fill="url(#sunGrad)"/>
+      <path d="M16.4 29 A7.6 7.6 0 0 1 31.6 29" fill="none" stroke="#0b1630" stroke-width="1.5" stroke-linecap="round"/>
+      <path d="M20 29 A4 4 0 0 1 28 29" fill="none" stroke="#0b1630" stroke-width="1.5" stroke-linecap="round"/>
+      <path d="M23 29 A1 1 0 0 1 25 29" fill="none" stroke="#0b1630" stroke-width="1.5" stroke-linecap="round"/>
+      <path d="M5 29 H43" stroke="#ffc25a" stroke-width="1.6" stroke-linecap="round"/>
+      <path d="M24 9.5 V12.5 M12.3 14.3 l2.1 2.1 M35.7 14.3 l-2.1 2.1" stroke="#ffc25a" stroke-width="1.6" stroke-linecap="round"/>
+      <circle cx="42.6" cy="17.6" r="1.9" fill="#fff"/>
+    </symbol>
+    <marker id="arr" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+      <path d="M0 0 L10 5 L0 10 z" fill="#f36d25"/>
+    </marker>
+    <marker id="arrInk" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+      <path d="M0 0 L10 5 L0 10 z" fill="#0b1630"/>
+    </marker>
+  </defs>
+</svg>
+
+<!-- ═════════════════════════════ 01 · COVER ═════════════════════════════ -->
+<section class="page cover">
+  <div style="position:absolute;top:0;bottom:0;left:39.4%;width:2.2%;background:var(--ink);z-index:1"></div>
+  <figure class="photo" style="border-radius:0">
+    <img src="../assets/img/cover_hero.jpg" alt="Concept visual of the Astro device beside a classroom door at sunrise">
+    <figcaption class="ai" style="left:auto;right:4mm;bottom:4mm;z-index:2">Concept visualisation · AI-generated</figcaption>
+  </figure>
+  <div class="content">
+    <div class="brand">
+      <svg width="40" height="40"><use href="#logo"/></svg>
+      <div class="wm">ASTRO SMART<br>ATTENDANCE<span>v26.7.13</span></div>
+    </div>
+
+    <div style="margin-top:20mm">
+      <div class="event">ABG STEM Quest · 2026–27</div>
+      <div class="partline mt2"><b>Part 1</b> Creative Ideation Worksheet</div>
+    </div>
+
+    <h1 style="margin-top:9mm">Attendance<br>that marks<br><em>itself.</em></h1>
+    <p class="sub" style="margin-top:6mm">A ₹1,500 classroom-door terminal that verifies <b style="font-family:var(--f-body);font-style:normal;font-weight:600;color:#fff">card + fingerprint</b>, works offline, repairs itself and tells parents — with zero teacher effort.</p>
+
+    <div class="mt4" style="display:flex;gap:2mm;flex-wrap:wrap;max-width:100mm">
+      <span class="pill ink">{{i:fingerprint}} Dual biometric</span>
+      <span class="pill ink">{{i:wifi-off}} Offline-first</span>
+      <span class="pill ink">{{i:heart-pulse}} Self-healing AI</span>
+      <span class="pill ink">{{i:cloud}} Dual cloud</span>
+    </div>
+
+    <div class="push">
+      <div class="sdg">
+        <div class="n9">9</div>
+        <div class="t"><span>SDG · Theme</span>Industry, Innovation<br>and Infrastructure</div>
+      </div>
+      <div class="meta" style="margin-top:7mm">
+        <div><div class="k">Team</div><div class="v">Sun Rises India</div></div>
+        <div><div class="k">Grade</div><div class="v">9th</div></div>
+        <div style="grid-column:1/-1"><div class="k">School</div><div class="v">The Aditya Birla Public School, Renukoot</div></div>
+        <div><div class="k">Team Captain</div><div class="v">Shaurya Gupta</div></div>
+        <div><div class="k">Location</div><div class="v">Renukoot, Sonbhadra, U.P.</div></div>
+        <div style="grid-column:1/-1"><div class="k">Team Members</div><div class="v" style="font-weight:500;font-size:8.6pt">Shaurya Gupta · Anant Tiwari · Devansh Dhakad · Tejas Upadhyay · Diwakar Singh</div></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ═════════════════════════════ 02 · AT A GLANCE ═════════════════════════════ -->
+<section class="page">
+  <div class="run-head"><span><b>ABG STEM Quest 2026–27</b><i class="dot"></i>Part 1 · Creative Ideation Worksheet</span><span>Team Sun Rises India</span></div>
+  <div class="inner">
+    <div class="kicker">Project at a glance</div>
+    <h2 class="mt1" style="font-size:22pt">Astro Smart Attendance <span class="serif it" style="color:var(--sun);font-size:21pt">v26.7.13</span></h2>
+    <p class="lead mt2" style="max-width:150mm">A wall-mounted ESP32 terminal at every classroom door. The student taps an RFID card and places a finger; the device confirms both belong to the same registered student, shows their name, beeps once, and syncs the record to <b>Firebase</b> and <b>Supabase</b> — then emails the parent. The teacher does nothing.</p>
+
+    <div class="grid g3 mt3">
+      <div class="card stat"><div class="num">&lt;2<small> s</small></div><div class="lbl">Card tap → LCD confirmation, measured consistently in lab</div></div>
+      <div class="card stat"><div class="num">₹1,500</div><div class="lbl">RFID base unit · <b style="color:var(--ink)">₹2,412</b> with fingerprint upgrade. Commercial: ₹8,000–15,000</div></div>
+      <div class="card stat"><div class="num">11<small> checks</small></div><div class="lbl">Astro AI 2.0 health checks every 30 s, with 6 auto-heal routines</div></div>
+      <div class="card stat"><div class="num">49<small> KB</small></div><div class="lbl">Bounded LittleFS offline queue in flash — survives power cuts</div></div>
+      <div class="card stat"><div class="num">140<small>/140</small></div><div class="lbl">Unit tests passing · 10 million simulated stress-test cycles</div></div>
+      <div class="card stat"><div class="num">2<small> clouds</small></div><div class="lbl">Firebase Realtime DB (live) + Supabase PostgreSQL (SQL reports)</div></div>
+    </div>
+
+    <div class="grid mt4" style="grid-template-columns:1.05fr 1fr;gap:5mm">
+      <div>
+        <div class="kicker mb2">The team</div>
+        <div class="card" style="padding:0">
+          <div style="display:flex;align-items:center;gap:3mm;padding:3.2mm 4mm;border-bottom:.6px solid var(--line)">
+            <span class="n sun">SG</span><div class="grow"><h4>Shaurya Gupta <span class="pill sun" style="margin-left:1mm">Captain</span></h4><div class="small muted">Team Lead · Firmware & Cloud Developer</div></div>
+          </div>
+          <div style="display:flex;align-items:center;gap:3mm;padding:3.2mm 4mm;border-bottom:.6px solid var(--line)">
+            <span class="n">AT</span><div><h4>Anant Tiwari</h4><div class="small muted">Ideation & User Research Lead</div></div>
+          </div>
+          <div style="display:flex;align-items:center;gap:3mm;padding:3.2mm 4mm;border-bottom:.6px solid var(--line)">
+            <span class="n">TU</span><div><h4>Tejas Upadhyay</h4><div class="small muted">Hardware Integration & Circuit Testing</div></div>
+          </div>
+          <div style="display:flex;align-items:center;gap:3mm;padding:3.2mm 4mm;border-bottom:.6px solid var(--line)">
+            <span class="n">DS</span><div><h4>Diwakar Singh</h4><div class="small muted">Product Design & 3D Enclosure</div></div>
+          </div>
+          <div style="display:flex;align-items:center;gap:3mm;padding:3.2mm 4mm;border-bottom:.6px solid var(--line)">
+            <span class="n">DD</span><div><h4>Devansh Dhakad</h4><div class="small muted">Testing, Documentation & Presentation</div></div>
+          </div>
+          <div style="display:flex;align-items:center;gap:3mm;padding:3.2mm 4mm;background:var(--paper-2);border-radius:0 0 3.2mm 3.2mm">
+            <span class="badge-ico sm ink">{{i:graduation-cap}}</span><div><h4>Dr. Jayesh Shinde <span class="tiny muted" style="font-weight:500;font-family:var(--f-body)">· Mentor</span></h4><div class="small muted">The Aditya Birla Public School, Renukoot</div></div>
+          </div>
+        </div>
+      </div>
+
+      <div>
+        <div class="kicker mb2">Contents</div>
+        <div class="card" style="padding:2mm 4mm">
+          <table style="width:100%;border-collapse:collapse;font-size:8pt">
+            <tbody>
+            <tr><td style="padding:1.7mm 0;width:8mm" class="mono muted">01</td><td><b>Problem Focus</b></td><td style="text-align:right" class="mono">03</td></tr>
+            <tr><td style="padding:1.7mm 0" class="mono muted">02</td><td><b>Brainstormed Possibilities</b></td><td style="text-align:right" class="mono">05</td></tr>
+            <tr><td style="padding:1.7mm 0" class="mono muted">03</td><td><b>Concept Map</b></td><td style="text-align:right" class="mono">06</td></tr>
+            <tr><td style="padding:1.7mm 0" class="mono muted">04</td><td><b>Shortlisting Matrix</b></td><td style="text-align:right" class="mono">07</td></tr>
+            <tr><td style="padding:1.7mm 0" class="mono muted">05</td><td><b>Selected Concept &amp; Reason</b></td><td style="text-align:right" class="mono">08</td></tr>
+            <tr><td style="padding:1.7mm 0" class="mono muted">06</td><td><b>Initial System Sketch</b></td><td style="text-align:right" class="mono">11</td></tr>
+            <tr><td style="padding:1.7mm 0" class="mono muted">07</td><td><b>What We Must Validate Next</b></td><td style="text-align:right" class="mono">12</td></tr>
+            <tr><td style="padding:1.7mm 0" class="mono muted">08</td><td><b>Prototype Success Indicators</b></td><td style="text-align:right" class="mono">13</td></tr>
+            <tr><td style="padding:1.7mm 0" class="mono muted">09</td><td><b>Risks &amp; Design Safeguards</b></td><td style="text-align:right" class="mono">14</td></tr>
+            <tr><td style="padding:1.7mm 0" class="mono muted">10</td><td><b>Team Reflection</b></td><td style="text-align:right" class="mono">15</td></tr>
+            </tbody>
+          </table>
+        </div>
+        <div class="card sun flat mt2" style="padding:3.6mm 4mm">
+          <span class="quote-mark">“</span>
+          <blockquote style="font-size:11.6pt">No student can be in two places at the same time with two different bodies.</blockquote>
+          <div class="tiny muted mt1 mono" style="letter-spacing:.08em;text-transform:uppercase">The insight behind our design · Section 2</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="push" style="border-top:.6px solid var(--line-2);padding-top:4mm">
+      <div style="display:flex;justify-content:space-between;align-items:baseline">
+        <div class="kicker">Built with</div>
+        <div class="tiny muted mono" style="letter-spacing:.06em">LIVE DASHBOARD · astro-smart-attendence.web.app</div>
+      </div>
+      <div class="mt2" style="display:flex;flex-wrap:wrap;gap:1.6mm">
+        <span class="chip" style="margin:0">{{i:cpu}} ESP32 DevKit V1</span>
+        <span class="chip" style="margin:0">{{i:credit-card}} RC522 RFID</span>
+        <span class="chip" style="margin:0">{{i:fingerprint}} R307 Fingerprint</span>
+        <span class="chip" style="margin:0">{{i:monitor}} LCD1602 I2C</span>
+        <span class="chip" style="margin:0">{{i:hard-drive}} LittleFS</span>
+        <span class="chip" style="margin:0">{{i:cloud}} Firebase Auth · RTDB · Hosting</span>
+        <span class="chip" style="margin:0">{{i:database}} Supabase PostgreSQL</span>
+        <span class="chip" style="margin:0">{{i:heart-pulse}} Astro AI 2.0 (C++)</span>
+        <span class="chip" style="margin:0">{{i:download}} Secure OTA updates</span>
+        <span class="chip" style="margin:0">{{i:box}} 3D-printed PLA enclosure</span>
+        <span class="chip" style="margin:0">{{i:layout-dashboard}} HTML · CSS · JavaScript dashboard</span>
+        <span class="chip" style="margin:0;background:var(--ink);color:#fff;border-color:var(--ink)">{{i:award}} Supported by IIT Kharagpur</span>
+      </div>
+    </div>
+  </div>
+  <div class="run-foot"><span>Project at a glance</span><span class="pg"><span>/</span>02</span></div>
+</section>
+
+<!-- ═════════════════════════════ 03 · SECTION 1 (A) ═════════════════════════════ -->
+<section class="page">
+  <div class="run-head"><span><b>ABG STEM Quest 2026–27</b><i class="dot"></i>Part 1 · Creative Ideation Worksheet</span><span>Team Sun Rises India</span></div>
+  <div class="inner">
+    <div class="sec-head">
+      <div class="sec-num">01</div>
+      <div><div class="kicker">Section 1</div><h2>Problem Focus</h2><div class="deck">We didn’t start with a solution. We started by watching a classroom.</div></div>
+    </div>
+
+    <figure style="height:72mm">
+      <img src="../assets/img/problem_classroom.jpg" alt="Teacher reading names from a paper register in a crowded classroom" style="object-position:50% 40%">
+      <figcaption class="ai">Representative scene · AI-generated illustration</figcaption>
+    </figure>
+
+    <div class="grid mt3" style="grid-template-columns:1.32fr 1fr;gap:5mm">
+      <div>
+        <h3 style="display:flex;align-items:center;gap:2mm"><span class="badge-ico sm">{{i:search}}</span> How we found the problem</h3>
+        <p>Our team did not start with a solution. We started by observing what was actually happening around us every single day inside classrooms. Every morning, every period, every subject — a teacher stands at the front with a paper register and reads out names. Forty students. Some answer. Some answer for friends who are not there. The teacher marks it down. Nobody questions it. This happens six to eight times a day in every school across India.</p>
+        <p>We asked ourselves — <span class="hl"><b>why has nobody fixed this yet?</b></span> The answer was simple. The commercial systems that exist cost between Rs. 8,000 and Rs. 15,000 per unit. A small school or coaching center in a city like Renukoot cannot spend that kind of money on attendance alone. So the paper register survives. And every day, teaching time is wasted, records are wrong, and parents have no idea where their child actually is.</p>
+      </div>
+      <div class="card dark" style="padding:4.4mm 4.6mm">
+        <div class="kicker" style="color:var(--gold)">The cost of one roll-call</div>
+        <div class="stat mt2" style="display:flex;align-items:baseline;gap:2.4mm"><div class="num" style="color:#fff">40</div><div class="lbl" style="margin:0">students · one register · names read aloud</div></div>
+        <div class="stat mt2" style="display:flex;align-items:baseline;gap:2.4mm"><div class="num" style="color:#fff">5<small> min</small></div><div class="lbl" style="margin:0">at the start of every period</div></div>
+        <div class="stat mt2" style="display:flex;align-items:baseline;gap:2.4mm"><div class="num" style="color:#fff">×8</div><div class="lbl" style="margin:0">periods in a school day, at most</div></div>
+        <div style="height:.6px;background:rgba(255,255,255,.2);margin:3mm 0"></div>
+        <div class="stat" style="display:flex;align-items:baseline;gap:2.4mm"><div class="num" style="color:var(--gold);white-space:nowrap">≈40<small> min</small></div><div class="lbl" style="margin:0;color:#fff">a day — close to <b>one full lesson</b> lost to the register</div></div>
+        <div class="tiny mt2" style="color:#8d99bb">Upper-bound estimate from our own classroom observation. Exact minutes lost per period will be measured during the pilot week (Section 7).</div>
+      </div>
+    </div>
+
+    <div class="push">
+      <div style="display:flex;justify-content:space-between;align-items:baseline" class="mb2">
+        <div class="kicker">Today’s paper trail — what one attendance record goes through</div>
+        <div class="tiny muted">From our observation &amp; interviews</div>
+      </div>
+      <div style="display:grid;grid-template-columns:1fr 5mm 1fr 5mm 1fr 5mm 1fr;align-items:stretch">
+        <div class="card flat" style="padding:3mm 3.2mm"><div style="display:flex;gap:2mm;align-items:center"><span class="badge-ico sm">{{i:megaphone}}</span><h4>Shout names</h4></div><p class="tiny mt1 muted">Teacher reads 40 names aloud, every period</p><span class="pill bad mt1">{{i:hourglass}} Minutes lost</span></div>
+        <div style="display:grid;place-items:center;color:var(--sun)">{{i:arrow-right}}</div>
+        <div class="card flat" style="padding:3mm 3.2mm"><div style="display:flex;gap:2mm;align-items:center"><span class="badge-ico sm">{{i:clipboard-list}}</span><h4>Mark paper</h4></div><p class="tiny mt1 muted">Some students answer for absent friends</p><span class="pill bad mt1">{{i:users}} Proxy unnoticed</span></div>
+        <div style="display:grid;place-items:center;color:var(--sun)">{{i:arrow-right}}</div>
+        <div class="card flat" style="padding:3mm 3.2mm"><div style="display:flex;gap:2mm;align-items:center"><span class="badge-ico sm">{{i:file-spreadsheet}}</span><h4>Re-type</h4></div><p class="tiny mt1 muted">Office copies every register into one master file</p><span class="pill bad mt1">{{i:clock}} 1+ hour daily</span></div>
+        <div style="display:grid;place-items:center;color:var(--sun)">{{i:arrow-right}}</div>
+        <div class="card flat" style="padding:3mm 3.2mm"><div style="display:flex;gap:2mm;align-items:center"><span class="badge-ico sm">{{i:smartphone}}</span><h4>Call parents</h4></div><p class="tiny mt1 muted">One by one — only if something looks wrong</p><span class="pill bad mt1">{{i:eye-off}} Zero visibility</span></div>
+      </div>
+    </div>
+
+    <div class="band mt3" style="display:grid;grid-template-columns:auto 1fr auto;gap:5mm;align-items:center;padding:4.2mm 6mm">
+      <span class="badge-ico ink" style="background:rgba(255,255,255,.08)">{{i:indian-rupee}}</span>
+      <div>
+        <div class="kicker">The real barrier is price, not technology</div>
+        <div style="font-family:var(--f-serif);font-size:13pt;line-height:1.2;margin-top:.8mm;color:#fff">Commercial systems cost <b style="font-family:var(--f-display);font-weight:700">₹8,000–15,000</b> a unit. Ours is designed for <b style="font-family:var(--f-display);font-weight:700;color:var(--gold)">₹1,500</b>.</div>
+      </div>
+      <div class="stat" style="text-align:right"><div class="num" style="color:var(--gold)">5–10×</div><div class="lbl">cheaper</div></div>
+    </div>
+  </div>
+  <div class="run-foot"><span>01 · Problem Focus</span><span class="pg"><span>/</span>03</span></div>
+</section>
+
+<!-- ═════════════════════════════ 04 · SECTION 1 (B) ═════════════════════════════ -->
+<section class="page">
+  <div class="run-head"><span><b>ABG STEM Quest 2026–27</b><i class="dot"></i>Part 1 · Creative Ideation Worksheet</span><span>Team Sun Rises India</span></div>
+  <div class="inner">
+    <div class="sec-head cont">
+      <div class="sec-num">01</div>
+      <div><div class="kicker">Section 1 · continued</div><h2>Discovery Question Breakdown</h2></div>
+    </div>
+
+    <div class="grid g2">
+      <div class="card">
+        <div style="display:flex;gap:3mm;align-items:flex-start">
+          <span class="badge-ico">{{i:users}}</span>
+          <div><div class="kicker" style="color:var(--muted)">Q1 · Exactly who is suffering from this problem the most?</div>
+          <p class="mt1" style="font-size:8.9pt">Teachers losing instructional time, office staff drowning in paperwork, parents with zero visibility, coaching directors unable to track batch-wise punctuality.</p></div>
+        </div>
+      </div>
+      <div class="card">
+        <div style="display:flex;gap:3mm;align-items:flex-start">
+          <span class="badge-ico">{{i:timer}}</span>
+          <div><div class="kicker" style="color:var(--muted)">Q2 · At which precise moment does this problem hurt the most?</div>
+          <p class="mt1" style="font-size:8.9pt">The <b>first five minutes of every single class period</b> — repeated up to eight times per school day.</p></div>
+        </div>
+      </div>
+      <div class="card">
+        <div style="display:flex;gap:3mm;align-items:flex-start">
+          <span class="badge-ico">{{i:clipboard-list}}</span>
+          <div><div class="kicker" style="color:var(--muted)">Q3 · What are people doing right now to cope with it?</div>
+          <p class="mt1" style="font-size:8.9pt">Shouting names, marking paper, transferring data to computers manually, calling parents individually if something looks wrong.</p></div>
+        </div>
+      </div>
+      <div class="card sun">
+        <div style="display:flex;gap:3mm;align-items:flex-start">
+          <span class="badge-ico ink">{{i:target}}</span>
+          <div><div class="kicker" style="color:var(--sun)">Q4 · What specific change would tell us the problem is genuinely solved?</div>
+          <p class="mt1" style="font-size:8.9pt">Attendance recorded automatically <b>before the teacher even sits down</b>, no successful proxy in the entire week, parent notified without any teacher action, digital record available instantly.</p></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="rule" style="margin:5mm 0 4mm"></div>
+    <div style="display:flex;justify-content:space-between;align-items:flex-end" class="mb2">
+      <div><div class="kicker">Field research</div><h3 style="margin:1mm 0 0;font-size:15pt">Three people we interviewed</h3></div>
+      <span class="pill">{{i:map-pin}} ABPS Renukoot</span>
+    </div>
+
+    <div class="grid g3 fill" style="gap:3.2mm;margin-bottom:4mm">
+      <div class="card" style="display:flex;flex-direction:column;padding:4.2mm">
+        <div style="display:flex;gap:2.6mm;align-items:center">
+          <span class="n" style="width:9mm;height:9mm;font-size:9pt">RT</span>
+          <div><h4>Mr. Rajendar Mani Tiwari</h4><div class="tiny muted">Teacher</div></div>
+        </div>
+        <div class="kicker mt3" style="font-size:5.8pt;color:var(--muted)">What we heard</div>
+        <blockquote class="mt1" style="font-size:14pt">Some periods he barely has time to teach because the register itself takes too long.</blockquote>
+        <div class="stat" style="margin:auto 0 3mm;background:var(--paper-2);border-radius:2.4mm;padding:2.6mm 3mm"><div class="num" style="font-size:17pt;color:var(--sun)">Up to 8×</div><div class="lbl" style="margin-top:.6mm">periods a day start with the register</div></div>
+        <div style="border-top:.6px dashed var(--line-2);padding-top:2.6mm">
+          <div class="kicker" style="font-size:5.8pt">→ Design implication</div>
+          <div class="small mt1"><b>Zero teacher action.</b> The device records attendance on its own.</div>
+        </div>
+      </div>
+      <div class="card" style="display:flex;flex-direction:column;padding:4.2mm">
+        <div style="display:flex;gap:2.6mm;align-items:center">
+          <span class="n" style="width:9mm;height:9mm;font-size:9pt">B</span>
+          <div><h4>Ms. Bhargavi</h4><div class="tiny muted">Administration Manager</div></div>
+        </div>
+        <div class="kicker mt3" style="font-size:5.8pt;color:var(--muted)">What we heard</div>
+        <blockquote class="mt1" style="font-size:14pt">She manually transfers classroom attendance into one master file at the end of every school day — it takes over an hour and mistakes are common.</blockquote>
+        <div class="stat" style="margin:auto 0 3mm;background:var(--paper-2);border-radius:2.4mm;padding:2.6mm 3mm"><div class="num" style="font-size:17pt;color:var(--sun)">1+ hr</div><div class="lbl" style="margin-top:.6mm">of re-typing, every single school day</div></div>
+        <div style="border-top:.6px dashed var(--line-2);padding-top:2.6mm">
+          <div class="kicker" style="font-size:5.8pt">→ Design implication</div>
+          <div class="small mt1"><b>Automatic SQL reports</b> from Supabase PostgreSQL — no master file.</div>
+        </div>
+      </div>
+      <div class="card" style="display:flex;flex-direction:column;padding:4.2mm;border-color:var(--sun)">
+        <span class="pill sun" style="position:absolute;top:-2.4mm;right:3mm;background:var(--sun);color:#fff">Changed our thinking</span>
+        <div style="display:flex;gap:2.6mm;align-items:center">
+          <span class="n sun" style="width:9mm;height:9mm;font-size:9pt">BP</span>
+          <div><h4>Ms. Bharti Pandey</h4><div class="tiny muted">Art Teacher</div></div>
+        </div>
+        <div class="kicker mt3" style="font-size:5.8pt;color:var(--muted)">What we heard</div>
+        <blockquote class="mt1" style="font-size:14pt">She teaches in six rooms across the week and owns no register — attendance tracking for her subject simply does not happen.</blockquote>
+        <div class="stat" style="margin:auto 0 3mm;background:var(--paper-2);border-radius:2.4mm;padding:2.6mm 3mm"><div class="num" style="font-size:17pt;color:var(--sun)">6 rooms</div><div class="lbl" style="margin-top:.6mm">and not one register of her own</div></div>
+        <div style="border-top:.6px dashed var(--line-2);padding-top:2.6mm">
+          <div class="kicker" style="font-size:5.8pt">→ Design implication</div>
+          <div class="small mt1"><b>A device at every classroom door</b> — fully independent of any teacher.</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="card flat push" style="background:var(--paper-2);border-style:dashed;display:flex;gap:3.4mm;align-items:center;padding:3.4mm 4.4mm">
+      <span class="badge-ico sky">{{i:lightbulb}}</span>
+      <p class="small" style="margin:0"><b>What the interviews told us together:</b> the problem is not only that the register is <i>slow</i>. For admin staff it creates an hour of re-typing every day, and for subject teachers <i>no system exists at all</i>. Our solution had to remove the teacher from the loop entirely.</p>
+    </div>
+  </div>
+  <div class="run-foot"><span>01 · Problem Focus</span><span class="pg"><span>/</span>04</span></div>
+</section>
+
+<!-- ═════════════════════════════ 05 · SECTION 2 ═════════════════════════════ -->
+<section class="page">
+  <div class="run-head"><span><b>ABG STEM Quest 2026–27</b><i class="dot"></i>Part 1 · Creative Ideation Worksheet</span><span>Team Sun Rises India</span></div>
+  <div class="inner">
+    <div class="sec-head" style="margin-bottom:3mm">
+      <div class="sec-num">02</div>
+      <div><div class="kicker">Section 2</div><h2>Brainstormed Possibilities</h2><div class="deck">Our rule: no idea gets rejected immediately. Everything goes on the table first — filtering comes later.</div></div>
+    </div>
+
+    <div class="grid g3 fill" style="gap:2.6mm;grid-auto-rows:1fr;margin-bottom:4mm">
+      <div class="card idea"><div class="top"><span class="badge-ico sm">{{i:qr-code}}</span><h4>Teacher scans a QR code shown on projector</h4><span class="idx">01</span></div>
+        <div><div class="lbl plus">{{i:check}} Attracted us</div><p>Cheap and fast to build</p></div>
+        <div><div class="lbl minus">{{i:x}} Worried us</div><p>Anyone who photographs the screen can send it to an absent friend</p></div></div>
+      <div class="card idea"><div class="top"><span class="badge-ico sm">{{i:credit-card}}</span><h4>Each student carries an RFID card</h4><span class="idx">02</span></div>
+        <div><div class="lbl plus">{{i:check}} Attracted us</div><p>Extremely low cost per card — Rs. 15</p></div>
+        <div><div class="lbl minus">{{i:x}} Worried us</div><p>Nothing stops one student from carrying two cards</p></div></div>
+      <div class="card idea"><div class="top"><span class="badge-ico sm">{{i:fingerprint}}</span><h4>Fingerprint-only biometric station</h4><span class="idx">03</span></div>
+        <div><div class="lbl plus">{{i:check}} Attracted us</div><p>Strong identity verification</p></div>
+        <div><div class="lbl minus">{{i:x}} Worried us</div><p>Expensive standalone terminals — no cloud connectivity</p></div></div>
+
+      <div class="card idea"><div class="top"><span class="badge-ico sm">{{i:smartphone}}</span><h4>Student smartphone app with GPS location tag</h4><span class="idx">04</span></div>
+        <div><div class="lbl plus">{{i:check}} Attracted us</div><p>Modern and feature-rich</p></div>
+        <div><div class="lbl minus">{{i:x}} Worried us</div><p>Unequal smartphone access in Tier-2 cities makes this unfair</p></div></div>
+      <div class="card idea"><div class="top"><span class="badge-ico sm">{{i:scan-face}}</span><h4>Camera-based facial recognition at door</h4><span class="idx">05</span></div>
+        <div><div class="lbl plus">{{i:check}} Attracted us</div><p>Fully automatic — no student action required</p></div>
+        <div><div class="lbl minus">{{i:x}} Worried us</div><p>Privacy law complications for minors — hardware too expensive — lighting conditions unreliable</p></div></div>
+      <div class="card idea"><div class="top"><span class="badge-ico sm">{{i:bluetooth}}</span><h4>Bluetooth signal from student device detected passively</h4><span class="idx">06</span></div>
+        <div><div class="lbl plus">{{i:check}} Attracted us</div><p>Requires no student effort</p></div>
+        <div><div class="lbl minus">{{i:x}} Worried us</div><p>A switched-on phone left on a desk marks the student present even from outside the room</p></div></div>
+
+      <div class="card idea win"><div class="top"><span class="badge-ico sm ink">{{i:layers}}</span><h4>RFID card combined with fingerprint simultaneously</h4><span class="idx" style="color:var(--sun)">07 ★</span></div>
+        <div><div class="lbl plus">{{i:check}} Attracted us</div><p><b>Two things that cannot be shared together</b></p></div>
+        <div><div class="lbl minus">{{i:x}} Worried us</div><p>Slightly more hardware — but structurally eliminates proxy</p></div></div>
+      <div class="card idea"><div class="top"><span class="badge-ico sm">{{i:hard-drive}}</span><h4>Local storage on device when internet fails</h4><span class="idx">08</span></div>
+        <div><div class="lbl plus">{{i:check}} Attracted us</div><p>Critical for rural school reliability</p></div>
+        <div><div class="lbl minus">{{i:x}} Worried us</div><p>Not a standalone solution — must be part of a larger system</p></div></div>
+      <div class="card idea"><div class="top"><span class="badge-ico sm">{{i:file-chart-column}}</span><h4>Automatic cloud-based monthly attendance report</h4><span class="idx">09</span></div>
+        <div><div class="lbl plus">{{i:check}} Attracted us</div><p>Removes manual admin work entirely</p></div>
+        <div><div class="lbl minus">{{i:x}} Worried us</div><p>Needs a structured SQL database — hard to do well with NoSQL alone</p></div></div>
+
+      <div class="card idea"><div class="top"><span class="badge-ico sm">{{i:heart-pulse}}</span><h4>AI engine that monitors device health continuously</h4><span class="idx">10</span></div>
+        <div><div class="lbl plus">{{i:check}} Attracted us</div><p>Device fixes itself without calling a technician</p></div>
+        <div><div class="lbl minus">{{i:x}} Worried us</div><p>Complex to implement — but the most valuable long-term capability</p></div></div>
+      <div class="card idea"><div class="top"><span class="badge-ico sm">{{i:bell-ring}}</span><h4>Instant parent notification on each scan</h4><span class="idx">11</span></div>
+        <div><div class="lbl plus">{{i:check}} Attracted us</div><p>Eliminates manual parent communication</p></div>
+        <div><div class="lbl minus">{{i:x}} Worried us</div><p>Needs reliable alert delivery channel</p></div></div>
+      <div class="card idea"><div class="top"><span class="badge-ico sm">{{i:cloud}}</span><h4>Dual cloud backend for redundancy</h4><span class="idx">12</span></div>
+        <div><div class="lbl plus">{{i:check}} Attracted us</div><p>If one cloud fails the other continues</p></div>
+        <div><div class="lbl minus">{{i:x}} Worried us</div><p>Needs careful architecture to keep both in sync</p></div></div>
+    </div>
+
+    <div class="band" style="padding:4.4mm 5.4mm">
+      <div style="display:grid;grid-template-columns:1fr 1.05fr;gap:5mm;align-items:center">
+        <div>
+          <div class="kicker">The pattern we noticed</div>
+          <p class="mt1" style="font-size:7.9pt;color:#d6ddee">Every idea that used only <b style="color:#fff">one type of verification</b> had a simple workaround. Cards get shared. QR codes get photographed. Apps get left running. The only idea with no simple workaround was combining a card with a fingerprint — because <span style="font-family:var(--f-serif);font-style:italic;font-size:10.4pt;color:var(--gold)">no student can be in two places at the same time with two different bodies.</span></p>
+        </div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:1.6mm">
+          <div class="hc-x" style="display:flex;align-items:center;gap:1.6mm;font-size:7pt;background:rgba(255,255,255,.06);border:.6px solid rgba(255,255,255,.12);border-radius:2mm;padding:1.6mm 2mm"><span style="color:#ff8a7e">{{i:circle-x}}</span><span><b style="color:#fff">Card</b> → gets shared</span></div>
+          <div style="display:flex;align-items:center;gap:1.6mm;font-size:7pt;background:rgba(255,255,255,.06);border:.6px solid rgba(255,255,255,.12);border-radius:2mm;padding:1.6mm 2mm"><span style="color:#ff8a7e">{{i:circle-x}}</span><span><b style="color:#fff">QR</b> → gets photographed</span></div>
+          <div style="display:flex;align-items:center;gap:1.6mm;font-size:7pt;background:rgba(255,255,255,.06);border:.6px solid rgba(255,255,255,.12);border-radius:2mm;padding:1.6mm 2mm"><span style="color:#ff8a7e">{{i:circle-x}}</span><span><b style="color:#fff">App</b> → left running</span></div>
+          <div style="display:flex;align-items:center;gap:1.6mm;font-size:7pt;background:rgba(255,255,255,.06);border:.6px solid rgba(255,255,255,.12);border-radius:2mm;padding:1.6mm 2mm"><span style="color:#ff8a7e">{{i:circle-x}}</span><span><b style="color:#fff">Bluetooth</b> → phone left behind</span></div>
+          <div style="grid-column:1/-1;display:flex;align-items:center;gap:1.8mm;font-size:7.6pt;background:linear-gradient(120deg,var(--sun),#e2531a);border-radius:2mm;padding:2mm 2.4mm;color:#fff"><span>{{i:shield-check}}</span><span><b>Card + Fingerprint</b> → no simple workaround</span></div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="run-foot"><span>02 · Brainstormed Possibilities</span><span class="pg"><span>/</span>05</span></div>
+</section>
+
+<!-- ═════════════════════════════ 06 · SECTION 3 ═════════════════════════════ -->
+<section class="page">
+  <div class="run-head"><span><b>ABG STEM Quest 2026–27</b><i class="dot"></i>Part 1 · Creative Ideation Worksheet</span><span>Team Sun Rises India</span></div>
+  <div class="inner">
+    <div class="sec-head" style="margin-bottom:4mm">
+      <div class="sec-num">03</div>
+      <div><div class="kicker">Section 3</div><h2>Concept Map</h2><div class="deck">From the people involved to the proof of success — one connected chain.</div></div>
+    </div>
+
+    <div class="cmap">
+      <div class="cstage">
+        <div class="lab"><div class="kicker">Start</div><h4>The people involved</h4></div>
+        <div class="body">
+          <div class="it2">{{i:user}}<span>A <b>student</b> who needs to mark their own attendance</span></div>
+          <div class="it2">{{i:book-open-check}}<span>A <b>teacher</b> who needs accurate records without effort</span></div>
+          <div class="it2">{{i:building-2}}<span>A <b>school administrator</b> who needs digital reports</span></div>
+          <div class="it2">{{i:users-round}}<span>A <b>parent</b> who deserves to know their child is safe</span></div>
+        </div>
+      </div>
+      <div class="cflow">{{i:arrow-down}}</div>
+      <div class="cstage">
+        <div class="lab"><div class="kicker">Trigger</div><h4>The moment the problem occurs</h4></div>
+        <div class="body">
+          <div class="it2">{{i:clipboard-list}}<span>Teacher opens the paper register at period start</span></div>
+          <div class="it2">{{i:users}}<span>Student decides to fake a friend’s attendance</span></div>
+          <div class="it2">{{i:wifi-off}}<span>School WiFi drops mid-session</span></div>
+          <div class="it2">{{i:triangle-alert}}<span>A sensor component stops responding</span></div>
+        </div>
+      </div>
+      <div class="cflow">{{i:arrow-down}}</div>
+      <div class="cstage">
+        <div class="lab"><div class="kicker">Input</div><h4>Captured from the student</h4></div>
+        <div class="body">
+          <div class="it2">{{i:credit-card}}<span><b>RC522 RFID</b> reader captures card UID — 13.56 MHz</span></div>
+          <div class="it2">{{i:fingerprint}}<span><b>R307</b> fingerprint sensor captures biometric — UART</span></div>
+          <div class="it2">{{i:user-check}}<span>Both must match the <b>same registered student</b></span></div>
+          <div class="it2">{{i:timer}}<span>Entire capture takes <b>under 2 seconds</b></span></div>
+        </div>
+      </div>
+      <div class="cflow">{{i:arrow-down}}</div>
+      <div class="cstage">
+        <div class="lab"><div class="kicker">Decision</div><h4>Made by the ESP32 controller</h4></div>
+        <div class="body">
+          <div class="it2">{{i:heart-pulse}}<span><b>Astro AI 2.0</b> runs 11 health checks every 30 seconds</span></div>
+          <div class="it2">{{i:wrench}}<span><b>6 automatic repair routines</b> triggered on any failure</span></div>
+          <div class="it2">{{i:hard-drive}}<span><b>LittleFS offline queue</b> holds data if WiFi is absent</span></div>
+          <div class="it2">{{i:cloud-upload}}<span>Data sent to <b>Firebase and Supabase</b> simultaneously</span></div>
+        </div>
+      </div>
+      <div class="cflow">{{i:arrow-down}}</div>
+      <div class="cstage">
+        <div class="lab"><div class="kicker">Output</div><h4>What happens immediately after</h4></div>
+        <div class="body" style="grid-template-columns:1fr 1fr">
+          <div class="it2">{{i:monitor}}<span>LCD screen displays student name and confirmation</span></div>
+          <div class="it2">{{i:volume-2}}<span>Single buzzer beep signals successful registration</span></div>
+          <div class="it2">{{i:activity}}<span>Firebase record created — dashboard updates live</span></div>
+          <div class="it2">{{i:database}}<span>Supabase entry saved — SQL reports auto-updated</span></div>
+          <div class="it2" style="grid-column:1/-1">{{i:mail}}<span>Email reaches parent within seconds of the scan</span></div>
+        </div>
+      </div>
+      <div class="cflow">{{i:arrow-down}}</div>
+      <div class="cstage final">
+        <div class="lab"><div class="kicker">Proof</div><h4>How success is confirmed</h4></div>
+        <div class="body">
+          <div class="it2">{{i:circle-check}}<span>Scan time measured at under 2 seconds consistently</span></div>
+          <div class="it2">{{i:circle-check}}<span>Every proxy attempt fails — no exceptions</span></div>
+          <div class="it2">{{i:circle-check}}<span>Every offline scan appears in cloud after WiFi returns</span></div>
+          <div class="it2">{{i:circle-check}}<span>Parent email received without any teacher involvement</span></div>
+          <div class="it2" style="grid-column:1/-1">{{i:circle-check}}<span>Device cost confirmed at <b>Rs. 1,500</b> per RFID unit · <b>Rs. 2,412</b> with fingerprint</span></div>
+        </div>
+      </div>
+    </div>
+
+    <div style="display:flex;align-items:center;gap:4mm;border:1.2px solid var(--sun);border-radius:3.2mm;padding:3.4mm 4.6mm;background:#fff">
+      <span class="badge-ico ink">{{i:flag}}</span>
+      <div class="grow"><div class="kicker">Direction selected</div><div style="font-family:var(--f-display);font-weight:700;font-size:12pt;letter-spacing:-.015em;margin-top:.6mm">Astro Smart Attendance — Dual Biometric + AI Self-Healing + Dual Cloud</div></div>
+    </div>
+  </div>
+  <div class="run-foot"><span>03 · Concept Map</span><span class="pg"><span>/</span>06</span></div>
+</section>
+
+<!-- ═════════════════════════════ 07 · SECTION 4 ═════════════════════════════ -->
+<section class="page">
+  <div class="run-head"><span><b>ABG STEM Quest 2026–27</b><i class="dot"></i>Part 1 · Creative Ideation Worksheet</span><span>Team Sun Rises India</span></div>
+  <div class="inner">
+    <div class="sec-head" style="margin-bottom:4mm">
+      <div class="sec-num">04</div>
+      <div><div class="kicker">Section 4</div><h2>Shortlisting Matrix</h2><div class="deck">Scored 1 to 5 on each criterion. All scores based on evidence from our interviews and testing.</div></div>
+    </div>
+
+    <div class="tbl-wrap">
+    <table class="tbl matrix">
+      <thead><tr><th style="width:56mm">Concept</th><th class="c">Novelty</th><th class="c">Feasibility</th><th class="c">Afford&shy;ability</th><th class="c">Real Impact</th><th class="c">Prototype Ready</th><th>Total / 25</th></tr></thead>
+      <tbody>
+        <tr class="win">
+          <td class="k">Astro Smart Attendance<div class="tiny muted" style="font-family:var(--f-body);font-weight:500">Dual Biometric + Astro AI 2.0 + Firebase + Supabase</div></td>
+          <td class="s s5">5</td><td class="s s5">5</td><td class="s s5">5</td><td class="s s5">5</td><td class="s s5">5</td>
+          <td class="tot" style="color:var(--sun)">25<div class="bar"><i style="width:100%"></i></div></td>
+        </tr>
+        <tr><td class="k">Rotating QR Code on Projector</td><td class="s s2">2</td><td class="s s4">4</td><td class="s s5">5</td><td class="s s1">1</td><td class="s s4">4</td><td class="tot">16<div class="bar"><i style="width:64%;background:var(--ink-3)"></i></div></td></tr>
+        <tr><td class="k">Teacher Smartphone App</td><td class="s s1">1</td><td class="s s4">4</td><td class="s s5">5</td><td class="s s2">2</td><td class="s s4">4</td><td class="tot">16<div class="bar"><i style="width:64%;background:var(--ink-3)"></i></div></td></tr>
+        <tr><td class="k">Bluetooth Signal Detection</td><td class="s s2">2</td><td class="s s2">2</td><td class="s s4">4</td><td class="s s1">1</td><td class="s s3">3</td><td class="tot">12<div class="bar"><i style="width:48%;background:var(--ink-3)"></i></div></td></tr>
+        <tr><td class="k">Camera Face Recognition</td><td class="s s3">3</td><td class="s s1">1</td><td class="s s1">1</td><td class="s s4">4</td><td class="s s1">1</td><td class="tot">10<div class="bar"><i style="width:40%;background:var(--ink-3)"></i></div></td></tr>
+      </tbody>
+    </table>
+    </div>
+    <div class="tiny muted mt1" style="display:flex;gap:3mm;align-items:center">Scale:
+      <span style="display:inline-flex;gap:.8mm"><i class="s1" style="display:inline-block;width:4mm;height:3mm;border-radius:.6mm;border:.5px solid var(--line)"></i><i class="s2" style="display:inline-block;width:4mm;height:3mm;border-radius:.6mm"></i><i class="s3" style="display:inline-block;width:4mm;height:3mm;border-radius:.6mm"></i><i class="s4" style="display:inline-block;width:4mm;height:3mm;border-radius:.6mm"></i><i class="s5" style="display:inline-block;width:4mm;height:3mm;border-radius:.6mm"></i></span>
+      1 = weak · 5 = strong. Rows sorted by total.</div>
+
+    <div class="grid mt3" style="grid-template-columns:repeat(5,1fr);gap:2mm">
+      <div class="card flat" style="padding:2.6mm 3mm;background:var(--paper-2)"><div class="tiny mono" style="color:var(--sun);font-weight:600">NOVELTY</div><div class="tiny mt1">Is it genuinely new compared with what already exists?</div></div>
+      <div class="card flat" style="padding:2.6mm 3mm;background:var(--paper-2)"><div class="tiny mono" style="color:var(--sun);font-weight:600">FEASIBILITY</div><div class="tiny mt1">Can we actually build it with our skills and resources?</div></div>
+      <div class="card flat" style="padding:2.6mm 3mm;background:var(--paper-2)"><div class="tiny mono" style="color:var(--sun);font-weight:600">AFFORDABILITY</div><div class="tiny mt1">Can a Tier-2 school or coaching center pay for it?</div></div>
+      <div class="card flat" style="padding:2.6mm 3mm;background:var(--paper-2)"><div class="tiny mono" style="color:var(--sun);font-weight:600">REAL IMPACT</div><div class="tiny mt1">Does it solve what our stakeholders told us?</div></div>
+      <div class="card flat" style="padding:2.6mm 3mm;background:var(--paper-2)"><div class="tiny mono" style="color:var(--sun);font-weight:600">PROTOTYPE READY</div><div class="tiny mt1">Does a working version exist today?</div></div>
+    </div>
+
+    <h3 class="mt3" style="font-size:13pt">Why Astro Smart Attendance scored 25 out of 25</h3>
+    <div style="display:flex;flex-direction:column;gap:2.2mm" class="mt1 fill">
+      <div class="card" style="display:grid;grid-template-columns:36mm 1fr;gap:4mm;padding:3.2mm 4mm;align-items:center;flex:1">
+        <div><div style="display:flex;gap:2mm;align-items:center"><span class="badge-ico sm">{{i:sparkles}}</span><h4>Novelty</h4></div><div class="mono tiny mt1" style="color:var(--sun)">●●●●● 5/5</div></div>
+        <p style="margin:0;font-size:8.6pt">No product in India currently combines offline-first architecture, dual biometric security, self-healing AI and dual cloud backend at a cost of Rs. 1,500. This combination does not exist in any commercial offering at any comparable price point.</p>
+      </div>
+      <div class="card" style="display:grid;grid-template-columns:36mm 1fr;gap:4mm;padding:3.2mm 4mm;align-items:center;flex:1">
+        <div><div style="display:flex;gap:2mm;align-items:center"><span class="badge-ico sm">{{i:wrench}}</span><h4>Feasibility</h4></div><div class="mono tiny mt1" style="color:var(--sun)">●●●●● 5/5</div></div>
+        <p style="margin:0;font-size:8.6pt">Not theoretical. A fully assembled and tested prototype exists. Components were provided by IIT Kharagpur. 3D printed enclosure produced by IIT Kharagpur team. 10 million simulated stress-test cycles completed.</p>
+      </div>
+      <div class="card" style="display:grid;grid-template-columns:36mm 1fr;gap:4mm;padding:3.2mm 4mm;align-items:center;flex:1">
+        <div><div style="display:flex;gap:2mm;align-items:center"><span class="badge-ico sm">{{i:indian-rupee}}</span><h4>Affordability</h4></div><div class="mono tiny mt1" style="color:var(--sun)">●●●●● 5/5</div></div>
+        <p style="margin:0;font-size:8.6pt">Rs. 1,500 for the complete RFID version. Rs. 2,412 with fingerprint upgrade. The nearest commercial alternative starts at Rs. 8,000 and offers fewer features.</p>
+      </div>
+      <div class="card" style="display:grid;grid-template-columns:36mm 1fr;gap:4mm;padding:3.2mm 4mm;align-items:center;flex:1">
+        <div><div style="display:flex;gap:2mm;align-items:center"><span class="badge-ico sm">{{i:target}}</span><h4>Real Impact</h4></div><div class="mono tiny mt1" style="color:var(--sun)">●●●●● 5/5</div></div>
+        <p style="margin:0;font-size:8.6pt">Removes teacher effort completely. Eliminates proxy by design. Informs parents automatically. Generates SQL reports for exam eligibility. All confirmed as genuine needs by the stakeholders we interviewed.</p>
+      </div>
+      <div class="card" style="display:grid;grid-template-columns:36mm 1fr;gap:4mm;padding:3.2mm 4mm;align-items:center;flex:1">
+        <div><div style="display:flex;gap:2mm;align-items:center"><span class="badge-ico sm">{{i:rocket}}</span><h4>Prototype Ready</h4></div><div class="mono tiny mt1" style="color:var(--sun)">●●●●● 5/5</div></div>
+        <p style="margin:0;font-size:8.6pt">Already built. Already tested. Already supported by IIT Kharagpur. Ready for pilot deployment at a coaching center in Renukoot.</p>
+      </div>
+    </div>
+  </div>
+  <div class="run-foot"><span>04 · Shortlisting Matrix</span><span class="pg"><span>/</span>07</span></div>
+</section>
+
+<!-- ═════════════════════════════ 08 · SECTION 5 (A) ═════════════════════════════ -->
+<section class="page">
+  <div class="run-head"><span><b>ABG STEM Quest 2026–27</b><i class="dot"></i>Part 1 · Creative Ideation Worksheet</span><span>Team Sun Rises India</span></div>
+  <div class="inner">
+    <div class="sec-head" style="margin-bottom:4mm">
+      <div class="sec-num">05</div>
+      <div><div class="kicker">Section 5</div><h2>Selected Concept &amp; Reason</h2><div class="deck">The concept we chose: Astro Smart Attendance v26.7.13</div></div>
+    </div>
+
+    <figure class="fill" style="min-height:62mm">
+      <img src="../assets/img/scan_moment.jpg" alt="Student tapping card and placing finger on the device" style="object-position:50% 45%">
+      <div style="position:absolute;inset:0;background:linear-gradient(90deg,rgba(11,22,48,.88) 0%,rgba(11,22,48,.55) 32%,rgba(11,22,48,0) 58%)"></div>
+      <div style="position:absolute;left:6mm;top:6mm;bottom:6mm;width:68mm;color:#fff;display:flex;flex-direction:column">
+        <div class="kicker" style="color:var(--gold)">One tap · one touch</div>
+        <div style="font-family:var(--f-display);font-weight:700;font-size:19pt;line-height:1.02;letter-spacing:-.03em;margin-top:1.6mm">Card + finger.<br>Same student.<br>Under <span style="color:var(--gold)">2 seconds.</span></div>
+        <div class="push small" style="color:#cfd6e8">The teacher does absolutely nothing.</div>
+      </div>
+      <figcaption class="ai" style="left:auto;right:2.4mm">Concept visualisation · AI-generated</figcaption>
+    </figure>
+
+    <h3 class="mt3" style="display:flex;align-items:center;gap:2mm"><span class="badge-ico sm">{{i:zap}}</span> What this system actually does</h3>
+    <div class="steps mt1">
+      <div class="step"><div class="disc">{{i:credit-card}}</div><div class="t">Step 1</div><h4>Tap card</h4><p>Personalised RFID card on the RC522 reader</p></div>
+      <div class="step"><div class="disc">{{i:fingerprint}}</div><div class="t">Step 2</div><h4>Place finger</h4><p>R307 fingerprint sensor reads the biometric</p></div>
+      <div class="step"><div class="disc sun">{{i:cpu}}</div><div class="t">Step 3</div><h4>Verify</h4><p>ESP32 checks both belong to the same student</p></div>
+      <div class="step"><div class="disc">{{i:monitor}}</div><div class="t">Step 4</div><h4>Confirm</h4><p>LCD shows the name · buzzer gives one short beep</p></div>
+      <div class="step"><div class="disc">{{i:cloud-upload}}</div><div class="t">Step 5</div><h4>Sync</h4><p>Firebase Realtime DB + Supabase PostgreSQL</p></div>
+      <div class="step"><div class="disc">{{i:mail}}</div><div class="t">Step 6</div><h4>Notify</h4><p>Email dispatched to the parent’s address</p></div>
+    </div>
+
+    <p class="mt3" style="font-size:9pt">A student approaches the mounted device at the classroom entrance. They tap their personalised RFID card against the RC522 reader and place their finger on the R307 fingerprint sensor. The ESP32 DevKit V1 reads both inputs and cross-references them against the stored database. If the card UID and the fingerprint template both belong to the same registered student — attendance is marked confirmed. The whole process takes under 2 seconds. The LCD screen on the device shows the student name. The buzzer gives one short beep. The record goes instantly to Firebase Realtime Database and simultaneously to Supabase PostgreSQL. An email is dispatched to the parent’s registered address. <b>The teacher does absolutely nothing.</b></p>
+
+    <div class="card mt3" style="padding:4mm 4.6mm;display:grid;grid-template-columns:1fr 88mm;gap:5mm;align-items:center">
+      <div>
+        <div class="kicker">Offline-first by design</div>
+        <h4 class="mt1" style="font-size:10.4pt">When the WiFi is down — a daily reality in Tier-2 cities</h4>
+        <p class="small mt1">The scan is written directly to a <b>49KB bounded LittleFS offline queue</b> stored on the ESP32’s own internal flash memory. This data survives power cuts. The moment the WiFi connection returns, every queued record syncs automatically to both cloud databases without any human instruction.</p>
+      </div>
+      <svg class="diagram" viewBox="0 0 340 150" width="100%">
+        <rect x="2" y="52" width="70" height="44" rx="8" fill="#0b1630"/>
+        <text x="37" y="72" text-anchor="middle" fill="#ffc25a" font-size="9" class="t-m">SCAN</text>
+        <text x="37" y="86" text-anchor="middle" fill="#fff" font-size="9.5" class="t-h">Card + Finger</text>
+        <path d="M72 74 H100" stroke="#f36d25" stroke-width="1.6" marker-end="url(#arr)"/>
+        <polygon points="128,46 156,74 128,102 100,74" fill="#fff" stroke="#d8cfbd" stroke-width="1"/>
+        <text x="128" y="72" text-anchor="middle" fill="#0b1630" font-size="9" class="t-h">WiFi</text>
+        <text x="128" y="83" text-anchor="middle" fill="#0b1630" font-size="9" class="t-h">up?</text>
+        <path d="M128 46 V25 H190" stroke="#14936a" stroke-width="1.6" fill="none" marker-end="url(#arr)"/>
+        <text x="134" y="39" fill="#14936a" font-size="8" class="t-m">YES</text>
+        <path d="M128 102 V126 H190" stroke="#d2443a" stroke-width="1.6" fill="none" marker-end="url(#arr)"/>
+        <text x="134" y="118" fill="#d2443a" font-size="8" class="t-m">NO</text>
+        <rect x="192" y="6" width="146" height="38" rx="8" fill="#e4f5ee" stroke="#9fd5bf"/>
+        <text x="265" y="22" text-anchor="middle" fill="#0b1630" font-size="9.5" class="t-h">Firebase + Supabase</text>
+        <text x="265" y="35" text-anchor="middle" fill="#14936a" font-size="7" class="t-m">INSTANT SYNC</text>
+        <rect x="192" y="106" width="146" height="40" rx="8" fill="#fff1e6" stroke="#f8c9a8"/>
+        <text x="265" y="122" text-anchor="middle" fill="#0b1630" font-size="9.5" class="t-h">LittleFS queue · 49KB</text>
+        <text x="265" y="136" text-anchor="middle" fill="#f36d25" font-size="6.6" class="t-m">FLASH · SURVIVES POWER CUTS</text>
+        <path d="M222 106 V46" stroke="#f36d25" stroke-width="1.6" stroke-dasharray="4 3" marker-end="url(#arr)"/>
+        <text x="230" y="73" fill="#f36d25" font-size="7" class="t-m">AUTO-SYNC WHEN</text>
+        <text x="230" y="83" fill="#f36d25" font-size="7" class="t-m">WIFI RETURNS</text>
+      </svg>
+    </div>
+  </div>
+  <div class="run-foot"><span>05 · Selected Concept &amp; Reason</span><span class="pg"><span>/</span>08</span></div>
+</section>
+
+<!-- ═════════════════════════════ 09 · SECTION 5 (B) ═════════════════════════════ -->
+<section class="page">
+  <div class="run-head"><span><b>ABG STEM Quest 2026–27</b><i class="dot"></i>Part 1 · Creative Ideation Worksheet</span><span>Team Sun Rises India</span></div>
+  <div class="inner">
+    <div class="sec-head cont" style="margin-bottom:4mm">
+      <div class="sec-num">05</div>
+      <div><div class="kicker">Section 5 · continued</div><h2>Inside the Device</h2></div>
+    </div>
+
+    <div class="band" style="padding:5mm 5.6mm">
+      <div style="display:grid;grid-template-columns:1fr auto;gap:4mm;align-items:start">
+        <div>
+          <div class="kicker">Running continuously in the background</div>
+          <h3 style="font-size:16pt;margin:1mm 0 1.6mm">Astro AI 2.0 <span class="serif it" style="font-weight:400;color:var(--gold)">— the device that heals itself</span></h3>
+          <p style="font-size:7.9pt;color:#d6ddee">A self-healing intelligence built entirely in C++ that lives on the ESP32 itself. Every 30 seconds it runs 11 specific health checks. If any check returns a failure, the corresponding auto-heal routine executes immediately — the system reconnects WiFi, resets frozen sensors, force-syncs near-full queues or performs a controlled restart. <b style="color:#fff">All without a technician, all without a teacher, all without the school even knowing a problem occurred.</b></p>
+        </div>
+        <div style="text-align:center;padding:1mm 2mm">
+          <svg width="90" height="90" viewBox="0 0 100 100">
+            <circle cx="50" cy="50" r="42" fill="none" stroke="rgba(255,255,255,.12)" stroke-width="8"/>
+            <circle cx="50" cy="50" r="42" fill="none" stroke="url(#sunGrad)" stroke-width="8" stroke-linecap="round" stroke-dasharray="200 264" transform="rotate(-90 50 50)"/>
+            <text x="50" y="50" text-anchor="middle" fill="#fff" font-size="24" style="font-family:'Space Grotesk';font-weight:700">30s</text>
+            <text x="50" y="64" text-anchor="middle" fill="#aab4d0" font-size="7.5" style="font-family:'JetBrains Mono';letter-spacing:1px">CHECK CYCLE</text>
+          </svg>
+        </div>
+      </div>
+      <div class="hc mt2">
+        <div class="c"><span class="no">01</span>{{i:wifi}}WiFi status</div>
+        <div class="c"><span class="no">02</span>{{i:cloud}}Firebase reachability</div>
+        <div class="c"><span class="no">03</span>{{i:database}}Supabase reachability</div>
+        <div class="c"><span class="no">04</span>{{i:credit-card}}RFID sensor response</div>
+        <div class="c"><span class="no">05</span>{{i:fingerprint}}Fingerprint sensor response</div>
+        <div class="c"><span class="no">06</span>{{i:monitor}}Display function</div>
+        <div class="c"><span class="no">07</span>{{i:hard-drive}}Queue size</div>
+        <div class="c"><span class="no">08</span>{{i:refresh-cw}}Sync status</div>
+        <div class="c"><span class="no">09</span>{{i:memory-stick}}RAM usage</div>
+        <div class="c"><span class="no">10</span>{{i:gauge}}Loop speed</div>
+        <div class="c"><span class="no">11</span>{{i:download}}OTA availability</div>
+        <div class="c clock">{{i:wand-sparkles}}6 auto-heal routines</div>
+      </div>
+      <div style="display:flex;gap:1.6mm;flex-wrap:wrap;margin-top:3mm;align-items:center">
+        <span class="mono" style="font-size:5.8pt;letter-spacing:.14em;color:#8d99bb;text-transform:uppercase;margin-right:1mm">Heal actions include</span>
+        <span class="pill" style="background:rgba(255,255,255,.08);color:#fff">{{i:wifi}} Reconnect WiFi</span>
+        <span class="pill" style="background:rgba(255,255,255,.08);color:#fff">{{i:rotate-ccw}} GPIO-level sensor reset</span>
+        <span class="pill" style="background:rgba(255,255,255,.08);color:#fff">{{i:cloud-upload}} Force-sync near-full queue</span>
+        <span class="pill" style="background:rgba(255,255,255,.08);color:#fff">{{i:power}} Controlled restart</span>
+      </div>
+    </div>
+
+    <div class="grid mt3" style="grid-template-columns:112mm 1fr;gap:4.4mm">
+      <figure style="height:61mm;background:#ded9d3">
+        <img src="../assets/img/exploded_enclosure.jpg" alt="Exploded view of the 4-part enclosure and electronics" style="object-position:50% 50%">
+        <figcaption class="ai">Exploded concept render · AI-generated</figcaption>
+      </figure>
+      <div style="display:flex;flex-direction:column">
+        <div class="kicker">The enclosure</div>
+        <h4 class="mt1" style="font-size:11.4pt;line-height:1.15">Professional 4-part 3D-printed PLA housing</h4>
+        <p class="small mt1">Designed by the developer and manufactured with support from <b>Indian Institute of Technology Kharagpur</b>.</p>
+        <div class="push" style="display:flex;flex-direction:column;gap:1.4mm">
+          <div class="chip" style="margin:0;display:flex;gap:1.6mm;align-items:center"><span class="n out" style="width:4.6mm;height:4.6mm;font-size:6pt">1</span>Main Body · 110 × 155 × 46 mm</div>
+          <div class="chip" style="margin:0;display:flex;gap:1.6mm;align-items:center"><span class="n out" style="width:4.6mm;height:4.6mm;font-size:6pt">2</span>Back Plate</div>
+          <div class="chip" style="margin:0;display:flex;gap:1.6mm;align-items:center"><span class="n out" style="width:4.6mm;height:4.6mm;font-size:6pt">3</span>Finger Sensor Holder</div>
+          <div class="chip" style="margin:0;display:flex;gap:1.6mm;align-items:center"><span class="n out" style="width:4.6mm;height:4.6mm;font-size:6pt">4</span>Card Reader Ring</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="grid mt3 fill" style="grid-template-columns:1fr 1fr;gap:4.4mm;margin-bottom:0">
+      <div class="card" style="padding:3.4mm 4mm;display:flex;flex-direction:column">
+        <div class="kicker" style="color:var(--muted)">Technical drawing · to scale</div>
+        <svg class="diagram" viewBox="0 0 200 118" width="100%" style="margin-top:auto;margin-bottom:auto">
+          <g stroke="#0b1630" fill="none" stroke-width="1">
+            <rect x="34" y="8" width="56" height="79" rx="5" fill="#fff"/>
+            <rect x="42" y="15" width="40" height="12" rx="1.5" fill="#16264f" stroke="none"/>
+            <circle cx="62" cy="48" r="11" stroke="#f36d25" stroke-width="1.6"/>
+            <rect x="56" y="67" width="12" height="11" rx="2"/>
+            <rect x="122" y="8" width="23.4" height="79" rx="3" fill="#fff"/>
+            <line x1="125" y1="8" x2="125" y2="87" stroke-dasharray="2 2" stroke="#8a93ad"/>
+            <line x1="142.4" y1="8" x2="142.4" y2="87" stroke-dasharray="2 2" stroke="#8a93ad"/>
+          </g>
+          <g stroke="#f36d25" stroke-width=".8" fill="none">
+            <path d="M34 96 H90" marker-start="url(#arr)" marker-end="url(#arr)"/>
+            <path d="M24 8 V87" marker-start="url(#arr)" marker-end="url(#arr)"/>
+            <path d="M122 96 H145.4" marker-start="url(#arr)" marker-end="url(#arr)"/>
+          </g>
+          <text x="62" y="106" text-anchor="middle" font-size="7.5" fill="#0b1630" class="t-h">110 mm</text>
+          <text x="18" y="50" text-anchor="middle" font-size="7.5" fill="#0b1630" class="t-h" transform="rotate(-90 18 50)">155 mm</text>
+          <text x="133.7" y="106" text-anchor="middle" font-size="7.5" fill="#0b1630" class="t-h">46 mm</text>
+          <text x="152" y="30" font-size="6" fill="#5b6684" class="t-m">SIDE WALL</text>
+          <text x="152" y="38" font-size="7" fill="#0b1630" class="t-h">2.6 mm</text>
+          <text x="152" y="58" font-size="6" fill="#5b6684" class="t-m">FRONT / REAR</text>
+          <text x="152" y="66" font-size="7" fill="#0b1630" class="t-h">3.0 mm</text>
+          <text x="62" y="116" text-anchor="middle" font-size="5.6" fill="#8a93ad" class="t-m">FRONT VIEW</text>
+          <text x="133.7" y="116" text-anchor="middle" font-size="5.6" fill="#8a93ad" class="t-m">SIDE VIEW</text>
+        </svg>
+      </div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;grid-auto-rows:1fr;gap:2.4mm">
+        <div class="card flat" style="padding:3mm 3.4mm;display:flex;flex-direction:column;justify-content:center"><span class="badge-ico sm ink mb1">{{i:cpu}}</span><div class="mono tiny muted">CONTROLLER</div><div style="font-family:var(--f-display);font-weight:700;font-size:9.6pt">ESP32 DevKit V1</div><div class="tiny muted">Dual-core Xtensa · 240 MHz</div></div>
+        <div class="card flat" style="padding:3mm 3.4mm;display:flex;flex-direction:column;justify-content:center"><span class="badge-ico sm ink mb1">{{i:credit-card}}</span><div class="mono tiny muted">RFID</div><div style="font-family:var(--f-display);font-weight:700;font-size:9.6pt">RC522 · 13.56 MHz</div><div class="tiny muted">SPI at 10 MHz</div></div>
+        <div class="card flat" style="padding:3mm 3.4mm;display:flex;flex-direction:column;justify-content:center"><span class="badge-ico sm ink mb1">{{i:fingerprint}}</span><div class="mono tiny muted">BIOMETRIC</div><div style="font-family:var(--f-display);font-weight:700;font-size:9.6pt">R307 Fingerprint</div><div class="tiny muted">UART at 57600 baud</div></div>
+        <div class="card flat" style="padding:3mm 3.4mm;display:flex;flex-direction:column;justify-content:center"><span class="badge-ico sm ink mb1">{{i:monitor}}</span><div class="mono tiny muted">FEEDBACK</div><div style="font-family:var(--f-display);font-weight:700;font-size:9.6pt">LCD1602 + Buzzer</div><div class="tiny muted">+ LED status light</div></div>
+      </div>
+    </div>
+  </div>
+  <div class="run-foot"><span>05 · Selected Concept &amp; Reason</span><span class="pg"><span>/</span>09</span></div>
+</section>
+
+<!-- ═════════════════════════════ 10 · SECTION 5 (C) ═════════════════════════════ -->
+<section class="page">
+  <div class="run-head"><span><b>ABG STEM Quest 2026–27</b><i class="dot"></i>Part 1 · Creative Ideation Worksheet</span><span>Team Sun Rises India</span></div>
+  <div class="inner">
+    <div class="sec-head cont" style="margin-bottom:4mm">
+      <div class="sec-num">05</div>
+      <div><div class="kicker">Section 5 · continued</div><h2>Why We Are Confident This Is the Right Choice</h2></div>
+    </div>
+
+    <div class="card" style="padding:4mm 4.6mm">
+      <div style="display:flex;gap:3mm;align-items:center"><span class="n sun">1</span><h4 style="font-size:10.4pt">It solves the exact problem our stakeholders described — not a version we imagined</h4></div>
+      <div class="grid g3 mt2" style="gap:2.4mm">
+        <div style="background:var(--paper-2);border-radius:2.4mm;padding:2.6mm 3mm">
+          <div class="tiny mono muted">MR. TIWARI SAID</div><div class="small">He loses teaching time.</div>
+          <div style="color:var(--sun);margin:1mm 0">{{i:arrow-down}}</div>
+          <div class="small"><b>This system eliminates all teacher involvement in attendance.</b></div>
+        </div>
+        <div style="background:var(--paper-2);border-radius:2.4mm;padding:2.6mm 3mm">
+          <div class="tiny mono muted">MS. BHARGAVI SAID</div><div class="small">Compiling registers takes over an hour daily.</div>
+          <div style="color:var(--sun);margin:1mm 0">{{i:arrow-down}}</div>
+          <div class="small"><b>Supabase PostgreSQL generates those reports automatically.</b></div>
+        </div>
+        <div style="background:var(--paper-2);border-radius:2.4mm;padding:2.6mm 3mm">
+          <div class="tiny mono muted">MS. BHARTI PANDEY SAID</div><div class="small">She cannot track subject-wise attendance at all.</div>
+          <div style="color:var(--sun);margin:1mm 0">{{i:arrow-down}}</div>
+          <div class="small"><b>A device at every classroom door solves that completely.</b></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="grid g2 mt2" style="gap:3mm">
+      <div class="card" style="padding:4mm 4.4mm">
+        <div style="display:flex;gap:3mm;align-items:center"><span class="n sun">2</span><h4 style="font-size:9.8pt">It does not just reduce proxy. It makes proxy structurally impossible.</h4></div>
+        <p class="small mt2">An RFID card is a physical object that can be handed to a friend. A fingerprint is a biological trait that cannot be transferred. By requiring both simultaneously, we have removed the possibility of proxy at the system architecture level — <b>not through rules or punishment but through physical impossibility.</b></p>
+        <div class="mt2" style="display:flex;align-items:center;gap:2mm;font-size:7pt">
+          <span class="chip" style="margin:0">{{i:credit-card}} Card · transferable</span><b style="color:var(--sun)">+</b>
+          <span class="chip" style="margin:0">{{i:fingerprint}} Finger · not transferable</span><b>=</b>
+          <span class="pill good">{{i:shield-check}} No proxy</span>
+        </div>
+      </div>
+      <div class="card" style="padding:4mm 4.4mm">
+        <div style="display:flex;gap:3mm;align-items:center"><span class="n sun">4</span><h4 style="font-size:9.8pt">The prototype is real and the results are measured</h4></div>
+        <p class="small mt2">140 unit tests passed out of 140. 10 million simulated stress-test cycles completed with zero failures. Components physically provided by IIT Kharagpur. This is not a proposed solution — <b>it is a built and tested one.</b></p>
+        <div class="grid g2 mt2" style="gap:2mm">
+          <div class="stat" style="background:var(--good-tint);border-radius:2mm;padding:2mm 2.6mm"><div class="num" style="font-size:15pt;color:var(--good)">140/140</div><div class="lbl" style="margin-top:.4mm">unit tests passed</div></div>
+          <div class="stat" style="background:var(--good-tint);border-radius:2mm;padding:2mm 2.6mm"><div class="num" style="font-size:15pt;color:var(--good)">10M</div><div class="lbl" style="margin-top:.4mm">simulated cycles · 0 failures</div></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="card mt2 fill" style="padding:0;overflow:hidden;display:grid;grid-template-columns:80mm 1fr">
+      <figure style="border-radius:0;height:100%;min-height:58mm">
+        <img src="../assets/img/town_dawn.jpg" alt="Coaching centre in a small Indian town at dawn" style="object-position:40% 50%">
+        <figcaption class="ai">Representative scene · AI-generated</figcaption>
+      </figure>
+      <div style="padding:4mm 4.6mm">
+        <div style="display:flex;gap:3mm;align-items:center"><span class="n sun">3</span><h4 style="font-size:9.8pt">Built for rural Indian conditions — not imported from a corporate product designed for city schools</h4></div>
+        <div style="display:flex;flex-direction:column;gap:2mm" class="mt2">
+          <div style="display:flex;gap:2.4mm"><span class="badge-ico sm">{{i:wifi-off}}</span><p class="small" style="margin:0">The <b>offline-first architecture</b> was specifically designed for environments where internet is unreliable.</p></div>
+          <div style="display:flex;gap:2.4mm"><span class="badge-ico sm">{{i:indian-rupee}}</span><p class="small" style="margin:0">The <b>Rs. 1,500 price</b> was specifically calculated for institutions that cannot afford commercial alternatives.</p></div>
+          <div style="display:flex;gap:2.4mm"><span class="badge-ico sm">{{i:heart-pulse}}</span><p class="small" style="margin:0">The <b>self-healing AI</b> was specifically built because there are no trained technicians available at a small coaching center in Renukoot.</p></div>
+        </div>
+        <div style="margin-top:6mm;border-left:2px solid var(--sun);padding-left:3.4mm">
+          <div style="font-family:var(--f-serif);font-style:italic;font-size:14pt;line-height:1.2">Designed for Renukoot first — so it works wherever the internet, the budget and the technicians are missing.</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="band mt2" style="display:grid;grid-template-columns:auto 1fr auto;gap:5mm;align-items:center;padding:4.4mm 5.6mm">
+      <span class="n" style="background:var(--sun);width:7mm;height:7mm;font-size:9pt">5</span>
+      <div>
+        <div class="kicker">SDG 9 alignment is genuine, not forced</div>
+        <p class="small mt1" style="color:#d6ddee">SDG 9 specifically targets affordable innovation and resilient infrastructure for all, including institutions in developing regions. Astro Smart Attendance builds exactly that — <b style="color:#fff">IoT infrastructure at a price that Tier-2 Indian institutions can actually afford.</b></p>
+      </div>
+      <div class="sdg" style="transform:scale(.9)"><div class="n9">9</div><div class="t"><span>SDG</span>Industry, Innovation<br>&amp; Infrastructure</div></div>
+    </div>
+  </div>
+  <div class="run-foot"><span>05 · Selected Concept &amp; Reason</span><span class="pg"><span>/</span>10</span></div>
+</section>
+
+<!-- ═════════════════════════════ 11 · SECTION 6 ═════════════════════════════ -->
+<section class="page">
+  <div class="run-head"><span><b>ABG STEM Quest 2026–27</b><i class="dot"></i>Part 1 · Creative Ideation Worksheet</span><span>Team Sun Rises India</span></div>
+  <div class="inner">
+    <div class="sec-head" style="margin-bottom:3mm">
+      <div class="sec-num">06</div>
+      <div><div class="kicker">Section 6</div><h2>Initial System Sketch</h2><div class="deck">Block diagram — from power to parent, with the teacher only as an exception reviewer.</div></div>
+    </div>
+
+    <svg class="diagram" viewBox="0 0 600 735" width="100%" style="flex:1">
+      <defs>
+        <pattern id="dots" width="12" height="12" patternUnits="userSpaceOnUse"><circle cx="1" cy="1" r=".8" fill="#e0d8c8"/></pattern>
+        <filter id="sh" x="-10%" y="-10%" width="120%" height="130%"><feDropShadow dx="0" dy="3" stdDeviation="4" flood-color="#0b1630" flood-opacity=".10"/></filter>
+      </defs>
+      <rect x="0" y="0" width="600" height="735" rx="14" fill="url(#dots)"/>
+
+      <!-- POWER -->
+      <g filter="url(#sh)"><rect x="150" y="14" width="300" height="62" rx="12" fill="#fff" stroke="#e6dfd1"/></g>
+      <text x="300" y="34" text-anchor="middle" font-size="8" fill="#f36d25" class="t-m">POWER INPUT</text>
+      <text x="300" y="52" text-anchor="middle" font-size="13" fill="#0b1630" class="t-h">5V USB Power Adapter</text>
+      <text x="300" y="67" text-anchor="middle" font-size="9" fill="#5b6684">Li-ion Battery Backup — Planned V2</text>
+      <path d="M300 76 V96" stroke="#f36d25" stroke-width="2" marker-end="url(#arr)"/>
+
+      <!-- DUAL SENSOR -->
+      <g filter="url(#sh)"><rect x="40" y="100" width="520" height="118" rx="12" fill="#fff" stroke="#e6dfd1"/></g>
+      <text x="58" y="120" font-size="8" fill="#f36d25" class="t-m">DUAL SENSOR INPUT</text>
+      <rect x="58" y="130" width="236" height="56" rx="9" fill="#e8eefe"/>
+      <text x="72" y="150" font-size="9" fill="#3a6df0" class="t-m">STUDENT RFID CARD →</text>
+      <text x="72" y="166" font-size="13" fill="#0b1630" class="t-h">RC522 Module · 13.56 MHz</text>
+      <text x="72" y="179" font-size="9" fill="#5b6684">Communication: SPI at 10 MHz</text>
+      <rect x="306" y="130" width="236" height="56" rx="9" fill="#fff1e6"/>
+      <text x="320" y="150" font-size="9" fill="#f36d25" class="t-m">STUDENT FINGER →</text>
+      <text x="320" y="166" font-size="13" fill="#0b1630" class="t-h">R307 Fingerprint Sensor</text>
+      <text x="320" y="179" font-size="9" fill="#5b6684">Communication: UART at 57600 baud</text>
+      <text x="300" y="206" text-anchor="middle" font-size="9.5" fill="#0b1630"><tspan font-weight="700">Both inputs verified against the same student</tspan></text>
+      <path d="M300 218 V238" stroke="#f36d25" stroke-width="2" marker-end="url(#arr)"/>
+
+      <!-- ESP32 -->
+      <g filter="url(#sh)"><rect x="40" y="242" width="520" height="210" rx="14" fill="#0b1630"/></g>
+      <text x="60" y="266" font-size="8" fill="#ffc25a" class="t-m">CONTROLLER</text>
+      <text x="60" y="286" font-size="17" fill="#fff" class="t-h">ESP32 DevKit V1</text>
+      <text x="540" y="286" text-anchor="end" font-size="9.5" fill="#aab4d0">Dual Core Xtensa · 240 MHz</text>
+      <rect x="60" y="300" width="232" height="134" rx="10" fill="#16264f" stroke="#2a3c6b"/>
+      <text x="76" y="322" font-size="8" fill="#ffc25a" class="t-m">SELF-HEALING</text>
+      <text x="76" y="342" font-size="15" fill="#fff" class="t-h">Astro AI 2.0</text>
+      <circle cx="84" cy="366" r="4" fill="#7ee2b8"/><text x="96" y="369" font-size="10" fill="#e8ecf6">11 health checks every 30 seconds</text>
+      <circle cx="84" cy="388" r="4" fill="#7ee2b8"/><text x="96" y="391" font-size="10" fill="#e8ecf6">6 auto-heal routines on failure</text>
+      <circle cx="84" cy="410" r="4" fill="#7ee2b8"/><text x="96" y="413" font-size="10" fill="#e8ecf6">Written in C++, runs on-device</text>
+      <rect x="308" y="300" width="232" height="134" rx="10" fill="#16264f" stroke="#2a3c6b"/>
+      <text x="324" y="322" font-size="8" fill="#ffc25a" class="t-m">OFFLINE-FIRST</text>
+      <text x="324" y="342" font-size="15" fill="#fff" class="t-h">LittleFS Offline Queue</text>
+      <circle cx="332" cy="366" r="4" fill="#ffc25a"/><text x="344" y="369" font-size="10" fill="#e8ecf6">49KB bounded storage</text>
+      <circle cx="332" cy="388" r="4" fill="#ffc25a"/><text x="344" y="391" font-size="10" fill="#e8ecf6">Survives power cuts</text>
+      <circle cx="332" cy="410" r="4" fill="#ffc25a"/><text x="344" y="413" font-size="10" fill="#e8ecf6">Auto-syncs on WiFi return</text>
+
+      <!-- split -->
+      <path d="M176 452 V490" stroke="#f36d25" stroke-width="2" marker-end="url(#arr)"/>
+      <path d="M424 452 V490" stroke="#f36d25" stroke-width="2" marker-end="url(#arr)"/>
+
+      <!-- LOCAL FEEDBACK -->
+      <g filter="url(#sh)"><rect x="40" y="494" width="272" height="148" rx="12" fill="#fff" stroke="#e6dfd1"/></g>
+      <text x="58" y="516" font-size="8" fill="#f36d25" class="t-m">LOCAL FEEDBACK</text>
+      <rect x="58" y="526" width="236" height="32" rx="7" fill="#fbf8f2"/>
+      <rect x="66" y="534" width="30" height="16" rx="2" fill="#16264f"/><rect x="69" y="537" width="24" height="10" rx="1" fill="#3a6df0"/>
+      <text x="106" y="540" font-size="11" fill="#0b1630" class="t-h">LCD1602 — 16×2</text>
+      <text x="106" y="552" font-size="8.5" fill="#5b6684">Student name shown · status confirmed</text>
+      <rect x="58" y="564" width="236" height="32" rx="7" fill="#fbf8f2"/>
+      <circle cx="81" cy="580" r="9" fill="#0b1630"/><circle cx="81" cy="580" r="3" fill="#ffc25a"/>
+      <text x="106" y="578" font-size="11" fill="#0b1630" class="t-h">Buzzer confirmation</text>
+      <text x="106" y="590" font-size="8.5" fill="#5b6684">One beep on success</text>
+      <rect x="58" y="602" width="236" height="32" rx="7" fill="#fbf8f2"/>
+      <circle cx="81" cy="618" r="6" fill="#14936a"/><circle cx="81" cy="618" r="10" fill="none" stroke="#14936a" stroke-opacity=".35" stroke-width="2"/>
+      <text x="106" y="616" font-size="11" fill="#0b1630" class="t-h">LED status light</text>
+      <text x="106" y="628" font-size="8.5" fill="#5b6684">At-a-glance device state</text>
+
+      <!-- CLOUD -->
+      <g filter="url(#sh)"><rect x="328" y="494" width="232" height="148" rx="12" fill="#fff" stroke="#e6dfd1"/></g>
+      <text x="346" y="516" font-size="8" fill="#f36d25" class="t-m">CLOUD BACKEND</text>
+      <rect x="346" y="526" width="196" height="32" rx="7" fill="#fff1e6"/>
+      <text x="358" y="540" font-size="11" fill="#0b1630" class="t-h">Firebase Realtime Database</text>
+      <text x="358" y="552" font-size="8.5" fill="#5b6684">Instant live sync · dashboard</text>
+      <rect x="346" y="564" width="196" height="32" rx="7" fill="#e4f5ee"/>
+      <text x="358" y="578" font-size="11" fill="#0b1630" class="t-h">Supabase PostgreSQL</text>
+      <text x="358" y="590" font-size="8.5" fill="#5b6684">SQL monthly reports</text>
+      <rect x="346" y="602" width="196" height="32" rx="7" fill="#e8eefe"/>
+      <text x="358" y="616" font-size="11" fill="#0b1630" class="t-h">Email to Parent</text>
+      <text x="358" y="628" font-size="8.5" fill="#5b6684">Within 10 seconds</text>
+
+      <!-- TEACHER REVIEW -->
+      <path d="M444 642 V664" stroke="#0b1630" stroke-width="1.6" stroke-dasharray="4 3" marker-end="url(#arrInk)"/>
+      <g filter="url(#sh)"><rect x="40" y="668" width="520" height="58" rx="12" fill="#fff1e6" stroke="#f36d25" stroke-width="1.2"/></g>
+      <text x="58" y="688" font-size="8" fill="#f36d25" class="t-m">TEACHER REVIEW LAYER</text>
+      <text x="58" y="705" font-size="10.5" fill="#0b1630" class="t-h">Teacher only logs in to handle exceptions</text>
+      <text x="58" y="719" font-size="9" fill="#5b6684">Admin receives auto-generated daily summary · No manual data entry required at any point</text>
+    </svg>
+  </div>
+  <div class="run-foot"><span>06 · Initial System Sketch</span><span class="pg"><span>/</span>11</span></div>
+</section>
+
+<!-- ═════════════════════════════ 12 · SECTION 7 ═════════════════════════════ -->
+<section class="page">
+  <div class="run-head"><span><b>ABG STEM Quest 2026–27</b><i class="dot"></i>Part 1 · Creative Ideation Worksheet</span><span>Team Sun Rises India</span></div>
+  <div class="inner">
+    <div class="sec-head" style="margin-bottom:4mm">
+      <div class="sec-num">07</div>
+      <div><div class="kicker">Section 7</div><h2>What the Team Must Validate Next</h2><div class="deck">Five checks that turn a working prototype into proven evidence — after the pilot, every number is measured, never estimated.</div></div>
+    </div>
+
+    <div class="tbl-wrap">
+    <table class="tbl" style="font-size:7.9pt">
+      <thead><tr><th style="width:42mm">Validation item</th><th style="width:38mm">The reason it matters</th><th style="width:44mm">Progress so far</th><th>Immediate next action</th></tr></thead>
+      <tbody>
+        <tr>
+          <td class="k">Interview 3 to 5 real stakeholders and record their responses carefully</td>
+          <td>Solutions built on assumptions fail — only real user observations create reliable design decisions</td>
+          <td><span class="pill good">{{i:circle-check}} 3 of 5 done</span><div class="mt1">Completed with Mr. Tiwari, Ms. Bhargavi, Ms. Bharti Pandey</div></td>
+          <td>Add 2 more interviews during the coaching center pilot — particularly <b>parents and students</b></td>
+        </tr>
+        <tr>
+          <td class="k">Confirm the problem is severe and frequent enough to justify an IoT solution</td>
+          <td>A minor inconvenience does not warrant a Rs. 1,500 hardware deployment</td>
+          <td><span class="pill good">{{i:circle-check}} Confirmed</span><div class="mt1">Occurs every period, every day, across every school in the country</div></td>
+          <td>Record <b>exact minutes lost per period</b> during pilot week to create hard evidence</td>
+        </tr>
+        <tr>
+          <td class="k">Study and document the limitations of at least 2 products already on the market</td>
+          <td>Without this we cannot prove our solution is genuinely better — not just different</td>
+          <td><span class="pill good">{{i:circle-check}} 3 evaluated</span><div class="mt1">ZKTeco biometric terminal, manual paper register and School ERP platforms</div></td>
+          <td>Build a <b>formal comparison table</b> with verified prices and feature gaps</td>
+        </tr>
+        <tr>
+          <td class="k">Create the simplest working version before adding any advanced features</td>
+          <td>Adding complexity to a broken foundation makes debugging impossible</td>
+          <td><span class="pill good">{{i:circle-check}} Prototype built</span><div class="mt1">Complete functional prototype built and tested with IIT Kharagpur support</div></td>
+          <td>Deploy this prototype at a <b>Renukoot coaching center for one live week</b></td>
+        </tr>
+        <tr>
+          <td class="k">Collect actual numbers before and after the prototype is used — do not estimate</td>
+          <td>Judges and evaluators can tell the difference between measured results and guesses</td>
+          <td><span class="pill warn">{{i:flask-conical}} Lab done</span><div class="mt1">Lab testing complete across 10 million simulated cycles</div></td>
+          <td>Measure <b>real scan times, real proxy test outcomes</b> and real teacher feedback during pilot</td>
+        </tr>
+      </tbody>
+    </table>
+    </div>
+
+    <h3 class="mt3" style="font-size:12pt">Validation roadmap</h3>
+    <svg class="diagram mt1" viewBox="0 0 600 100" width="100%">
+      <line x1="62" y1="34" x2="538" y2="34" stroke="#d8cfbd" stroke-width="2"/>
+      <line x1="62" y1="34" x2="300" y2="34" stroke="#f36d25" stroke-width="3"/>
+      <g>
+        <circle cx="62" cy="34" r="11" fill="#14936a"/><path d="M57 34 l3.5 3.5 l6.5 -7" stroke="#fff" stroke-width="2.2" fill="none"/>
+        <text x="62" y="64" text-anchor="middle" font-size="10.5" fill="#0b1630" class="t-h">Stakeholder interviews</text>
+        <text x="62" y="78" text-anchor="middle" font-size="8.5" fill="#5b6684">3 completed</text>
+      </g>
+      <g>
+        <circle cx="181" cy="34" r="11" fill="#14936a"/><path d="M176 34 l3.5 3.5 l6.5 -7" stroke="#fff" stroke-width="2.2" fill="none"/>
+        <text x="181" y="64" text-anchor="middle" font-size="10.5" fill="#0b1630" class="t-h">Prototype + lab tests</text>
+        <text x="181" y="78" text-anchor="middle" font-size="8.5" fill="#5b6684">140/140 · 10M simulated</text>
+      </g>
+      <g>
+        <circle cx="300" cy="34" r="13" fill="#f36d25"/><circle cx="300" cy="34" r="19" fill="none" stroke="#f36d25" stroke-opacity=".3" stroke-width="3"/>
+        <text x="300" y="37" text-anchor="middle" font-size="7" fill="#fff" class="t-m">NEXT</text>
+        <text x="300" y="64" text-anchor="middle" font-size="10.5" fill="#0b1630" class="t-h">7-day coaching pilot</text>
+        <text x="300" y="78" text-anchor="middle" font-size="8.5" fill="#5b6684">10 students · Renukoot</text>
+      </g>
+      <g>
+        <circle cx="419" cy="34" r="11" fill="#fff" stroke="#d8cfbd" stroke-width="2"/>
+        <text x="419" y="64" text-anchor="middle" font-size="10.5" fill="#0b1630" class="t-h">+2 interviews</text>
+        <text x="419" y="78" text-anchor="middle" font-size="8.5" fill="#5b6684">parents &amp; students</text>
+      </g>
+      <g>
+        <circle cx="538" cy="34" r="11" fill="#fff" stroke="#d8cfbd" stroke-width="2"/>
+        <text x="538" y="64" text-anchor="middle" font-size="10.5" fill="#0b1630" class="t-h">Evidence pack</text>
+        <text x="538" y="78" text-anchor="middle" font-size="8.5" fill="#5b6684">measured before / after</text>
+        <text x="538" y="91" text-anchor="middle" font-size="8.5" fill="#5b6684">+ market comparison</text>
+      </g>
+    </svg>
+
+    <div class="grid g2 push" style="gap:3mm">
+      <div class="card" style="padding:3.6mm 4.2mm">
+        <div style="display:flex;justify-content:space-between;align-items:center"><div class="kicker">Interview 4 · during pilot</div><span class="pill warn">Parent</span></div>
+        <div class="tiny muted mt2">Name &amp; relation to student</div><div class="write"></div>
+        <div class="tiny muted mt1">The most important thing they said</div><div class="write"></div><div class="write"></div>
+      </div>
+      <div class="card" style="padding:3.6mm 4.2mm">
+        <div style="display:flex;justify-content:space-between;align-items:center"><div class="kicker">Interview 5 · during pilot</div><span class="pill warn">Student</span></div>
+        <div class="tiny muted mt2">Name &amp; class / batch</div><div class="write"></div>
+        <div class="tiny muted mt1">The most important thing they said</div><div class="write"></div><div class="write"></div>
+      </div>
+    </div>
+
+</div>
+  <div class="run-foot"><span>07 · What We Must Validate Next</span><span class="pg"><span>/</span>12</span></div>
+</section>
+
+<!-- ═════════════════════════════ 13 · SECTION 8 ═════════════════════════════ -->
+<section class="page">
+  <div class="run-head"><span><b>ABG STEM Quest 2026–27</b><i class="dot"></i>Part 1 · Creative Ideation Worksheet</span><span>Team Sun Rises India</span></div>
+  <div class="inner">
+    <div class="sec-head" style="margin-bottom:4mm">
+      <div class="sec-num">08</div>
+      <div><div class="kicker">Section 8</div><h2>Prototype Success Indicators</h2><div class="deck">Clear targets, clear methods, honest status.</div></div>
+    </div>
+
+    <div class="grid g3 mb2" style="gap:2.6mm">
+      <div class="card stat" style="padding:3.2mm 4mm;display:flex;gap:3mm;align-items:center"><div class="num" style="color:var(--good)">1</div><div class="lbl" style="margin:0">Achieved consistently<br>in lab environment</div></div>
+      <div class="card stat" style="padding:3.2mm 4mm;display:flex;gap:3mm;align-items:center"><div class="num" style="color:var(--sky)">3</div><div class="lbl" style="margin:0">Verified through unit<br>&amp; stress testing</div></div>
+      <div class="card stat" style="padding:3.2mm 4mm;display:flex;gap:3mm;align-items:center"><div class="num" style="color:var(--warn)">3</div><div class="lbl" style="margin:0">To be measured live<br>during the pilot week</div></div>
+    </div>
+
+    <div class="tbl-wrap fill" style="margin-bottom:4mm">
+    <table class="tbl">
+      <thead><tr><th style="width:46mm">Indicator</th><th style="width:30mm">Target value</th><th>Method of measurement</th><th style="width:38mm">Current status</th></tr></thead>
+      <tbody>
+        <tr><td class="k">{{i:timer}} Duration of one complete attendance scan per student</td><td><b>Below 2 seconds</b> every time</td><td>Record time from card tap to LCD confirmation across 50 consecutive scans</td><td><span class="pill good">{{i:circle-check}} Achieved</span><div class="tiny muted mt1">Consistently, in lab environment</div></td></tr>
+        <tr><td class="k">{{i:copy-x}} Duplicate card scan within short time window</td><td>Rejected <b>100%</b> of the time</td><td>Tap same card twice within 15-second window — must always show REJECTED</td><td><span class="pill sky">{{i:flask-conical}} Verified</span><div class="tiny muted mt1">Dedicated unit testing</div></td></tr>
+        <tr><td class="k">{{i:fingerprint}} Fingerprint presented with wrong card</td><td>Rejected <b>100%</b> of the time</td><td>Use Card A with Finger B — must never confirm attendance</td><td><span class="pill sky">{{i:flask-conical}} Verified</span><div class="tiny muted mt1">Dedicated unit testing</div></td></tr>
+        <tr><td class="k">{{i:wifi-off}} Attendance data preserved through WiFi outage</td><td><b>Zero</b> records missing after reconnection</td><td>Disconnect network, perform 25 scans, restore network, compare Firebase and Supabase records</td><td><span class="pill sky">{{i:flask-conical}} Verified</span><div class="tiny muted mt1">Across 10 million simulated stress-test cycles</div></td></tr>
+        <tr><td class="k">{{i:hand}} Teacher actions needed per period</td><td><b>Zero</b> — fully automatic</td><td>Count deliberate teacher inputs required during one complete class period</td><td><span class="pill warn">{{i:hourglass}} Pilot</span><div class="tiny muted mt1">To be confirmed with real feedback</div></td></tr>
+        <tr><td class="k">{{i:mail}} Email delivery time to parent after scan</td><td><b>Under 10 seconds</b></td><td>Record timestamp at scan and timestamp at email receipt — calculate difference</td><td><span class="pill warn">{{i:hourglass}} Pilot</span><div class="tiny muted mt1">To be measured live</div></td></tr>
+        <tr><td class="k">{{i:activity}} Continuous device operation over seven days</td><td>Uptime <b>above 99.9%</b></td><td>Monitor Firebase dashboard for any gaps or errors during full pilot duration</td><td><span class="pill warn">{{i:hourglass}} Pilot</span><div class="tiny muted mt1">To be confirmed through deployment</div></td></tr>
+      </tbody>
+    </table>
+    </div>
+
+    <div class="grid g2" style="gap:3mm">
+      <div class="card flat" style="padding:3.4mm 4mm;background:var(--paper-2)">
+        <div class="kicker" style="color:var(--muted)">How we read “99.9% uptime”</div>
+        <p class="small mt1">Over a 7-day pilot (10,080 minutes), 99.9% allows <b>no more than about 10 minutes</b> of total downtime for the whole week.</p>
+      </div>
+      <div class="card flat" style="padding:3.4mm 4mm;background:var(--paper-2)">
+        <div class="kicker" style="color:var(--muted)">Lab vs. live</div>
+        <p class="small mt1">Indicators marked <span class="pill sky" style="padding:.4mm 1.6mm">Verified</span> passed in testing; the pilot will repeat them in a real classroom with real students and real WiFi.</p>
+      </div>
+    </div>
+  </div>
+  <div class="run-foot"><span>08 · Prototype Success Indicators</span><span class="pg"><span>/</span>13</span></div>
+</section>
+
+<!-- ═════════════════════════════ 14 · SECTION 9 ═════════════════════════════ -->
+<section class="page">
+  <div class="run-head"><span><b>ABG STEM Quest 2026–27</b><i class="dot"></i>Part 1 · Creative Ideation Worksheet</span><span>Team Sun Rises India</span></div>
+  <div class="inner">
+    <div class="sec-head" style="margin-bottom:4mm">
+      <div class="sec-num">09</div>
+      <div><div class="kicker">Section 9</div><h2>Risks &amp; Design Safeguards</h2><div class="deck">Every risk we could think of — and the safeguard already built in.</div></div>
+    </div>
+
+    <div style="display:grid;grid-template-columns:1fr 7mm 1.28fr" class="mb1">
+      <div class="kicker" style="color:var(--bad);padding-left:3.2mm">{{i:triangle-alert}} Risk</div><div></div>
+      <div class="kicker" style="color:var(--good);padding-left:3.2mm">{{i:shield-check}} Built-in safeguard</div>
+    </div>
+    <div class="fill" style="display:flex;flex-direction:column;gap:2.2mm">
+      <div class="risk"><div class="r"><span class="badge-ico sm bad">{{i:credit-card}}</span>A student passes their RFID card to a friend before class</div><div class="arrow"><span>{{i:arrow-right}}</span></div><div class="s">The fingerprint sensor is mandatory — without the matching biological finger the card does absolutely nothing.</div></div>
+      <div class="risk"><div class="r"><span class="badge-ico sm bad">{{i:radio}}</span>The RC522 RFID reader stops responding mid-session</div><div class="arrow"><span>{{i:arrow-right}}</span></div><div class="s">Astro AI 2.0 health check #4 identifies the fault and auto-heal routine #3 performs a GPIO-level component reset.</div></div>
+      <div class="risk"><div class="r"><span class="badge-ico sm bad">{{i:wifi-off}}</span>Coaching center internet connection drops unexpectedly</div><div class="arrow"><span>{{i:arrow-right}}</span></div><div class="s">49KB LittleFS offline queue captures and stores every scan in non-volatile memory — syncs automatically and completely when connectivity returns.</div></div>
+      <div class="risk"><div class="r"><span class="badge-ico sm bad">{{i:plug-zap}}</span>Electricity cuts out during a busy attendance period</div><div class="arrow"><span>{{i:arrow-right}}</span></div><div class="s">LittleFS data is stored in flash memory, not RAM — it cannot be erased by a power cut. All records survive intact.</div></div>
+      <div class="risk"><div class="r"><span class="badge-ico sm bad">{{i:user}}</span>A newly admitted student has not been registered yet</div><div class="arrow"><span>{{i:arrow-right}}</span></div><div class="s">Teacher uses the web dashboard to manually enter that student once — identical to the current manual process they already know.</div></div>
+      <div class="risk"><div class="r"><span class="badge-ico sm bad">{{i:cloud-off}}</span>Google Firebase experiences a major service outage</div><div class="arrow"><span>{{i:arrow-right}}</span></div><div class="s">Supabase PostgreSQL continues receiving data independently as a fully separate cloud backend — zero attendance data is lost.</div></div>
+      <div class="risk"><div class="r"><span class="badge-ico sm bad">{{i:lock}}</span>Students or parents raise concerns about fingerprint storage</div><div class="arrow"><span>{{i:arrow-right}}</span></div><div class="s">Only a compact numerical template is ever stored — the fingerprint image itself is processed and immediately discarded, never saved or uploaded. The template is a set of numbers, not a picture.</div></div>
+      <div class="risk"><div class="r"><span class="badge-ico sm bad">{{i:siren}}</span>Internet and electricity both fail simultaneously</div><div class="arrow"><span>{{i:arrow-right}}</span></div><div class="s">LittleFS queue stores data on-device — Astro AI 2.0 watchdog performs a controlled restart — all stored data intact, waiting for services to return.</div></div>
+      <div class="risk"><div class="r"><span class="badge-ico sm bad">{{i:package}}</span>Device dropped or physically mishandled in a school setting</div><div class="arrow"><span>{{i:arrow-right}}</span></div><div class="s">4-part PLA enclosure with 2.6 mm reinforced side walls and 3.0 mm front and rear panels designed to absorb daily classroom impacts.</div></div>
+    </div>
+  </div>
+  <div class="run-foot"><span>09 · Risks &amp; Design Safeguards</span><span class="pg"><span>/</span>14</span></div>
+</section>
+
+<!-- ═════════════════════════════ 15 · REFLECTION (A) ═════════════════════════════ -->
+<section class="page">
+  <div class="run-head"><span><b>ABG STEM Quest 2026–27</b><i class="dot"></i>Part 1 · Creative Ideation Worksheet</span><span>Team Sun Rises India</span></div>
+  <div class="inner">
+    <div class="sec-head" style="margin-bottom:4mm">
+      <div class="sec-num">10</div>
+      <div><div class="kicker">Team Reflection</div><h2>What We Let Go — and What Changed Us</h2></div>
+    </div>
+
+    <div class="kicker" style="color:var(--muted)">Question 1</div>
+    <h3 style="font-size:12pt;margin-top:.8mm">Which ideas were eliminated and what made us eliminate them?</h3>
+
+    <div class="grid g3 mt1 fill" style="gap:2.6mm">
+      <div class="card" style="padding:3.6mm 3.8mm;display:flex;flex-direction:column">
+        <div style="display:flex;justify-content:space-between;align-items:center"><span class="badge-ico sm bad">{{i:scan-face}}</span><span class="pill bad">Dropped 1st</span></div>
+        <h4 class="mt2">Face recognition</h4>
+        <div class="tiny mono mt1" style="color:var(--bad);letter-spacing:.06em">FATAL FLAW · COST + MINORS’ PRIVACY</div>
+        <p class="tiny mt1" style="font-size:7.9pt;line-height:1.45;color:var(--ink-2)">The idea that fell first. Before we even finished discussing it, we ran into two walls simultaneously. The hardware required to do facial recognition accurately in variable Indian classroom lighting — different times of day, open windows, fans creating shadows — costs more than three times our entire target budget. And once we looked into the legal side of collecting and storing biometric face data belonging to students who are legally minors, we realised this was not something a school-level student project could handle responsibly. It was eliminated before the shortlist.</p>
+        <div style="margin-top:auto;background:var(--sun-tint);border-radius:2.2mm;padding:2.4mm 3mm;font-family:var(--f-serif);font-style:italic;font-size:11pt;line-height:1.2">Lesson: if we can’t protect the data or afford the hardware, it isn’t a solution.</div>
+      </div>
+      <div class="card" style="padding:3.6mm 3.8mm;display:flex;flex-direction:column">
+        <div style="display:flex;justify-content:space-between;align-items:center"><span class="badge-ico sm bad">{{i:bluetooth}}</span><span class="pill bad">Dropped 2nd</span></div>
+        <h4 class="mt2">Bluetooth proximity</h4>
+        <div class="tiny mono mt1" style="color:var(--bad);letter-spacing:.06em">FATAL FLAW · DEVICE ≠ HUMAN</div>
+        <p class="tiny mt1" style="font-size:7.9pt;line-height:1.45;color:var(--ink-2)">Bluetooth proximity detection lasted longer in our discussions before we found its fatal flaw — a student who places their switched-on phone next to the device and walks out of the room will be recorded as present for the entire period. The verification is based on device proximity, not human presence. <b>That is not attendance — that is phone attendance.</b></p>
+        <div style="margin-top:auto;background:var(--sun-tint);border-radius:2.2mm;padding:2.4mm 3mm;font-family:var(--f-serif);font-style:italic;font-size:11pt;line-height:1.2">Lesson: verify the human, not the device.</div>
+      </div>
+      <div class="card" style="padding:3.6mm 3.8mm;display:flex;flex-direction:column">
+        <div style="display:flex;justify-content:space-between;align-items:center"><span class="badge-ico sm bad">{{i:qr-code}}</span><span class="pill bad">Dropped last</span></div>
+        <h4 class="mt2">Rotating QR code</h4>
+        <div class="tiny mono mt1" style="color:var(--bad);letter-spacing:.06em">FATAL FLAW · ONE-SECOND FORWARD</div>
+        <p class="tiny mt1" style="font-size:7.9pt;line-height:1.45;color:var(--ink-2)">The last one we dropped. It seemed clever until we realised that photographing a QR code takes half a second and forwarding it takes another half a second. Any student with a phone can share a morning QR code to a friend who is still at home in bed.</p>
+        <div style="margin-top:auto;background:var(--sun-tint);border-radius:2.2mm;padding:2.4mm 3mm;font-family:var(--f-serif);font-style:italic;font-size:11pt;line-height:1.2">Lesson: anything that can be shared in one second will be shared.</div>
+      </div>
+    </div>
+
+    <div class="rule" style="margin:4.4mm 0 3.4mm"></div>
+    <div class="kicker" style="color:var(--muted)">Question 2</div>
+    <h3 style="font-size:12pt;margin-top:.8mm">Which stakeholder conversation most changed our original thinking?</h3>
+
+    <div class="grid mt1" style="grid-template-columns:1.25fr 1fr;gap:4.4mm;margin-bottom:2mm">
+      <div>
+        <p style="font-size:8.8pt">We went into our interview with <b>Ms. Bharti Pandey</b> expecting to hear the same things Mr. Tiwari and Ms. Bhargavi had already told us — registers are slow, proxies happen, records are wrong. What we did not expect was to learn that for entire categories of teachers the problem is not that the existing system is slow. The problem is that <span class="hl">for subject teachers like her, no functional system exists at all.</span></p>
+        <p style="font-size:8.8pt">She moves between six classrooms across the school week. There is no register designated to her. There is no process. She simply has to skip attendance tracking for her subject on most days because there is physically no mechanism available to do it.</p>
+        <p style="font-size:8.8pt">This forced us to rethink who our primary user actually was. That meant the device had to be fully independent — no teacher setup, no teacher action, no teacher involvement from start to finish. The teacher exists in our system only as an emergency reviewer for exceptions.</p>
+      </div>
+      <div style="display:flex;flex-direction:column;gap:2.6mm">
+        <div class="card dark" style="padding:4.4mm 4.6mm">
+          <span class="quote-mark" style="color:var(--gold)">“</span>
+          <blockquote style="color:#fff;font-size:13pt">We had been designing for a homeroom teacher with one class. We needed to design for a subject teacher with six.</blockquote>
+        </div>
+        <div style="display:grid;grid-template-columns:1fr auto 1fr;gap:2mm;align-items:center">
+          <div class="card flat" style="padding:2.6mm 3mm;text-align:center;background:var(--paper-2)"><div class="tiny mono muted">BEFORE</div><div style="font-family:var(--f-display);font-weight:700;font-size:8.6pt">Homeroom teacher</div><div class="tiny muted">1 class · owns a register</div></div>
+          <span style="color:var(--sun);font-size:12pt">{{i:arrow-right}}</span>
+          <div class="card flat" style="padding:2.6mm 3mm;text-align:center;background:var(--sun-tint);border-color:#f8d2b8"><div class="tiny mono" style="color:var(--sun)">AFTER</div><div style="font-family:var(--f-display);font-weight:700;font-size:8.6pt">Subject teacher</div><div class="tiny muted">6 rooms · zero teacher action</div></div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="run-foot"><span>10 · Team Reflection</span><span class="pg"><span>/</span>15</span></div>
+</section>
+
+<!-- ═════════════════════════════ 16 · REFLECTION (B) ═════════════════════════════ -->
+<section class="page">
+  <div class="run-head"><span><b>ABG STEM Quest 2026–27</b><i class="dot"></i>Part 1 · Creative Ideation Worksheet</span><span>Team Sun Rises India</span></div>
+  <div class="inner">
+    <div class="sec-head cont" style="margin-bottom:4mm">
+      <div class="sec-num">10</div>
+      <div><div class="kicker">Team Reflection · continued</div><h2>The Minimum Experiment</h2></div>
+    </div>
+
+    <div class="kicker" style="color:var(--muted)">Question 3</div>
+    <h3 style="font-size:12pt;margin-top:.8mm">What is the absolute minimum experiment that could confirm or destroy our central assumption?</h3>
+
+    <div class="card sun mt2" style="padding:3.8mm 4.6mm">
+      <div class="exp-k">{{i:target}} Our central assumption</div>
+      <blockquote style="font-size:12.6pt">When a student simultaneously presents a matched RFID card and a matched fingerprint, the system will confirm attendance in <b style="font-family:var(--f-display);font-size:12pt">under 2 seconds</b> every time — and when any other combination is presented, the system will reject it every time, without exception.</blockquote>
+    </div>
+
+    <div class="grid mt2" style="grid-template-columns:52mm 1fr;gap:3.4mm">
+      <div class="card dark" style="padding:4.2mm 4.4mm">
+        <div class="exp-k" style="color:var(--gold)">{{i:flask-conical}} Experiment setup</div>
+        <div class="stat mt1"><div class="num" style="color:#fff;font-size:18pt">7<small> days</small></div><div class="lbl">live deployment</div></div>
+        <div class="stat mt1"><div class="num" style="color:#fff;font-size:18pt">1<small> batch</small></div><div class="lbl">at a coaching center in Renukoot</div></div>
+        <div class="stat mt1"><div class="num" style="color:#fff;font-size:18pt">10<small> students</small></div><div class="lbl">registered with card + fingerprint</div></div>
+      </div>
+      <div class="card" style="padding:4.2mm 4.6mm">
+        <div class="exp-k">{{i:list-checks}} We measure only four things</div>
+        <div style="display:flex;flex-direction:column;gap:1.8mm" class="mt1">
+          <div style="display:flex;gap:2.6mm;align-items:flex-start"><span class="n">1</span><div class="small"><b>Average time</b> from first sensor contact to LCD confirmation.</div></div>
+          <div style="display:flex;gap:2.6mm;align-items:flex-start"><span class="n">2</span><div class="small"><b>Number of deliberate proxy attempts</b> made by presenting a correct card with the wrong finger — and how many of those attempts succeed.</div></div>
+          <div style="display:flex;gap:2.6mm;align-items:flex-start"><span class="n">3</span><div class="small"><b>Number of times a human needed to physically intervene</b> to restart or repair the device.</div></div>
+          <div style="display:flex;gap:2.6mm;align-items:flex-start"><span class="n">4</span><div class="small"><b>Total clock time saved per session</b> compared to the manual roll call method used previously by the same batch.</div></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="grid g2 mt2" style="gap:3mm">
+      <div class="card" style="border-color:#9fd5bf;background:var(--good-tint);padding:3.2mm 4.4mm">
+        <div class="exp-k" style="color:var(--good)">{{i:circle-check}} Assumption stands confirmed if…</div>
+        <p class="small mt1">Scan time is <b>below 2 seconds</b> <u>and</u> <b>zero proxy attempts succeed</b> across the full week.</p>
+      </div>
+      <div class="card" style="border-color:#f1c0bb;background:var(--bad-tint);padding:3.2mm 4.4mm">
+        <div class="exp-k" style="color:var(--bad)">{{i:circle-x}} If either condition fails even once…</div>
+        <p class="small mt1">We have a precisely identified problem to fix — and <b>we fix it before making any claim</b> about the system working.</p>
+      </div>
+    </div>
+
+    <div class="card mt2" style="padding:3.2mm 4.4mm;margin-bottom:3mm">
+      <div style="display:flex;justify-content:space-between;align-items:baseline">
+        <div class="kicker">{{i:calendar-days}} Pilot log · fill in by hand during the week</div>
+        <div class="tiny muted">Pass line: avg &lt; 2 s · 0 successful proxies</div>
+      </div>
+      <table class="log mt1">
+        <thead><tr><th>Day</th><th>① Avg scan time (s)</th><th>② Proxy attempts / succeeded</th><th>③ Human interventions</th><th>④ Time saved vs roll call (min)</th></tr></thead>
+        <tbody>
+          <tr><td>Day 1</td><td></td><td>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;/</td><td></td><td></td></tr>
+          <tr><td>Day 2</td><td></td><td>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;/</td><td></td><td></td></tr>
+          <tr><td>Day 3</td><td></td><td>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;/</td><td></td><td></td></tr>
+          <tr><td>Day 4</td><td></td><td>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;/</td><td></td><td></td></tr>
+          <tr><td>Day 5</td><td></td><td>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;/</td><td></td><td></td></tr>
+          <tr><td>Day 6</td><td></td><td>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;/</td><td></td><td></td></tr>
+          <tr><td>Day 7</td><td></td><td>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;/</td><td></td><td></td></tr>
+          <tr class="total"><td>Week</td><td></td><td>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;/</td><td></td><td></td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="band push" style="padding:4.4mm 6mm">
+      <div style="display:grid;grid-template-columns:1fr auto;gap:6mm;align-items:center">
+        <div>
+          <div class="kicker">Declaration</div>
+          <div style="font-family:var(--f-serif);font-size:15pt;line-height:1.2;margin-top:1mm;color:#fff">Complete. Original. Ready for <i style="color:var(--gold)">ABG STEM Quest 2026–27</i> submission.</div>
+        </div>
+        <svg width="54" height="54"><use href="#logo"/></svg>
+      </div>
+      <div class="grid mt2" style="grid-template-columns:repeat(5,1fr);gap:3mm">
+        <div><div style="height:7mm;border-bottom:.8px solid rgba(255,255,255,.4)"></div><div class="tiny mt1" style="color:#d6ddee"><b style="color:#fff">Shaurya Gupta</b><br>Captain</div></div>
+        <div><div style="height:7mm;border-bottom:.8px solid rgba(255,255,255,.4)"></div><div class="tiny mt1" style="color:#d6ddee"><b style="color:#fff">Anant Tiwari</b><br>Member</div></div>
+        <div><div style="height:7mm;border-bottom:.8px solid rgba(255,255,255,.4)"></div><div class="tiny mt1" style="color:#d6ddee"><b style="color:#fff">Devansh Dhakad</b><br>Member</div></div>
+        <div><div style="height:7mm;border-bottom:.8px solid rgba(255,255,255,.4)"></div><div class="tiny mt1" style="color:#d6ddee"><b style="color:#fff">Tejas Upadhyay</b><br>Member</div></div>
+        <div><div style="height:7mm;border-bottom:.8px solid rgba(255,255,255,.4)"></div><div class="tiny mt1" style="color:#d6ddee"><b style="color:#fff">Diwakar Singh</b><br>Member</div></div>
+      </div>
+    </div>
+  </div>
+  <div class="run-foot"><span>10 · Team Reflection</span><span class="pg"><span>/</span>16</span></div>
+</section>
+
+<!-- ═════════════════════════════ 17 · BACK COVER ═════════════════════════════ -->
+<section class="page back">
+  <svg style="position:absolute;left:0;bottom:0;width:210mm;height:150mm" viewBox="0 0 210 150">
+    <defs>
+      <radialGradient id="glow" cx="105" cy="150" r="140" gradientUnits="userSpaceOnUse">
+        <stop offset="0" stop-color="#f36d25" stop-opacity=".55"/><stop offset=".55" stop-color="#f36d25" stop-opacity=".08"/><stop offset="1" stop-color="#f36d25" stop-opacity="0"/>
+      </radialGradient>
+      <linearGradient id="bigSun" x1="0" y1="1" x2="0" y2="0">
+        <stop offset="0" stop-color="#e2531a"/><stop offset=".6" stop-color="#f88a3a"/><stop offset="1" stop-color="#ffc25a"/>
+      </linearGradient>
+    </defs>
+    <rect width="210" height="150" fill="url(#glow)"/>
+    <g fill="none" stroke="#ffc25a" stroke-opacity=".22" stroke-width=".35">
+      <circle cx="105" cy="150" r="72"/><circle cx="105" cy="150" r="92"/><circle cx="105" cy="150" r="112"/>
+    </g>
+    <ellipse cx="105" cy="134" rx="100" ry="26" transform="rotate(-8 105 134)" fill="none" stroke="#ffc25a" stroke-opacity=".55" stroke-width=".5"/>
+    <circle cx="196" cy="114" r="1.8" fill="#fff"/>
+    <path d="M51 150 A54 54 0 0 1 159 150 Z" fill="url(#bigSun)"/>
+    <g fill="none" stroke="#0b1630" stroke-width="2.2" stroke-linecap="round" opacity=".85">
+      <path d="M71 150 A34 34 0 0 1 139 150"/><path d="M85 150 A20 20 0 0 1 125 150"/><path d="M98 150 A7 7 0 0 1 112 150"/>
+    </g>
+    <g stroke="#ffc25a" stroke-width="1.2" stroke-linecap="round" opacity=".9">
+      <path d="M105 84 V76"/><path d="M66 100 l-5 -5"/><path d="M144 100 l5 -5"/><path d="M47 128 h-8"/><path d="M163 128 h8"/>
+    </g>
+  </svg>
+  <div style="position:absolute;inset:0;padding:22mm 18mm;display:flex;flex-direction:column;align-items:center;text-align:center">
+    <svg width="64" height="64"><use href="#logo"/></svg>
+    <div style="font-family:var(--f-display);font-weight:700;font-size:13pt;letter-spacing:.06em;margin-top:4mm">ASTRO SMART ATTENDANCE</div>
+    <div class="mono" style="font-size:6.6pt;letter-spacing:.24em;color:var(--gold);margin-top:1mm">v26.7.13 · DUAL BIOMETRIC · SELF-HEALING · DUAL CLOUD</div>
+
+    <div style="font-family:var(--f-serif);font-size:32pt;line-height:1.05;margin-top:22mm;max-width:160mm">Every student counted.<br><i style="color:var(--gold)">No teacher time spent.</i></div>
+
+    <div class="grid g4" style="margin-top:14mm;gap:6mm;width:100%">
+      <div class="stat"><div class="num" style="color:#fff">&lt;2s</div><div class="lbl">per scan</div></div>
+      <div class="stat"><div class="num" style="color:#fff">₹1,500</div><div class="lbl">per RFID unit</div></div>
+      <div class="stat"><div class="num" style="color:#fff">0</div><div class="lbl">teacher actions</div></div>
+      <div class="stat"><div class="num" style="color:#fff">2</div><div class="lbl">independent clouds</div></div>
+    </div>
+
+    <div style="margin-top:14mm;color:#fff">
+      <div class="sdg" style="margin-bottom:5mm"><div class="n9">9</div><div class="t" style="text-align:left"><span>SDG · Theme</span>Industry, Innovation<br>and Infrastructure</div></div>
+      <div style="font-family:var(--f-display);font-weight:700;font-size:12pt">Team Sun Rises India</div>
+      <div class="small" style="color:#c9d2ea;margin-top:1mm">The Aditya Birla Public School, Renukoot · Grade 9</div>
+      <div class="small" style="color:#c9d2ea">Shaurya Gupta (Captain) · Anant Tiwari · Devansh Dhakad · Tejas Upadhyay · Diwakar Singh</div>
+      <div class="small" style="color:#8d99bb;margin-top:1mm">Mentor: Dr. Jayesh Shinde</div>
+      <div class="mono" style="font-size:6.2pt;letter-spacing:.22em;color:var(--gold);margin-top:5mm">MADE IN RENUKOOT, INDIA · ABG STEM QUEST 2026–27 · PART 1</div>
+    </div>
+  </div>
+</section>
+
+</body>
+</html>
