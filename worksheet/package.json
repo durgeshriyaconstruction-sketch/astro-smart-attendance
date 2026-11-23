@@ -1,0 +1,19 @@
+{
+  "name": "attendsure-ideation-worksheet",
+  "private": true,
+  "version": "1.0.0",
+  "description": "ABG STEM Quest 2026-27 · Part 1 Creative Ideation Worksheet for AttendSure Privacy-First Attendance (HTML → PDF build)",
+  "type": "module",
+  "scripts": {
+    "build": "node build.mjs"
+  },
+  "dependencies": {
+    "@fontsource/inter": "^5.2.8",
+    "@fontsource/instrument-serif": "^5.2.8",
+    "@fontsource/jetbrains-mono": "^5.2.8",
+    "@fontsource/space-grotesk": "^5.2.10",
+    "@sparticuz/chromium": "*",
+    "lucide-static": "*",
+    "puppeteer-core": "*"
+  }
+}
