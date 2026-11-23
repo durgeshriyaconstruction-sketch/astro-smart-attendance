@@ -5,6 +5,11 @@ Team Sun Rises India · Grade 9 · The Aditya Birla Public School, Renukoot
 
 📄 **Deliverable:** [`AttendSure_Creative_Ideation_Worksheet.pdf`](./AttendSure_Creative_Ideation_Worksheet.pdf) — 10 A4 pages, print-ready.
 
+> **Edition:** this is the *completed example* edition. Sections 1, 2, 4, 6, 8 and 9 are
+> pre-filled with the team's suggested answers and targets, clearly badged on §1.
+> Anything that must come from real measurements or interviews is left as a target or
+> a blank cell — replace it with your own values before the pilot.
+
 | Page | Content |
 |---|---|
 | 01 | Cover — event, team, theme (SDG 9), selected direction |
@@ -13,8 +18,8 @@ Team Sun Rises India · Grade 9 · The Aditya Birla Public School, Renukoot
 | 04 | **Section 3** Concept map — six-stage chain → proposed direction |
 | 05 | **Section 4** Shortlisting matrix — heat-map + scoring note + blank team-score row |
 | 06 | **Section 5** Selected concept & reason — description, six feature cards, rationale |
-| 07 | **Section 6** Initial system sketch — labelled block-diagram template + write-in table |
-| 08 | **Section 7** What the team must validate next — five checks + interview log sheet |
+| 07 | **Section 6** Initial system sketch — labelled block-diagram template + filled write-in table (all five blocks, power and offline store) |
+| 08 | **Section 7** What the team must validate next — five checks + interview log (five stakeholders pre-listed; “what we heard” and consent left blank to fill in) |
 | 09 | **Section 8** Prototype success indicators + **Section 9** Risks & design safeguards |
 | 10 | Team reflection — three write-in prompts + declaration |
 

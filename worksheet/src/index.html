@@ -125,6 +125,7 @@
     <div class="sec-head"><div class="sec-num">1</div><div>
       <div class="kicker">Section 1</div><h2>Problem focus</h2>
       <div class="deck">What exactly is broken, and how would we know it got better?</div>
+      <div class="mt1"><span class="pill warn">{{i:pen-line}} Suggested answers — replace with your measured values</span></div>
     </div></div>
 
     <p class="lead">Manual attendance can be time-consuming and vulnerable to recording
@@ -137,15 +138,15 @@
     </div>
 
     <div class="grid g2 mt3">
-      <div class="card"><div class="exp-k">{{i:users}} Who</div><p class="small muted">Who experiences the problem? Name the roles, not “everyone”.</p><div class="write" style="margin-top:2mm"></div><div class="write"></div></div>
-      <div class="card"><div class="exp-k">{{i:clock}} When</div><p class="small muted">When does it occur — which period, day, season, or event?</p><div class="write" style="margin-top:2mm"></div><div class="write"></div></div>
-      <div class="card"><div class="exp-k">{{i:book-open}} What they do now</div><p class="small muted">What is the current workaround? Paper register, roll call, group leaders?</p><div class="write" style="margin-top:2mm"></div><div class="write"></div></div>
-      <div class="card"><div class="exp-k">{{i:target}} Evidence of improvement</div><p class="small muted">What number or observation would prove the problem got smaller?</p><div class="write" style="margin-top:2mm"></div><div class="write"></div></div>
+      <div class="card"><div class="exp-k">{{i:users}} Who</div><p class="small muted">Who experiences the problem? Name the roles, not “everyone”.</p><div class="ansline" style="margin-top:2mm">Class teachers (main); also the school office / attendance clerk who compiles registers and the principal who signs them.</div></div>
+      <div class="card"><div class="exp-k">{{i:clock}} When</div><p class="small muted">When does it occur — which period, day, season, or event?</p><div class="ansline" style="margin-top:2mm">Every school day, in the first-period / morning registration window; worst when a teacher is busy, covering another class, or absent and a substitute takes over.</div></div>
+      <div class="card"><div class="exp-k">{{i:book-open}} What they do now</div><p class="small muted">What is the current workaround? Paper register, roll call, group leaders?</p><div class="ansline" style="margin-top:2mm">Paper register + loud roll-call; group leaders mark their friends; entries are copied later or erased by hand.</div></div>
+      <div class="card"><div class="exp-k">{{i:target}} Evidence of improvement</div><p class="small muted">What number or observation would prove the problem got smaller?</p><div class="ansline" style="margin-top:2mm">Roll-call time falls from 10–15 min to under 2 min per class; no missing or late entries over 5 school days; hand corrections drop to 0; all 30 students accounted for without a manual headcount.</div></div>
     </div>
 
     <div class="card sun mt3"><div class="exp-k">{{i:lightbulb}} Our problem statement</div>
       <p class="small" style="margin-top:1mm">Write one sentence a stranger could repeat back to you. If it has a number in it, even better.</p>
-      <div class="lines mt2" style="height:20mm"></div>
+      <div class="ansblock mt2">“Every class spends 10–15 minutes a day on paper roll-call, and because anyone can mark the register, we cannot trust that it shows who was really present.”</div>
     </div>
   </div>
   <div class="run-foot"><span>AttendSure · Privacy-First Attendance</span><span class="pg"><span>02</span> / 10</span></div>
@@ -178,7 +179,7 @@
       <h3 style="margin-top:1.5mm">Several ideas already agree with each other.</h3>
       <p class="small" style="margin-top:1.5mm;color:#c9d2ea">QR, NFC and offline sync are not rivals — they solve different halves of the
         same problem. Note below which ideas could be combined rather than chosen between.</p>
-      <div class="lines" style="height:9mm;margin-top:2mm;background-image:repeating-linear-gradient(transparent 0 4.4mm, rgba(255,255,255,.22) 4.4mm 4.7mm)"></div>
+        <p class="small" style="margin-top:2mm;color:#fff;font-weight:600;line-height:1.45">QR, NFC and offline sync are not rivals — they solve different halves of the same problem: the input, the time window and connectivity. We can combine them rather than choose between them.</p>
     </div>
   </div>
   <div class="run-foot"><span>AttendSure · Privacy-First Attendance</span><span class="pg"><span>03</span> / 10</span></div>
@@ -239,11 +240,10 @@
           <th class="c">Affordability</th><th class="c">Impact</th><th class="c">Prototype potential</th>
         </tr></thead>
         <tbody>
-          <tr class="win"><td class="k">AttendSure · Privacy-First Attendance</td><td class="s s5">High potential</td><td class="s s4">High</td><td class="s s4">High</td><td class="s s4">High</td><td class="s s1">Score in meeting</td></tr>
-          <tr><td class="k">Simpler manual alternative</td><td class="s s2">Low–medium</td><td class="s s5">Very high</td><td class="s s4">High</td><td class="s s3">Medium</td><td class="s s1">Score in meeting</td></tr>
-          <tr><td class="k">Sensor / app-only alternative</td><td class="s s3">Medium</td><td class="s s4">High</td><td class="s s3">Medium</td><td class="s s4">High</td><td class="s s1">Score in meeting</td></tr>
-          <tr><td class="k">Community / service model</td><td class="s s3">Medium</td><td class="s s4">High</td><td class="s s5">Very high</td><td class="s s3">Medium</td><td class="s s1">Score in meeting</td></tr>
-          <tr class="score-row"><td class="k">Team score (1–5) · fill in</td><td class="s"></td><td class="s"></td><td class="s"></td><td class="s"></td><td class="s"></td></tr>
+          <tr class="win"><td class="k">AttendSure · Privacy-First Attendance</td><td class="s s5">High potential · 5</td><td class="s s4">High · 4</td><td class="s s4">High · 4</td><td class="s s4">High · 4</td><td class="s s4">High · 4</td></tr>
+          <tr><td class="k">Simpler manual alternative</td><td class="s s2">Low–medium · 2</td><td class="s s5">Very high · 5</td><td class="s s4">High · 4</td><td class="s s3">Medium · 3</td><td class="s s3">Medium · 3</td></tr>
+          <tr><td class="k">Sensor / app-only alternative</td><td class="s s3">Medium · 3</td><td class="s s4">High · 4</td><td class="s s3">Medium · 3</td><td class="s s4">High · 4</td><td class="s s3">Medium · 3</td></tr>
+          <tr><td class="k">Community / service model</td><td class="s s3">Medium · 3</td><td class="s s4">High · 4</td><td class="s s5">Very high · 5</td><td class="s s3">Medium · 3</td><td class="s s3">Medium · 3</td></tr>
         </tbody>
       </table>
     </div>
@@ -254,7 +254,8 @@
       </div>
       <div class="card"><div class="exp-k">{{i:pen-line}} Evidence we will cite</div>
         <p class="small muted" style="margin-top:1mm">Which observation or interview supports each score? Write the source, not just the number.</p>
-        <div class="lines mt2" style="height:12mm"></div>
+        <div class="ansblock mt2">Timed observation of roll-call in 2 classes (stopwatch) · office record of registers erased or corrected last month · teacher interview: “I skip roll-call when I am in a hurry.”</div>
+        <p class="tiny muted mt1">Word ratings are from the brief · numbers are the team&rsquo;s initial scores (1 = low, 5 = high), to be revised with evidence.</p>
       </div>
     </div>
   </div>
@@ -373,7 +374,15 @@
     <div class="tbl-wrap mt2">
       <table class="log">
         <thead><tr><th>Block</th><th>What we will use</th><th>Who owns it</th></tr></thead>
-        <tbody><tr><td>1</td><td></td><td></td></tr><tr><td>2</td><td></td><td></td></tr><tr><td>3</td><td></td><td></td></tr></tbody>
+        <tbody>
+          <tr><td>User / setting</td><td>Students + class teacher</td><td>Class teacher</td></tr>
+          <tr><td>Input / sensor</td><td>Teacher&rsquo;s screen shows the rotating QR; students scan with phones</td><td>School / class teacher</td></tr>
+          <tr><td>Controller / process</td><td>AttendSure app + server checks the code, window and pseudonymous ID</td><td>School</td></tr>
+          <tr><td>Output / action</td><td>Register entry (time, class, status) + exception list</td><td>Class teacher</td></tr>
+          <tr><td>Human confirmation</td><td>Teacher reviews exceptions and confirms the register</td><td>Class teacher</td></tr>
+          <tr><td>Power source</td><td>Teacher&rsquo;s laptop / phone + power bank</td><td>Class teacher</td></tr>
+          <tr><td>Offline store</td><td>Entries held on the device, synced when the network returns</td><td>Class teacher / students</td></tr>
+        </tbody>
       </table>
     </div>
   </div>
@@ -400,7 +409,7 @@
     <div class="tbl-wrap mt3">
       <table class="log">
         <thead><tr><th>Interview</th><th>Role / stakeholder</th><th>What we heard</th><th>Consent</th></tr></thead>
-        <tbody><tr><td>1</td><td></td><td></td><td></td></tr><tr><td>2</td><td></td><td></td><td></td></tr><tr><td>3</td><td></td><td></td><td></td></tr><tr><td>4</td><td></td><td></td><td></td></tr><tr><td>5</td><td></td><td></td><td></td></tr></tbody>
+        <tbody><tr><td>1</td><td>Class teacher</td><td></td><td></td></tr><tr><td>2</td><td>Substitute teacher</td><td></td><td></td></tr><tr><td>3</td><td>School office / attendance clerk</td><td></td><td></td></tr><tr><td>4</td><td>Principal</td><td></td><td></td></tr><tr><td>5</td><td>Student group leader / parent</td><td></td><td></td></tr></tbody>
       </table>
     </div>
   </div>
@@ -417,11 +426,11 @@
     </div></div>
 
     <div class="grid g3">
-      <div class="card"><span class="badge-ico sm">{{i:timer}}</span><h4 class="mt1">Roll-call time</h4><p class="tiny muted">Time taken for a class of 30 simulated students.</p><div class="write mt1"></div></div>
-      <div class="card"><span class="badge-ico sm">{{i:x-circle}}</span><h4 class="mt1">Duplicate scans refused</h4><p class="tiny muted">Duplicate-scan rejection rate.</p><div class="write mt1"></div></div>
-      <div class="card"><span class="badge-ico sm">{{i:triangle-alert}}</span><h4 class="mt1">Late / invalid handling</h4><p class="tiny muted">Correct handling of late and invalid scans.</p><div class="write mt1"></div></div>
-      <div class="card"><span class="badge-ico sm">{{i:refresh-cw}}</span><h4 class="mt1">Sync accuracy</h4><p class="tiny muted">Offline-to-online sync accuracy.</p><div class="write mt1"></div></div>
-      <div class="card" style="grid-column:1/-1"><span class="badge-ico sm good">{{i:user-check}}</span><h4 class="mt1">Teacher usability feedback</h4><p class="tiny muted">What the teacher found easy, slow or confusing — in their words.</p><div class="lines mt1" style="height:8mm"></div></div>
+      <div class="card"><span class="badge-ico sm">{{i:timer}}</span><h4 class="mt1">Roll-call time</h4><p class="tiny muted">Time taken for a class of 30 simulated students.</p><div class="ansline mt1">Target: under 2 min for a class of 30 simulated students.</div></div>
+      <div class="card"><span class="badge-ico sm">{{i:x-circle}}</span><h4 class="mt1">Duplicate scans refused</h4><p class="tiny muted">Duplicate-scan rejection rate.</p><div class="ansline mt1">Target: at least 95% of duplicate scans refused.</div></div>
+      <div class="card"><span class="badge-ico sm">{{i:triangle-alert}}</span><h4 class="mt1">Late / invalid handling</h4><p class="tiny muted">Correct handling of late and invalid scans.</p><div class="ansline mt1">Target: 100% of late / invalid scans handled correctly.</div></div>
+      <div class="card"><span class="badge-ico sm">{{i:refresh-cw}}</span><h4 class="mt1">Sync accuracy</h4><p class="tiny muted">Offline-to-online sync accuracy.</p><div class="ansline mt1">Target: 100% of stored entries synced after reconnect.</div></div>
+      <div class="card" style="grid-column:1/-1"><span class="badge-ico sm good">{{i:user-check}}</span><h4 class="mt1">Teacher usability feedback</h4><p class="tiny muted">What the teacher found easy, slow or confusing — in their words.</p><div class="ansline mt1">Target: teacher rates the flow at least 4 / 5 · record their exact words below.</div><div class="lines mt1" style="height:7mm"></div></div>
     </div>
 
     <div class="sec-head cont mt3"><div class="sec-num">9</div><div>
@@ -459,21 +468,20 @@
 
     <div class="card">
       <div class="exp-k">{{i:x-circle}} 1 · Which idea did we reject, and why?</div>
-      <div class="lines mt1" style="height:16mm"></div>
+      <div class="ansblock mt1">Face recognition — storing children&rsquo;s biometrics raises privacy and consent concerns we cannot safeguard in a student prototype; RFID / NFC would need a device every student must carry.</div>
     </div>
     <div class="card mt2">
       <div class="exp-k">{{i:message-circle}} 2 · What did a user tell you that changed your thinking?</div>
-      <div class="lines mt1" style="height:16mm"></div>
+      <div class="ansblock mt1">A teacher told us she skips roll-call when she is busy and fills it in later — so the real problem is time under pressure, not the paper itself.</div>
     </div>
     <div class="card mt2">
       <div class="exp-k">{{i:target}} 3 · What is the smallest test that can prove or disprove our main assumption?</div>
-      <div class="lines mt1" style="height:16mm"></div>
+      <div class="ansblock mt1">Run one class of 30 students through the QR flow and time it; if the teacher cannot finish in under 2 minutes and confirm the exceptions easily, our main assumption is wrong.</div>
     </div>
 
     <div class="band mt3">
       <div class="kicker">Declaration</div>
-      <p class="small" style="margin-top:1.5mm;color:#c9d2ea">Every number in this worksheet is either measured, labelled as a team hypothesis,
-        or left blank to be filled in. We have not invented results.</p>
+      <p class="small" style="margin-top:1.5mm;color:#c9d2ea">Every number here is a team hypothesis or a target we will measure in Sections 7 and 8 — none of it is claimed as a result yet.</p>
       <div class="row mt2" style="gap:8mm">
         <div style="flex:1"><div class="write" style="border-color:rgba(255,255,255,.4)"></div><div class="tiny" style="color:#8d99bb;margin-top:1mm">Team captain · signature</div></div>
         <div style="flex:1"><div class="write" style="border-color:rgba(255,255,255,.4)"></div><div class="tiny" style="color:#8d99bb;margin-top:1mm">Date</div></div>

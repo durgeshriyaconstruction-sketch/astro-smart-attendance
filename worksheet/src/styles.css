@@ -389,3 +389,16 @@ figure.fill img { position: absolute; inset: 0; }
 .matrix tr.score-row td.k { color: var(--ink); text-align: left; text-transform: none; letter-spacing: 0; }
 
 .band .lines { background-image: repeating-linear-gradient(transparent 0 4.4mm, rgba(255,255,255,.22) 4.4mm 4.7mm); }
+
+/* ─── Completed-answer helpers ─────────────────────────────── */
+.ansline {
+  border-bottom: .7px solid var(--line-2);
+  padding: 1.4mm 0 2.4mm;
+  font-size: 8.2pt; line-height: 1.4; color: var(--ink-2);
+}
+.ansline:last-child { border-bottom: none; }
+.ansblock {
+  border: 1px dashed var(--line-2); background: #fdfbf7;
+  padding: 2.4mm 2.8mm; font-size: 8.6pt; line-height: 1.45; color: var(--ink-2);
+}
+.tag-suggest { margin-left: auto; }
