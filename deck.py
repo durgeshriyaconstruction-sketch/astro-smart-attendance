@@ -38,11 +38,9 @@ class Deck:
     # -- lifecycle ---------------------------------------------------
     def add_slide(self, bg="#F4F6FB", dark=False):
         s = self.prs.slides.add_slide(self.blank)
-        # Keep the native background too, but ALSO paint an opaque full-bleed
-        # rectangle: viewers that drop <p:bg> would otherwise show white.
-        fill = s.background.fill
-        fill.solid()
-        fill.fore_color.rgb = _rgb(bg)
+        # NO <p:bg> element: some viewers ignore it (or mis-tint it), which is
+        # why a light slide once rendered dark. The background is instead the
+        # first drawn shape on every slide below, which every renderer honours.
         self._cur = {"bg": bg, "dark": dark, "prims": [], "slide": s}
         self.slides.append(self._cur)
         self.rect(0, 0, self.w, self.h, bg)
@@ -165,10 +163,55 @@ class Deck:
                    "anchor": anchor, "wrap": wrap_})
         return tb
 
-    def pic(self, path, x, y, w, h):
+    def pic(self, path, x, y, w, h, mode="crop"):
+        """Place an image in a box WITHOUT ever distorting it.
+
+        mode="crop":  fill the box, cropping the overflow (centre-weighted).
+        mode="fit":   shrink to fit inside the box, leaving letterbox slack.
+
+        python-pptx's add_picture(path, w, h) STRETCHES the bitmap to the box,
+        which is how a 1.79 landscape shot became a squashed portrait on the
+        title slide. We instead compute the true aspect and, when cropping,
+        request an explicit <a:srcRect> crop so PowerPoint and our renderer
+        both show the identical region.
+        """
+        from PIL import Image as _Im
         s = self._cur["slide"]
-        s.shapes.add_picture(path, Inches(x), Inches(y), Inches(w), Inches(h))
-        self._rec({"t": "pic", "x": x, "y": y, "w": w, "h": h, "path": path})
+        iw, ih = _Im.open(path).size
+        src_ar, box_ar = iw / ih, w / h
+        rec = {"t": "pic", "x": x, "y": y, "w": w, "h": h, "path": path}
+
+        if mode == "fit":
+            if src_ar > box_ar:      # limited by width
+                fw, fh = w, w / src_ar
+            else:
+                fw, fh = h * src_ar, h
+            self.pic(path, x + (w - fw) / 2, y + (h - fh) / 2, fw, fh)
+            return
+
+        # crop-to-fill: keep the box, crop the image along its long axis
+        cl = cr = ct = cb = 0.0
+        if abs(src_ar - box_ar) > 1e-6:
+            if src_ar > box_ar:
+                keep = box_ar / src_ar          # fraction of width retained
+                cl = cr = (1.0 - keep) / 2.0
+            else:
+                keep = src_ar / box_ar          # fraction of height retained
+                ct = cb = (1.0 - keep) / 2.0
+        if max(cl, cr, ct, cb) < 0.005:     # <0.5%: not a real crop, ignore
+            cl = cr = ct = cb = 0.0
+        pic = s.shapes.add_picture(path, Inches(x), Inches(y), Inches(w), Inches(h))
+        if cl or ct:
+            el = pic._element.blipFill
+            src = el.find(qn("a:srcRect"))
+            if src is None:
+                src = el.makeelement(qn("a:srcRect"), {})
+                el.append(src)
+            for k, v in (("l", cl), ("r", cr), ("t", ct), ("b", cb)):
+                if v:
+                    src.set(k, str(int(round(v * 100000))))
+        rec.update({"cl": cl, "cr": cr, "ct": ct, "cb": cb})
+        self._rec(rec)
 
     def _fill(self, shp, fill, alpha):
         if fill is None:

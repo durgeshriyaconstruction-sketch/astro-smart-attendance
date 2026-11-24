@@ -42,19 +42,25 @@ def rrect(d, box, r, fill=None, outline=None, width=0):
         d.rounded_rectangle(box, radius=r, fill=fill, outline=outline, width=width)
 
 
-def cover(path, w, h):
-    key = (path, w, h)
+def cover(path, w, h, cl=0.0, cr=0.0, ct=0.0, cb=0.0):
+    key = (path, w, h, cl, cr, ct, cb)
     if key in _imgcache:
         return _imgcache[key]
     im = Image.open(path).convert("RGB")
     tw, th = max(1, int(w * PX)), max(1, int(h * PX))
+    if cl or cr or ct or cb:
+        # honour the exact <a:srcRect> crop written into the pptx
+        l, r = int(im.width * cl), int(im.width * (1 - cr))
+        t_, b = int(im.height * ct), int(im.height * (1 - cb))
+        im = im.crop((l, t_, max(l + 1, r), max(t_ + 1, b)))
     sr, tr = im.width / im.height, tw / th
-    if sr > tr:
-        nw = int(im.height * tr)
-        im = im.crop(((im.width - nw) // 2, 0, (im.width + nw) // 2, im.height))
-    else:
-        nh = int(im.width / tr)
-        im = im.crop((0, (im.height - nh) // 2, im.width, (im.height + nh) // 2))
+    if abs(sr - tr) > 1e-3:      # safety net: never distort
+        if sr > tr:
+            nw = int(im.height * tr)
+            im = im.crop(((im.width - nw) // 2, 0, (im.width + nw) // 2, im.height))
+        else:
+            nh = int(im.width / tr)
+            im = im.crop((0, (im.height - nh) // 2, im.width, (im.height + nh) // 2))
     im = im.resize((tw, th), Image.LANCZOS)
     _imgcache[key] = im
     return im
@@ -99,7 +105,9 @@ def render(deck, outdir):
                     d.polygon([p1, p2, p3], fill=col)
             elif t == "pic":
                 x, y, w, h = (p[k] * PX for k in ("x", "y", "w", "h"))
-                img.paste(cover(os.path.join(HERE, p["path"]), p["w"], p["h"]),
+                img.paste(cover(os.path.join(HERE, p["path"]), p["w"], p["h"],
+                                p.get("cl", 0), p.get("cr", 0),
+                                p.get("ct", 0), p.get("cb", 0)),
                           (int(x), int(y)))
             elif t == "text":
                 _text(d, p)

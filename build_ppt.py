@@ -148,11 +148,16 @@ d.text(0.68, 6.30, 6.6, 0.24, "Mentor: Dr. Jayesh Shinde   ·   Renukoot, Sonbha
        size=9.6, color=MIST)
 d.text(0.68, 6.60, 6.6, 0.24, "astro-smart-attendence.web.app", size=9.6, bold=True, color=CYAN)
 
-# hero
-d.rect(8.30, 0.98, 4.42, 4.06, "#1D3E6E", radius=0.10)
-d.pic(A("hero_v2.png"), 8.40, 1.08, 4.22, 3.86)
-d.text(8.40, 5.16, 4.22, 0.22, "ESP32 · RC522 RFID · LCD1602 · 3D-PRINTED ENCLOSURE",
-       size=7.4, bold=True, color=MIST, align="c", spc=45)
+# ---- full-height hero: 4.185 x 7.5in, the photo's exact aspect, zero crop
+HERO_W = 7.5 * 768 / 1376                     # = 4.185in, no distortion
+HERO_X = W - HERO_W
+d.rect(HERO_X, 0, HERO_W, H, "#0A1729")       # backing, in case of late load
+d.pic(A("hero_v3.png"), HERO_X, 0, HERO_W, H)
+# seam + accent so the photo reads as a deliberate panel, not a pasted image
+d.rect(HERO_X, 0, 0.035, H, CYAN)
+d.rect(HERO_X, 0, 0.035, 2.9, GOLD)
+# dark scrim on the left edge of the photo for depth
+d.rect(HERO_X + 0.035, 0, 0.55, H, "#0B1B33", alpha=0.55)
 note(
     "SPEAKER NOTES — Slide 1 · Title · ~40 sec\n\n"
     "Good morning, respected judges, mentors and teachers. I am Shaurya Gupta, captain of Team Sun Rises India "
@@ -444,10 +449,16 @@ d.add_slide(PAPER)
 page_top("The build", "A working unit, not a breadboard.",
          "Hardware, firmware and cloud dashboard — assembled, flashed and running on our bench.", 7)
 
-d.rect(0.62, 2.02, 5.34, 4.02, WHITE, line=BORDER, radius=0.10)
-d.pic(A("device_crop.png"), 0.72, 2.12, 5.14, 3.52)
-d.text(0.72, 5.72, 5.14, 0.24, "TERMINAL  ·  ESP32 + RC522 + LCD1602 in the 3D-printed case", size=7.4,
-       bold=True, color=GREY, align="c", spc=50)
+# photo card: image bleeds edge-to-edge, caption strip sits beneath it
+CARD_X, CARD_Y, CARD_W, CARD_H = 0.62, 2.02, 5.34, 4.02
+IMG_H = 3.58
+d.rect(CARD_X, CARD_Y, CARD_W, CARD_H, WHITE, line=BORDER, radius=0.10)
+d.pic(A("device_wide.png"), CARD_X, CARD_Y, CARD_W, IMG_H)
+d.line(CARD_X, CARD_Y + IMG_H, CARD_X + CARD_W, CARD_Y + IMG_H, BORDER, 0.8)
+d.rect(CARD_X, CARD_Y + IMG_H + 0.005, CARD_W, CARD_H - IMG_H - 0.005, WHITE)
+d.text(CARD_X, CARD_Y + IMG_H + 0.10, CARD_W, 0.24,
+       "TERMINAL  ·  ESP32 + RC522 + LCD1602 in the 3D-printed case", size=7.4,
+       bold=True, color=GREY, align="c")
 
 
 d.text(6.24, 2.02, 6.4, 0.22, "BILL OF MATERIALS — ₹1,500 PER UNIT", size=8.4, bold=True, color=CYAN_D, caps=True, spc=100)

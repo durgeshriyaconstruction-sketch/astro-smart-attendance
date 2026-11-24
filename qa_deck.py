@@ -14,17 +14,42 @@ prs = Presentation("Astro_Smart_Attendance_Team_Sun_Rises_India.pptx")
 if len(prs.slides) < 1:
     fails.append("no slides")
 
-# 1) tracking must be sub-6pt everywhere
+# 1) PORTABILITY GATE. The reviewer's own viewer exploded `spc` runs and
+#    dropped the `<p:bg>` slide background. Both are banned outright, not
+#    merely capped, and images may never be stretched by the box they sit in.
 z = zipfile.ZipFile("Astro_Smart_Attendance_Team_Sun_Rises_India.pptx")
-maxspc = 0
-for n in z.namelist():
-    if re.match(r'ppt/slides/slide\d+\.xml$', n):
-        for v in re.findall(r'spc="(\d+)"', z.read(n).decode()):
-            maxspc = max(maxspc, int(v))
-if maxspc > 600:
-    fails.append(f"letter-spacing {maxspc/100:.1f}pt exceeds 6pt cap — text will scatter")
+S = [n for n in z.namelist() if re.match(r'ppt/slides/slide\d+\.xml$', n)]
+xml = {n: z.read(n).decode() for n in S}
+
+spc = sum(len(re.findall(r'spc="', t)) for t in xml.values())
+if spc:
+    fails.append(f"{spc} letter-spacing (spc) attributes — banned: some viewers scatter them")
 else:
-    print(f"  tracking    ok  (max {maxspc/100:.2f}pt)")
+    print("  tracking    ok  (no spc attributes at all)")
+
+bg = sum(t.count("<p:bg") for t in xml.values())
+if bg:
+    fails.append(f"{bg} <p:bg> slide backgrounds — banned: some viewers ignore them; "
+                 "draw a full-bleed rectangle instead")
+else:
+    print("  background  ok  (no <p:bg>; real shape on every slide)")
+
+caps = sum(t.count('cap="all"') for t in xml.values())
+if caps:
+    fails.append(f"{caps} cap=\"all\" runs — uppercase the string instead")
+
+# every picture must fill its box without distortion
+from PIL import Image as _Im
+for i, sd in enumerate(prs.slides, 1):
+    for sh in sd.shapes:
+        if sh.shape_type is not None and "PICTURE" in str(sh.shape_type):
+            try:
+                iw, ih = _Im.open(sh.image.blob and __import__("io").BytesIO(sh.image.blob)).size
+            except Exception:
+                continue
+            if abs((iw / ih) - (sh.width / sh.height)) > 0.02:
+                fails.append(f"slide {i}: picture is stretched "
+                             f"({iw/ih:.2f} src in {sh.width/sh.height:.2f} box)")
 
 # 2) no autofit — shapes must keep the geometry we placed
 auto = sum(z.read(n).decode().count("spAutoFit") + z.read(n).decode().count("normAutofit")
