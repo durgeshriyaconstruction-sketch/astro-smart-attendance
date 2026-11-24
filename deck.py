@@ -38,11 +38,14 @@ class Deck:
     # -- lifecycle ---------------------------------------------------
     def add_slide(self, bg="#F4F6FB", dark=False):
         s = self.prs.slides.add_slide(self.blank)
+        # Keep the native background too, but ALSO paint an opaque full-bleed
+        # rectangle: viewers that drop <p:bg> would otherwise show white.
         fill = s.background.fill
         fill.solid()
         fill.fore_color.rgb = _rgb(bg)
         self._cur = {"bg": bg, "dark": dark, "prims": [], "slide": s}
         self.slides.append(self._cur)
+        self.rect(0, 0, self.w, self.h, bg)
         return s
 
     def notes(self, text):
@@ -138,21 +141,20 @@ class Deck:
             p.line_spacing = it.get("ls", 1.0)
             p.space_after = Pt(it.get("sa", 0))
             p.space_before = Pt(it.get("sb", 0))
+            txt_ = it["t"]
+            if it.get("caps"):
+                txt_ = txt_.upper()
             run = p.add_run()
-            run.text = it["t"]
+            run.text = txt_
             f = run.font
             f.name = "Calibri"
             f.size = Pt(it.get("size", 12))
             f.bold = it.get("b", False)
             f.italic = it.get("i", False)
             f.color.rgb = _rgb(it.get("c", "#334155"))
-            if it.get("caps"):
-                f._rPr.set("cap", "all")
-            if it.get("spc"):
-                # `spc` in OOXML is hundredths of a point. Our call sites pass
-                # that unit directly (e.g. 120 = 1.2pt). Never exceed 6pt.
-                val = max(0, min(int(it["spc"]), 600))
-                f._rPr.set("spc", str(val))
+            # Letter-spacing (`spc`) is deliberately NOT written: several
+            # viewers scatter tracking runs into one letter per line-width.
+            # `caps` is baked into the string instead of using cap="all".
             nl, th = self.measure(it["t"], it.get("size", 12), it.get("b", False), it.get("i", False), w,
                                   it.get("ls", 1.0))
             total += th + it.get("sa", 0) / 72.0 + it.get("sb", 0) / 72.0
