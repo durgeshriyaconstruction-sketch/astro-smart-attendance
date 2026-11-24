@@ -127,6 +127,7 @@ class Deck:
         tf.margin_right = 0
         tf.margin_top = 0
         tf.margin_bottom = 0
+        tf.auto_size = None            # no spAutoFit / normAutofit
         tf.vertical_anchor = {"t": MSO_ANCHOR.TOP, "m": MSO_ANCHOR.MIDDLE,
                               "b": MSO_ANCHOR.BOTTOM}[anchor]
         total = 0.0
@@ -147,8 +148,11 @@ class Deck:
             f.color.rgb = _rgb(it.get("c", "#334155"))
             if it.get("caps"):
                 f._rPr.set("cap", "all")
-            if it.get("spc") is not None:
-                f._rPr.set("spc", str(int(it["spc"] * 100)))
+            if it.get("spc"):
+                # `spc` in OOXML is hundredths of a point. Our call sites pass
+                # that unit directly (e.g. 120 = 1.2pt). Never exceed 6pt.
+                val = max(0, min(int(it["spc"]), 600))
+                f._rPr.set("spc", str(val))
             nl, th = self.measure(it["t"], it.get("size", 12), it.get("b", False), it.get("i", False), w,
                                   it.get("ls", 1.0))
             total += th + it.get("sa", 0) / 72.0 + it.get("sb", 0) / 72.0

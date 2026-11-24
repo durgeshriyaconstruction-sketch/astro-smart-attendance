@@ -110,17 +110,48 @@ def render(deck, outdir):
     return made
 
 
-def _draw_run(d, xy, text, pt, bold, italic, col, anchor="la"):
-    """Draw text honouring per-glyph font fallback."""
+def _draw_run(d, xy, text, pt, bold, italic, col, anchor="la", spc=0):
+    """Draw text honouring per-glyph font fallback AND letter tracking.
+
+    spc is hundredths of a point, exactly as OOXML stores it. This must be
+    honoured or the preview will happily show a layout that PowerPoint
+    destroys via runaway tracking."""
     x, y = xy
+    extra = (spc / 100.0) * PX / 72.0 if spc else 0.0
     for chunk, fb in TM.runs(text, (pt, bold, italic)):
         f = font(pt, bold, italic, fb)
-        d.text((x, y), chunk, font=f, fill=col, anchor=anchor)
-        x += f.getlength(chunk)
+        if not extra:
+            d.text((x, y), chunk, font=f, fill=col, anchor=anchor)
+            x += f.getlength(chunk)
+        else:
+            for ch in chunk:
+                d.text((x, y), ch, font=f, fill=col, anchor=anchor)
+                x += f.getlength(ch) + extra
 
 
-def _run_width(text, pt, bold, italic):
-    return TM.width(text, pt, bold, italic)
+def _run_width(text, pt, bold, italic, spc=0):
+    extra = (spc / 100.0) * PX / 72.0 * len(text) if spc else 0.0
+    return TM.width(text, pt, bold, italic) + extra
+
+
+def wrap_tracked(text, pt, b, i, maxpx, spc):
+    """Word-wrap that accounts for letter tracking."""
+    extra = (spc / 100.0) * PX / 72.0 if spc else 0.0
+    out = []
+    for raw in str(text).split("\n"):
+        if not raw:
+            out.append("")
+            continue
+        cur = ""
+        for word in raw.split(" "):
+            cand = (cur + " " + word) if cur else word
+            if TM.width(cand, pt, b, i) + extra * len(cand) <= maxpx or not cur:
+                cur = cand
+            else:
+                out.append(cur)
+                cur = word
+        out.append(cur)
+    return out
 
 
 def _text(d, p):
@@ -130,8 +161,11 @@ def _text(d, p):
     for it in p["items"]:
         pt = it.get("size", 12)
         b, i = it.get("b", False), it.get("i", False)
-        lines = (TM.wrap(it["t"], pt, b, i, w) if p.get("wrap", True)
-                 else str(it["t"]).split("\n"))
+        spc = it.get("spc") or 0
+        if p.get("wrap", True):
+            lines = wrap_tracked(it["t"], pt, b, i, w, spc)
+        else:
+            lines = str(it["t"]).split("\n")
         lh = pt * 1.215 * PX / 72.0
         sb = it.get("sb", 0) * PX / 72.0
         sa = it.get("sa", 0) * PX / 72.0
@@ -148,14 +182,14 @@ def _text(d, p):
         align = it.get("a", "l")
         col = parse(it.get("c", "#334155"))
         for ln in lines:
-            lw_ = _run_width(ln, pt, b, i)
+            lw_ = _run_width(ln, pt, b, i, it.get("spc") or 0)
             if align == "c":
                 lx = x + (w - lw_) / 2.0
             elif align == "r":
                 lx = x + w - lw_
             else:
                 lx = x
-            _draw_run(d, (lx, cy), ln, pt, b, i, col)
+            _draw_run(d, (lx, cy), ln, pt, b, i, col, spc=it.get("spc") or 0)
             cy += lh * it.get("ls", 1.0)
         cy += sa
 
