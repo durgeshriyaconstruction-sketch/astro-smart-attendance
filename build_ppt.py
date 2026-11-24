@@ -56,7 +56,7 @@ def page_top(eyebrow, title, sub, num, accent=GOLD):
     d.rect(0, 0, W, 0.14, INK)
     d.rect(0, 0.14, W, 0.035, accent)
     d.rect(0.62, 0.52, 0.055, 0.22, accent)
-    d.text(0.80, 0.50, 8.6, 0.26, eyebrow, size=12, bold=True, color=CYAN_D, caps=True, spc=140)
+    d.text(0.80, 0.50, 8.6, 0.26, eyebrow, size=13, bold=True, color=CYAN_D, caps=True, spc=140)
 
     tw = 11.95
     size = 31.0
@@ -68,7 +68,7 @@ def page_top(eyebrow, title, sub, num, accent=GOLD):
     y = 0.78
     d.text(0.62, y, tw, th + 0.02, title, size=size, bold=True, color=INK, ls=0.95)
     if sub:
-        d.text(0.62, y + th + 0.14, 11.95, 0.34, sub, size=14, color=GREY, ls=1.0)
+        d.text(0.62, y + th + 0.14, 11.95, 0.34, sub, size=15, color=GREY, ls=1.0)
     footer(num)
     return y + th + (0.62 if sub else 0.14)
 
@@ -79,12 +79,12 @@ def footer(num, dark=False):
     d.line(0.62, y - 0.10, W - 0.62, y - 0.10, "#2A426B" if dark else BORDER, 0.75)
     d.text(0.62, y, 7.4, 0.22,
            "ABPS RENUKOOT   ·   ABG STEM QUEST 2026–27   ·   TEAM SUN RISES INDIA",
-           size=9.5, bold=True, color=c, spc=90)
+           size=11, bold=True, color=c, spc=90)
     d.text(W - 2.1, y, 1.48, 0.22, "%02d / %d" % (num, TOTAL),
-           size=9.5, bold=True, color=c, align="r", spc=90)
+           size=11, bold=True, color=c, align="r", spc=90)
 
 
-def tag(x, y, w, label, fg=CYAN_D, bg=CYAN_L, size=10, pad=0.0):
+def tag(x, y, w, label, fg=CYAN_D, bg=CYAN_L, size=11.5, pad=0.0):
     h = 0.26
     d.rect(x, y, w, h, bg, radius=h / 2)
     d.text(x + pad, y + 0.055, w - 2 * pad, 0.2, label, size=size, bold=True, color=fg,
@@ -95,10 +95,10 @@ def tag(x, y, w, label, fg=CYAN_D, bg=CYAN_L, size=10, pad=0.0):
 def stat(x, y, w, big, label, sub, accent=CYAN_D, bigsize=30):
     d.rect(x, y, w, 0.055, accent)
     d.text(x, y + 0.20, w, 0.62, big, size=bigsize, bold=True, color=INK, ls=0.9)
-    d.text(x, y + 0.20 + bigsize / 62.0, w, 0.24, label, size=12, bold=True,
+    d.text(x, y + 0.20 + bigsize / 62.0, w, 0.24, label, size=13, bold=True,
            color=accent, caps=True, spc=80)
     if sub:
-        d.text(x, y + 0.36 + bigsize / 62.0 + 0.22, w, 0.5, sub, size=11.5, color=GREY, ls=1.1)
+        d.text(x, y + 0.36 + bigsize / 62.0 + 0.22, w, 0.5, sub, size=13, color=GREY, ls=1.1)
 
 
 def note(text):
@@ -115,38 +115,38 @@ d.oval(-2.2, 3.6, 5.0, 5.0, "#12294C")
 d.rect(0, 0, W, 0.06, CYAN)
 d.rect(0, 0.06, 3.3, 0.02, GOLD)
 
-d.text(0.68, 0.42, 6.6, 0.24, "ABG STEM QUEST 2026–27", size=11, bold=True, color=GOLD, caps=True, spc=170)
+d.text(0.68, 0.42, 6.6, 0.24, "ABG STEM QUEST 2026–27", size=12.5, bold=True, color=GOLD, caps=True, spc=170)
 d.line(0.68, 0.72, 1.32, 0.72, CYAN, 1.6)
 d.text(0.68, 0.82, 5.5, 0.26, "SDG 9  ·  INDUSTRY, INNOVATION & INFRASTRUCTURE",
-       size=10, bold=True, color=MIST, caps=True)
+       size=11.5, bold=True, color=MIST, caps=True)
 
 d.text(0.64, 1.30, 6.9, 0.92, "ASTRO SMART", size=62, bold=True, color=WHITE, ls=0.86)
 d.text(0.64, 2.14, 6.9, 0.92, "ATTENDANCE", size=62, bold=True, color=CYAN, ls=0.86)
 d.text(0.68, 3.20, 6.5, 0.30, "AI  +  IoT  +  CLOUD   SMART SCHOOL ATTENDANCE",
-       size=13, bold=True, color=WHITE, spc=120)
+       size=14, bold=True, color=WHITE, spc=120)
 d.text(0.68, 3.54, 6.4, 0.34, "Tap a card. Present, synced, parent notified — in under two seconds.",
-       size=14, italic=True, color=MIST, ls=1.15)
+       size=15, italic=True, color=MIST, ls=1.15)
 
 badges = [("Prototype in hand", GREEN), ("₹1,500 per unit", GOLD),
           ("Works fully offline", CYAN), ("140 of 140 tests pass", WHITE)]
 for i, (lab, col) in enumerate(badges):
-    yy = 4.38 + (i // 2) * 0.42
-    xx = 0.68 + (i % 2) * 2.72
+    yy = 4.34 + (i // 2) * 0.52
+    xx = 0.68 + (i % 2) * 2.80
     import textmetrics as _TM
-    wbadge = _TM.width(lab, 11, True, False) / 288.0 + 0.52
-    d.rect(xx, yy, wbadge, 0.32, None, line=col, lw=0.9, radius=0.16)
-    d.oval(xx + 0.18, yy + 0.128, 0.064, 0.064, col)
-    d.text(xx + 0.31, yy + 0.072, wbadge - 0.42, 0.22, lab, size=11, bold=True, color=WHITE, spc=25)
+    wbadge = _TM.width(lab, 12.5, True, False) / 288.0 + 0.58
+    d.rect(xx, yy, wbadge, 0.42, None, line=col, lw=1.0, radius=0.21)
+    d.oval(xx + 0.21, yy + 0.178, 0.070, 0.070, col)
+    d.text(xx + 0.36, yy + 0.085, wbadge - 0.48, 0.28, lab, size=12.5, bold=True, color=WHITE)
 
 d.line(0.68, 5.62, 7.10, 5.62, "#2C4C7C", 0.9)
 d.text(0.68, 5.76, 6.4, 0.22, "TEAM SUN RISES INDIA  ·  THE ADITYA BIRLA PUBLIC SCHOOL, RENUKOOT",
-       size=10, bold=True, color=GOLD, caps=True, spc=70)
-d.text(0.68, 6.04, 6.6, 0.24,
+       size=11.5, bold=True, color=GOLD, caps=True, spc=70)
+d.text(0.68, 6.04, 7.30, 0.30,
        "Shaurya Gupta (Captain) · Anant Tiwari · Devansh Dhakad · Tejas Upadhyay · Diwakar Singh",
-       size=12, color=WHITE)
-d.text(0.68, 6.30, 6.6, 0.24, "Mentor: Dr. Jayesh Shinde   ·   Renukoot, Sonbhadra, Uttar Pradesh",
-       size=12, color=MIST)
-d.text(0.68, 6.60, 6.6, 0.24, "astro-smart-attendence.web.app", size=12, bold=True, color=CYAN)
+       size=12.5, color=WHITE)
+d.text(0.68, 6.32, 7.30, 0.28, "Mentor: Dr. Jayesh Shinde   ·   Renukoot, Sonbhadra, Uttar Pradesh",
+       size=13, color=MIST)
+d.text(0.68, 6.62, 7.30, 0.28, "astro-smart-attendence.web.app", size=13, bold=True, color=CYAN)
 
 # ---- full-height hero: 4.185 x 7.5in, the photo's exact aspect, zero crop
 HERO_W = 7.5 * 768 / 1376                     # = 4.185in, no distortion
@@ -181,32 +181,32 @@ STATCARD = [
      "A problem this widespread is not a school problem. It is infrastructure — and infrastructure is where SDG 9 lives."),
 ]
 for x, eyebrow, accent, big, label, foot in STATCARD:
-    d.rect(x, 2.02, 4.26, 2.62, WHITE, line=BORDER, radius=0.10)
+    d.rect(x, 2.02, 4.26, 3.02, WHITE, line=BORDER, radius=0.10)
     d.rect(x, 2.02, 4.26, 0.05, accent)
-    d.text(x + 0.26, 2.24, 3.6, 0.22, eyebrow, size=10.5, bold=True, color=accent, caps=True, spc=110)
+    d.text(x + 0.26, 2.24, 3.6, 0.24, eyebrow, size=12, bold=True, color=accent, caps=True, spc=110)
     d.text(x + 0.26, 2.54, 3.7, 0.56, big, size=33, bold=True, color=INK, ls=0.9)
-    d.text(x + 0.26, 3.18, 3.70, 0.52, label, size=12, color=SLATE, ls=1.10)
+    d.text(x + 0.26, 3.18, 3.70, 0.52, label, size=13, color=SLATE, ls=1.10)
     d.line(x + 0.26, 3.80, x + 4.00, 3.80, BORDER, 0.8)
-    d.text(x + 0.26, 3.92, 3.70, 0.62, foot, size=11.5, color=GREY, ls=1.18)
+    d.text(x + 0.26, 3.92, 3.70, 0.92, foot, size=13, color=GREY, ls=1.18)
 
-d.rect(9.42, 2.02, 3.30, 2.62, INK, radius=0.10)
-d.text(9.68, 2.24, 2.8, 0.22, "WHAT WE TARGET", size=10.5, bold=True, color=CYAN, caps=True, spc=110)
-d.text(9.68, 2.56, 2.86, 0.70, "One narrow, measurable problem", size=16, bold=True, color=WHITE, ls=1.08)
-d.line(9.68, 3.34, 10.78, 3.34, CYAN, 1.4)
-d.text(9.68, 3.50, 2.82, 1.02, "Record attendance in seconds, accurately, with the teacher holding final approval.",
-       size=11.5, color=MIST, ls=1.24)
+d.rect(9.42, 2.02, 3.30, 3.02, INK, radius=0.10)
+d.text(9.68, 2.24, 2.8, 0.22, "WHAT WE TARGET", size=12, bold=True, color=CYAN, caps=True, spc=110)
+d.text(9.68, 2.58, 2.86, 0.80, "One narrow, measurable problem", size=17.5, bold=True, color=WHITE, ls=1.08)
+d.line(9.68, 3.46, 10.78, 3.46, CYAN, 1.4)
+d.text(9.68, 3.62, 2.84, 1.24, "Record attendance in seconds, accurately, with the teacher holding final approval.",
+       size=13, color=MIST, ls=1.24)
 
-d.text(0.62, 4.94, 6.0, 0.22, "WHY IT KEEPS HAPPENING", size=10.5, bold=True, color=CYAN_D, caps=True, spc=110)
+d.text(0.62, 5.18, 6.0, 0.26, "WHY IT KEEPS HAPPENING", size=12, bold=True, color=CYAN_D, caps=True, spc=110)
 why = [("Time", "Minutes evaporate, every period, with nothing to show for them."),
        ("Trust", "Ticks are easy to fake and hard to audit after the register closes."),
        ("Records", "Attendance, alerts and reports live in three separate places.")]
 for i, (h, b) in enumerate(why):
     x = 0.62 + i * 4.28
-    d.rect(x, 5.24, 4.06, 1.34, WHITE, line=BORDER, radius=0.09)
-    d.rect(x + 0.26, 5.46, 0.30, 0.30, CYAN_L, radius=0.06)
-    d.text(x + 0.26, 5.50, 0.30, 0.24, "0%d" % (i + 1), size=10.5, bold=True, color=CYAN_D, align="c")
-    d.text(x + 0.68, 5.44, 3.1, 0.26, h, size=13, bold=True, color=INK)
-    d.text(x + 0.68, 5.74, 3.16, 0.62, b, size=12, color=GREY, ls=1.16)
+    d.rect(x, 5.50, 4.06, 1.22, WHITE, line=BORDER, radius=0.09)
+    d.rect(x + 0.26, 5.66, 0.34, 0.34, CYAN_L, radius=0.07)
+    d.text(x + 0.26, 5.705, 0.34, 0.26, "0%d" % (i + 1), size=11.5, bold=True, color=CYAN_D, align="c")
+    d.text(x + 0.74, 5.66, 3.05, 0.30, h, size=14.5, bold=True, color=INK)
+    d.text(x + 0.74, 6.04, 3.08, 0.52, b, size=12.5, color=GREY, ls=1.12)
 note(
     "SPEAKER NOTES — Slide 2 · Problem · ~45 sec\n\n"
     "Start with the clock. In a 40-minute period, a teacher spends 10 to 15 minutes calling out names. "
@@ -233,31 +233,31 @@ for i, (h, b, col, coll) in enumerate(people):
     d.rect(x, 2.02, 2.90, 2.22, WHITE, line=BORDER, radius=0.10)
     d.rect(x, 2.02, 2.90, 0.05, col)
     d.rect(x + 0.24, 2.26, 0.40, 0.40, coll, radius=0.09)
-    d.text(x + 0.24, 2.355, 0.40, 0.24, "0%d" % (i + 1), size=12, bold=True, color=col, align="c")
-    d.text(x + 0.24, 2.82, 2.44, 0.24, h, size=11, bold=True, color=col, caps=True, spc=100)
-    d.text(x + 0.24, 3.08, 2.44, 1.00, b, size=11.5, color=SLATE, ls=1.20)
+    d.text(x + 0.24, 2.355, 0.40, 0.24, "0%d" % (i + 1), size=13, bold=True, color=col, align="c")
+    d.text(x + 0.24, 2.82, 2.44, 0.24, h, size=12.5, bold=True, color=col, caps=True, spc=100)
+    d.text(x + 0.24, 3.06, 2.46, 1.18, b, size=12.5, color=SLATE, ls=1.16)
 
 d.rect(0.62, 4.42, 6.02, 2.36, WHITE, line=BORDER, radius=0.10)
-d.text(0.88, 4.60, 5.5, 0.22, "WHAT SUCCESS LOOKS LIKE", size=10.5, bold=True, color=CYAN_D, caps=True, spc=110)
-d.text(0.88, 4.86, 5.5, 0.30, "Five numbers, checked in every trial", size=15.5, bold=True, color=INK)
+d.text(0.88, 4.60, 5.5, 0.22, "WHAT SUCCESS LOOKS LIKE", size=12, bold=True, color=CYAN_D, caps=True, spc=110)
+d.text(0.88, 4.86, 5.5, 0.30, "Five numbers, checked in every trial", size=16.5, bold=True, color=INK)
 metrics = ["Time per class of 30", "Duplicate scans blocked", "Missed entries",
            "Corrections after the fact", "Offline-to-online sync accuracy"]
 my = 5.26
 for i, m in enumerate(metrics):
     yy = my + i * 0.29
     d.oval(0.90, yy + 0.060, 0.10, 0.10, CYAN)
-    d.text(1.10, yy, 4.2, 0.24, m, size=12, color=SLATE)
+    d.text(1.10, yy, 4.2, 0.24, m, size=13, color=SLATE)
 for i, m in enumerate(metrics):
     yy = my + i * 0.29
     d.text(4.30, yy, 2.1, 0.24, ["seconds", "blocked", "counted", "counted", "verified"][i],
-           size=12, bold=True, color=GREEN, align="r")
+           size=13, bold=True, color=GREEN, align="r")
 
 d.rect(6.84, 4.42, 5.88, 2.36, INK, radius=0.10)
-d.text(7.10, 4.62, 5.3, 0.22, "THE POINT OF THE PROJECT", size=10.5, bold=True, color=GOLD, caps=True, spc=110)
+d.text(7.10, 4.62, 5.3, 0.22, "THE POINT OF THE PROJECT", size=12, bold=True, color=GOLD, caps=True, spc=110)
 d.text(7.10, 4.94, 5.30, 1.34, "Attendance should be a by-product of walking into class — not a task that eats the class.",
-       size=16.5, bold=True, color=WHITE, ls=1.14)
-d.text(7.10, 6.28, 5.30, 0.32, "More teaching time · fewer errors · parents informed · records trusted",
-       size=11.5, bold=True, color=CYAN)
+       size=17.5, bold=True, color=WHITE, ls=1.14)
+d.text(7.10, 6.44, 5.40, 0.30, "More teaching time · fewer errors · parents informed · records trusted",
+       size=12.5, bold=True, color=CYAN)
 note(
     "SPEAKER NOTES — Slide 3 · Why it matters · ~45 sec\n\n"
     "Four groups feel this problem, and we designed for all four.\n\n"
@@ -291,19 +291,19 @@ for i, (tag_, h, sub, items, foot, col, coll) in enumerate(layers):
     x = 0.62 + i * 4.20
     d.rect(x, 2.02, 3.96, 3.42, WHITE, line=BORDER, radius=0.10)
     d.rect(x, 2.02, 3.96, 0.05, col)
-    d.text(x + 0.28, 2.24, 2.0, 0.22, tag_, size=10, bold=True, color=col, caps=True, spc=120)
+    d.text(x + 0.28, 2.24, 2.0, 0.22, tag_, size=11.5, bold=True, color=col, caps=True, spc=120)
     d.text(x + 0.28, 2.48, 3.4, 0.32, h, size=17.5, bold=True, color=INK)
-    d.text(x + 0.28, 2.82, 3.4, 0.42, sub, size=12, italic=True, color=GREY, ls=1.1)
+    d.text(x + 0.28, 2.80, 3.44, 0.52, sub, size=12.5, italic=True, color=GREY, ls=1.1)
     d.line(x + 0.28, 3.28, x + 3.68, 3.28, BORDER, 0.8)
     for j, it in enumerate(items):
         yy = 3.42 + j * 0.37
         d.oval(x + 0.29, yy + 0.085, 0.075, 0.075, col)
-        d.text(x + 0.50, yy, 3.2, 0.30, it, size=12, color=SLATE)
+        d.text(x + 0.50, yy, 3.20, 0.32, it, size=12.5, color=SLATE)
     d.rect(x + 0.28, 4.94, 3.40, 0.32, coll, radius=0.06)
-    d.text(x + 0.28, 5.00, 3.40, 0.24, foot, size=10, bold=True, color=col, align="c", spc=40)
+    d.text(x + 0.28, 5.00, 3.40, 0.24, foot, size=11.5, bold=True, color=col, align="c", spc=40)
 
 d.rect(0.62, 5.62, 12.10, 1.12, INK, radius=0.10)
-d.text(0.90, 5.76, 11.6, 0.22, "WHAT THE SYSTEM DOES WITHOUT BEING ASKED", size=10, bold=True, color=GOLD, caps=True, spc=110)
+d.text(0.90, 5.76, 11.6, 0.22, "WHAT THE SYSTEM DOES WITHOUT BEING ASKED", size=11.5, bold=True, color=GOLD, caps=True, spc=110)
 facts = ["Works offline, syncs later", "Emails parents automatically", "Tracks daily + period attendance",
          "Blocks duplicate taps", "No face data collected", "₹1,500 per unit"]
 for i, f in enumerate(facts):
@@ -311,8 +311,8 @@ for i, f in enumerate(facts):
     row = i // 3
     x = 0.90 + col * 3.95
     y = 6.06 + row * 0.31
-    d.text(x, y, 0.18, 0.22, "✓", size=12, bold=True, color=GREEN)
-    d.text(x + 0.22, y, 3.5, 0.24, f, size=12, bold=True, color=WHITE)
+    d.text(x, y, 0.18, 0.22, "✓", size=13, bold=True, color=GREEN)
+    d.text(x + 0.22, y, 3.5, 0.24, f, size=13, bold=True, color=WHITE)
 note(
     "SPEAKER NOTES — Slide 4 · Solution · ~55 sec\n\n"
     "Our solution is three layers, and the design principle behind all three is that the teacher should never have to "
@@ -331,47 +331,49 @@ d.add_slide(INK, dark=True)
 full_bg(INK)
 d.rect(0, 0, W, 0.05, CYAN)
 d.rect(0.62, 0.44, 0.055, 0.22, GOLD)
-d.text(0.80, 0.42, 8.6, 0.26, "Live system flow", size=12, bold=True, color=CYAN, caps=True, spc=140)
+d.text(0.80, 0.42, 8.6, 0.26, "Live system flow", size=13, bold=True, color=CYAN, caps=True, spc=140)
 d.text(0.62, 0.70, 11.4, 0.5, "Tap to present in under two seconds.", size=31, bold=True, color=WHITE, ls=0.95)
 d.text(0.62, 1.34, 11.9, 0.34, "Five steps from card to confirmed register. The teacher stays in control at every stage.",
-       size=14, color=MIST)
+       size=15, color=MIST)
 
-steps = [("01", "Student taps", "RFID card is read by the RC522 reader"),
-         ("02", "ESP32 verifies", "Checks card UID, class roster and time window"),
-         ("03", "LCD confirms", "Present, late, or duplicate blocked on screen"),
-         ("04", "Cloud syncs", "Firebase in real time — or the offline queue"),
-         ("05", "Register + alert", "Dashboard updates, parent email is sent")]
+steps = [("01", "Student taps", "RFID card is read by the RC522 reader", "13.56 MHz · no phone"),
+         ("02", "ESP32 verifies", "Checks card UID, class roster and time window", "on-device, offline"),
+         ("03", "LCD confirms", "Present, late, or duplicate blocked on screen", "instant feedback"),
+         ("04", "Cloud syncs", "Firebase in real time — or the offline queue", "queued if no net"),
+         ("05", "Register + alert", "Dashboard updates, parent email is sent", "teacher approves")]
 cx = 0.62
-for i, (n, h, b) in enumerate(steps):
+for i, (n, h, b, meta) in enumerate(steps):
     x = cx + i * 2.46
-    d.rect(x, 1.96, 2.20, 2.06, "#1A3866", line="#2C5388", lw=0.9, radius=0.10)
-    d.text(x + 0.22, 2.14, 0.6, 0.30, n, size=12.5, bold=True, color=CYAN, spc=60)
-    d.text(x + 0.22, 2.52, 1.80, 0.28, h, size=14, bold=True, color=WHITE)
-    d.text(x + 0.22, 2.84, 1.80, 1.0, b, size=11.5, color=MIST, ls=1.18)
+    d.rect(x, 1.96, 2.20, 2.28, "#1A3866", line="#2C5388", lw=0.9, radius=0.10)
+    d.text(x + 0.22, 2.12, 0.8, 0.30, n, size=13.5, bold=True, color=CYAN, spc=60)
+    d.text(x + 0.22, 2.46, 1.78, 0.28, h, size=15, bold=True, color=WHITE)
+    d.text(x + 0.22, 2.76, 1.78, 0.72, b, size=12.5, color=MIST, ls=1.16)
+    # detail line — fills the dead band that used to sit above the progress bar
+    d.text(x + 0.22, 3.50, 1.78, 0.24, meta, size=10, bold=True, color=CYAN if i < 4 else GREEN)
     hh = 0.045
-    d.rect(x + 0.22, 3.82, 1.76, hh, CYAN if i < 4 else GREEN, radius=hh / 2)
+    d.rect(x + 0.22, 3.88, 1.76, hh, CYAN if i < 4 else GREEN, radius=hh / 2)
     if i < 4:
-        d.text(x + 2.22, 2.74, 0.22, 0.34, "›", size=20, bold=True, color=GOLD, align="c")
+        d.text(x + 2.22, 2.72, 0.22, 0.34, "›", size=20, bold=True, color=GOLD, align="c")
 
 d.rect(0.62, 4.34, 5.96, 2.42, "#152F58", line="#2C5388", lw=0.9, radius=0.10)
-d.text(0.88, 4.50, 5.4, 0.22, "TEACHER FLOW  ·  APPROVAL IS BUILT IN", size=10.5, bold=True, color=GOLD, caps=True, spc=100)
+d.text(0.88, 4.50, 5.4, 0.22, "TEACHER FLOW  ·  APPROVAL IS BUILT IN", size=12, bold=True, color=GOLD, caps=True, spc=100)
 tf = ["Open the class session", "Review only flagged exceptions", "Confirm and export the register"]
 for i, t_ in enumerate(tf):
     yy = 4.84 + i * 0.36
     d.oval(0.90, yy + 0.075, 0.13, 0.13, GOLD)
-    d.text(1.14, yy, 5.0, 0.26, t_, size=12, color=WHITE)
+    d.text(1.14, yy, 5.0, 0.26, t_, size=13, color=WHITE)
 d.text(0.88, 6.02, 5.4, 0.60, "Nothing is final until the teacher confirms it — the machine proposes, the teacher decides.",
-       size=11.5, italic=True, color=MIST, ls=1.18)
+       size=13, italic=True, color=MIST, ls=1.18)
 
 d.rect(6.80, 4.34, 5.92, 2.42, "#152F58", line="#2C5388", lw=0.9, radius=0.10)
-d.text(7.06, 4.50, 5.3, 0.22, "OFFLINE MODE  ·  ZERO DATA LOSS", size=10.5, bold=True, color=CYAN, caps=True, spc=100)
-d.text(7.06, 4.84, 5.30, 0.86, "No internet? Taps keep recording to local storage in order.",
-       size=12, color=WHITE, ls=1.2)
-d.text(7.06, 5.52, 5.30, 0.90, "When the connection returns, the queue syncs oldest-first with duplicate protection — "
+d.text(7.06, 4.50, 5.3, 0.22, "OFFLINE MODE  ·  ZERO DATA LOSS", size=12, bold=True, color=CYAN, caps=True, spc=100)
+d.text(7.06, 4.82, 5.34, 0.34, "No internet? Taps keep recording to local storage in order.",
+       size=13, color=WHITE, ls=1.1)
+d.text(7.06, 5.24, 5.34, 0.92, "When the connection returns, the queue syncs oldest-first with duplicate protection — "
                                "so a day offline is a day delayed, never a day lost.",
-       size=11.5, color=MIST, ls=1.2)
-d.rect(7.06, 6.34, 1.94, 0.28, "#0F4D66", radius=0.06)
-d.text(7.06, 6.395, 1.94, 0.22, "RECONNECTS AUTOMATICALLY", size=9, bold=True, color=CYAN, align="c", spc=60)
+       size=12.5, color=MIST, ls=1.16)
+d.rect(7.06, 6.28, 2.30, 0.32, "#0F4D66", radius=0.07)
+d.text(7.06, 6.345, 2.30, 0.24, "RECONNECTS AUTOMATICALLY", size=10.5, bold=True, color=CYAN, align="c")
 footer(5, dark=True)
 note(
     "SPEAKER NOTES — Slide 5 · How it works · ~55 sec\n\n"
@@ -406,7 +408,7 @@ x = tx
 for j, c in enumerate(cols):
     d.rect(x, ty, cw[j], 0.44, INK)
     d.text(x + (0.20 if j == 0 else 0.06), ty + 0.13, cw[j] - 0.32, 0.22, c,
-           size=10.5, bold=True, color=WHITE, align="l" if j == 0 else "c", spc=60)
+           size=12, bold=True, color=WHITE, align="l" if j == 0 else "c", spc=60)
     x += cw[j]
 for i, row in enumerate(rows):
     y = ty + 0.44 + i * rh
@@ -417,21 +419,21 @@ for i, row in enumerate(rows):
                line=CYAN if last else BORDER, lw=1.1 if last else 0.6)
         if j == 0:
             d.text(x + 0.16, y + (rh - 0.22) / 2, cw[j] - 0.28, 0.22, val,
-                   size=12, bold=True, color=INK if last else SLATE)
+                   size=13, bold=True, color=INK if last else SLATE)
         else:
             good = val in ("₹1,500", "Yes, auto-sync", "Yes, built in", "Full history", "No face data")
-            d.text(x + 0.06, y + (rh - 0.22) / 2, cw[j] - 0.12, 0.22, val, size=11,
+            d.text(x + 0.06, y + (rh - 0.22) / 2, cw[j] - 0.12, 0.22, val, size=12.5,
                    bold=last, color=(GREEN if good else SLATE) if last else GREY, align="c")
         x += cw[j]
 
 d.rect(0.62, 5.72, 5.92, 1.02, INK, radius=0.09)
-d.text(0.86, 5.88, 5.5, 0.22, "THE COMBINATION IS THE INNOVATION", size=10, bold=True, color=GOLD, caps=True, spc=100)
+d.text(0.86, 5.88, 5.5, 0.22, "THE COMBINATION IS THE INNOVATION", size=11.5, bold=True, color=GOLD, caps=True, spc=100)
 d.text(0.86, 6.14, 5.44, 0.52, "Low cost + offline + self-healing + teacher approval + auditable history — in one unit.",
-       size=11.5, color=WHITE, ls=1.18)
+       size=13, color=WHITE, ls=1.18)
 d.rect(6.80, 5.72, 5.92, 1.02, WHITE, line=BORDER, radius=0.09)
-d.text(7.04, 5.88, 5.5, 0.22, "WHAT WE DO NOT CLAIM", size=10, bold=True, color=CYAN_D, caps=True, spc=100)
+d.text(7.04, 5.88, 5.5, 0.22, "WHAT WE DO NOT CLAIM", size=11.5, bold=True, color=CYAN_D, caps=True, spc=100)
 d.text(7.04, 6.14, 5.44, 0.52, "That no similar product exists. We claim this combination fits Indian classrooms first.",
-       size=11.5, color=SLATE, ls=1.18)
+       size=13, color=SLATE, ls=1.18)
 note(
     "SPEAKER NOTES — Slide 6 · Differentiation · ~50 sec\n\n"
     "We compared ourselves honestly with what is already sold.\n\n"
@@ -457,34 +459,34 @@ d.pic(A("device_wide.png"), CARD_X, CARD_Y, CARD_W, IMG_H)
 d.line(CARD_X, CARD_Y + IMG_H, CARD_X + CARD_W, CARD_Y + IMG_H, BORDER, 0.8)
 d.rect(CARD_X, CARD_Y + IMG_H + 0.005, CARD_W, CARD_H - IMG_H - 0.005, WHITE)
 d.text(CARD_X, CARD_Y + IMG_H + 0.10, CARD_W, 0.24,
-       "TERMINAL  ·  ESP32 + RC522 + LCD1602 in the 3D-printed case", size=9,
+       "TERMINAL  ·  ESP32 + RC522 + LCD1602 in the 3D-printed case", size=10.5,
        bold=True, color=GREY, align="c")
 
 
-d.text(6.24, 2.02, 6.4, 0.22, "BILL OF MATERIALS — ₹1,500 PER UNIT", size=10.5, bold=True, color=CYAN_D, caps=True, spc=100)
+d.text(6.24, 2.02, 6.4, 0.22, "BILL OF MATERIALS — ₹1,500 PER UNIT", size=12, bold=True, color=CYAN_D, caps=True, spc=100)
 bom = [("ESP32 DevKit V1", "controller + Wi-Fi", "₹420"), ("RC522 RFID reader", "13.56 MHz + cards", "₹180"),
        ("LCD1602 I2C", "instant feedback", "₹150"), ("3D-printed enclosure", "Blender, PLA", "₹260"),
        ("Power, wiring, PCB", "5V, low-voltage", "₹190"), ("Cards + assembly", "per-student tags", "₹300")]
 for i, (part, use, cost) in enumerate(bom):
     y = 2.30 + i * 0.365
     d.line(6.24, y + 0.325, 12.42, y + 0.325, BORDER, 0.6)
-    d.text(6.24, y + 0.04, 2.9, 0.24, part, size=11.5, bold=True, color=INK)
-    d.text(8.40, y + 0.04, 2.6, 0.24, use, size=11.5, color=GREY)
-    d.text(11.30, y + 0.04, 1.12, 0.24, cost, size=11.5, bold=True, color=SLATE, align="r")
+    d.text(6.24, y + 0.04, 2.9, 0.24, part, size=13, bold=True, color=INK)
+    d.text(8.40, y + 0.04, 2.6, 0.24, use, size=13, color=GREY)
+    d.text(11.30, y + 0.04, 1.12, 0.24, cost, size=13, bold=True, color=SLATE, align="r")
 d.line(6.24, 2.30 + 6 * 0.365 + 0.02, 12.42, 2.30 + 6 * 0.365 + 0.02, INK, 1.2)
-d.text(6.24, 2.30 + 6 * 0.365 + 0.12, 2.9, 0.26, "Total per unit", size=12, bold=True, color=INK)
-d.text(10.60, 2.30 + 6 * 0.365 + 0.10, 1.82, 0.28, "₹1,500", size=15, bold=True, color=GREEN, align="r")
+d.text(6.24, 2.30 + 6 * 0.365 + 0.12, 2.9, 0.26, "Total per unit", size=13, bold=True, color=INK)
+d.text(10.60, 2.30 + 6 * 0.365 + 0.10, 1.82, 0.28, "₹1,500", size=16, bold=True, color=GREEN, align="r")
 
 d.rect(6.24, 4.96, 6.18, 1.86, INK, radius=0.10)
-d.text(6.48, 5.10, 5.7, 0.22, "SOFTWARE, RUNNING TODAY", size=10, bold=True, color=CYAN, caps=True, spc=100)
+d.text(6.48, 5.10, 5.7, 0.22, "SOFTWARE, RUNNING TODAY", size=11.5, bold=True, color=CYAN, caps=True, spc=100)
 sw = [("Firebase Auth", "4 roles"), ("Realtime DB", "live"), ("Hosting", "web app"),
       ("Email alerts", "auto"), ("Astro AI 2.0", "11 checks"), ("OTA updates", "secure")]
 for i, (k, v) in enumerate(sw):
     col, row = i % 3, i // 3
     x = 6.48 + col * 1.98
     y = 5.44 + row * 0.66
-    d.text(x, y, 1.9, 0.22, k, size=11.5, bold=True, color=WHITE)
-    d.text(x, y + 0.22, 1.9, 0.22, v, size=10.5, color=GOLD)
+    d.text(x, y, 1.9, 0.22, k, size=13, bold=True, color=WHITE)
+    d.text(x, y + 0.22, 1.9, 0.22, v, size=12, color=GOLD)
 note(
     "SPEAKER NOTES — Slide 7 · The build · ~55 sec\n\n"
     "This is the unit itself. On the left: the ESP32, the RC522 reader, the LCD and the 3D-printed case we modelled "
@@ -508,11 +510,11 @@ for i, (big, lab, sub, col) in enumerate(kpis):
     d.rect(x, 2.02, 2.92, 1.48, WHITE, line=BORDER, radius=0.10)
     d.rect(x, 2.02, 2.92, 0.05, col)
     d.text(x + 0.24, 2.24, 2.5, 0.50, big, size=25, bold=True, color=INK, ls=0.92)
-    d.text(x + 0.24, 2.78, 2.5, 0.22, lab, size=10.5, bold=True, color=col, caps=True, spc=80)
-    d.text(x + 0.24, 3.02, 2.5, 0.22, sub, size=11.5, color=GREY)
+    d.text(x + 0.24, 2.78, 2.5, 0.22, lab, size=12, bold=True, color=col, caps=True, spc=80)
+    d.text(x + 0.24, 3.02, 2.5, 0.22, sub, size=13, color=GREY)
 
 d.rect(0.62, 3.72, 7.34, 2.86, WHITE, line=BORDER, radius=0.10)
-d.text(0.88, 3.90, 6.9, 0.22, "TEST LOG  ·  WHAT WE ACTUALLY RAN", size=10.5, bold=True, color=CYAN_D, caps=True, spc=100)
+d.text(0.88, 3.90, 6.9, 0.22, "TEST LOG  ·  WHAT WE ACTUALLY RAN", size=12, bold=True, color=CYAN_D, caps=True, spc=100)
 tests = [("Class of 30, timed", "Roll-call minutes → seconds"),
          ("Duplicate tap", "Second scan blocked, never double-counted"),
          ("Late / out-of-window tap", "Marked late, routed to teacher review"),
@@ -521,21 +523,21 @@ tests = [("Class of 30, timed", "Roll-call minutes → seconds"),
          ("Teacher usability pass", "Exception review judged clear and fast")]
 for i, (k, v) in enumerate(tests):
     y = 4.20 + i * 0.39
-    d.text(0.90, y, 0.18, 0.22, "✓", size=12, bold=True, color=GREEN)
-    d.text(1.12, y, 2.54, 0.24, k, size=11.5, bold=True, color=INK)
-    d.text(3.78, y, 3.94, 0.24, v, size=11.5, color=GREY)
+    d.text(0.90, y, 0.18, 0.22, "✓", size=13, bold=True, color=GREEN)
+    d.text(1.12, y, 2.54, 0.24, k, size=13, bold=True, color=INK)
+    d.text(3.78, y, 3.94, 0.24, v, size=13, color=GREY)
 
 d.rect(8.20, 3.72, 4.52, 2.98, INK, radius=0.10)
-d.text(8.46, 3.90, 4.0, 0.22, "SELF-HEALING, MEASURED", size=10.5, bold=True, color=GOLD, caps=True, spc=100)
+d.text(8.46, 3.90, 4.0, 0.22, "SELF-HEALING, MEASURED", size=12, bold=True, color=GOLD, caps=True, spc=100)
 d.text(8.46, 4.18, 4.0, 0.34, "11 checks", size=20, bold=True, color=WHITE)
-d.text(8.46, 4.56, 4.00, 0.24, "running continuously on the terminal", size=11.5, color=MIST)
+d.text(8.46, 4.56, 4.00, 0.24, "running continuously on the terminal", size=13, color=MIST)
 checks = ["Wi-Fi link and reconnect", "Free memory headroom", "RFID reader response", "Clock and time window",
           "Queue depth and drain", "Firmware integrity"]
 for i, c in enumerate(checks):
     y = 4.86 + i * 0.26
     d.oval(8.48, y + 0.070, 0.075, 0.075, CYAN)
-    d.text(8.68, y, 3.9, 0.22, c, size=11, color=WHITE)
-d.text(8.46, 6.50, 4.0, 0.2, "+ 5 more, every event logged with a timestamp", size=9.5, italic=True, color="#8FA6C8")
+    d.text(8.68, y, 3.9, 0.22, c, size=12.5, color=WHITE)
+d.text(8.46, 6.50, 4.0, 0.2, "+ 5 more, every event logged with a timestamp", size=11, italic=True, color="#8FA6C8")
 note(
     "SPEAKER NOTES — Slide 8 · Validation · ~55 sec\n\n"
     "We tested the way engineers test, not the way salespeople demo.\n\n"
@@ -570,7 +572,7 @@ for i, (num, h, risk, fix, col, coll) in enumerate(risks):
     x = 0.62 + i * 4.20
     d.rect(x, 2.02, 3.96, 3.44, WHITE, line=BORDER, radius=0.10)
     d.rect(x, 2.02, 0.05, 3.44, col)
-    d.text(x + 0.28, 2.22, 2.4, 0.22, num, size=10, bold=True, color=col, caps=True, spc=120)
+    d.text(x + 0.28, 2.22, 2.4, 0.22, num, size=11.5, bold=True, color=col, caps=True, spc=120)
     hsize = 14.5
     for _ in range(30):
         if d.measure(h, hsize, True, False, 3.40)[0] <= 1:
@@ -579,17 +581,17 @@ for i, (num, h, risk, fix, col, coll) in enumerate(risks):
     nlines, hth = d.measure(h, hsize, True, False, 3.40, 1.06)
     d.text(x + 0.28, 2.46, 3.40, hth + 0.02, h, size=hsize, bold=True, color=INK, ls=1.06)
     y_risk = 2.46 + hth + 0.12
-    d.text(x + 0.28, y_risk, 3.42, 0.80, risk, size=12, color=GREY, ls=1.18)
+    d.text(x + 0.28, y_risk, 3.42, 0.80, risk, size=13, color=GREY, ls=1.18)
     d.line(x + 0.28, 3.80, x + 3.70, 3.80, BORDER, 0.8)
     d.rect(x + 0.28, 3.92, 1.28, 0.24, coll, radius=0.05)
-    d.text(x + 0.28, 3.965, 1.28, 0.20, "SAFEGUARD", size=9, bold=True, color=col, align="c", spc=80)
-    d.text(x + 0.28, 4.26, 3.42, 1.32, fix, size=11.5, color=SLATE, ls=1.20)
+    d.text(x + 0.28, 3.965, 1.28, 0.20, "SAFEGUARD", size=10.5, bold=True, color=col, align="c", spc=80)
+    d.text(x + 0.28, 4.26, 3.42, 1.32, fix, size=13, color=SLATE, ls=1.20)
 
 d.rect(0.62, 5.78, 12.10, 0.92, INK, radius=0.09)
-d.text(0.88, 5.92, 11.6, 0.22, "OUR STANDING RULE", size=10, bold=True, color=GOLD, caps=True, spc=110)
+d.text(0.88, 5.92, 11.6, 0.22, "OUR STANDING RULE", size=11.5, bold=True, color=GOLD, caps=True, spc=110)
 d.text(0.88, 6.18, 11.6, 0.36, "The system records attendance. It never replaces teacher judgement — every register "
                                "is confirmed by a human.",
-       size=12, bold=True, color=WHITE)
+       size=13, bold=True, color=WHITE)
 note(
     "SPEAKER NOTES — Slide 9 · Responsible innovation · ~50 sec\n\n"
     "Responsible innovation means naming the risks ourselves.\n\n"
@@ -617,27 +619,27 @@ for i, (when, h, b, col, done) in enumerate(phases):
     d.oval(x + 0.02, 2.24, 0.24, 0.24, col)
     if not done:
         d.oval(x + 0.065, 2.285, 0.15, 0.15, PAPER)
-    d.text(x, 2.66, 2.6, 0.22, when, size=10.5, bold=True, color=col, caps=True, spc=110)
-    d.text(x, 2.90, 2.72, 0.56, h, size=15, bold=True, color=INK, ls=1.08)
-    d.text(x, 3.52, 2.76, 0.80, b, size=12, color=GREY, ls=1.16)
+    d.text(x, 2.66, 2.6, 0.22, when, size=12, bold=True, color=col, caps=True, spc=110)
+    d.text(x, 2.90, 2.72, 0.56, h, size=16, bold=True, color=INK, ls=1.08)
+    d.text(x, 3.52, 2.76, 0.80, b, size=13, color=GREY, ls=1.16)
 
 d.rect(0.62, 4.64, 7.42, 2.06, WHITE, line=BORDER, radius=0.10)
-d.text(0.88, 4.82, 6.9, 0.22, "WHAT WE ASK FOR", size=10.5, bold=True, color=CYAN_D, caps=True, spc=110)
+d.text(0.88, 4.82, 6.9, 0.22, "WHAT WE ASK FOR", size=12, bold=True, color=CYAN_D, caps=True, spc=110)
 asks = [("Ten minutes with a teacher", "to watch a live period and time it"),
         ("One class for one term", "to measure against the existing register"),
         ("Feedback, not applause", "we would rather fix a flaw than hear praise")]
 for i, (k, v) in enumerate(asks):
     y = 5.14 + i * 0.48
     d.oval(0.90, y + 0.085, 0.10, 0.10, CYAN_D)
-    d.text(1.12, y, 2.86, 0.24, k, size=12, bold=True, color=INK)
-    d.text(4.02, y, 3.80, 0.24, v, size=11.5, color=GREY)
+    d.text(1.12, y, 2.86, 0.24, k, size=13, bold=True, color=INK)
+    d.text(4.02, y, 3.80, 0.24, v, size=13, color=GREY)
 
 d.rect(8.28, 4.64, 4.44, 2.06, INK, radius=0.10)
-d.text(8.52, 4.82, 4.0, 0.22, "TRY IT YOURSELF", size=10.5, bold=True, color=GOLD, caps=True, spc=110)
-d.text(8.52, 5.10, 3.96, 0.30, "astro-smart-attendence.web.app", size=13, bold=True, color=CYAN)
+d.text(8.52, 4.82, 4.0, 0.22, "TRY IT YOURSELF", size=12, bold=True, color=GOLD, caps=True, spc=110)
+d.text(8.52, 5.10, 3.96, 0.30, "astro-smart-attendence.web.app", size=14, bold=True, color=CYAN)
 d.text(8.52, 5.46, 3.96, 0.66, "Live dashboard with demo data — admin, teacher and guardian views, open to you now.",
-       size=11.5, color=MIST, ls=1.2)
-d.text(8.52, 6.30, 3.96, 0.24, "Team Sun Rises India  ·  Mentor: Dr. Jayesh Shinde", size=10, bold=True, color=LGREY)
+       size=13, color=MIST, ls=1.2)
+d.text(8.52, 6.30, 3.96, 0.24, "Team Sun Rises India  ·  Mentor: Dr. Jayesh Shinde", size=11.5, bold=True, color=LGREY)
 
 note(
     "SPEAKER NOTES — Slide 10 · What happens next · ~45 sec\n\n"
@@ -665,7 +667,7 @@ d.rect(1.40, 2.10, 3.30, 0.19, "#1B2E4F", radius=0.05)
 d.text(1.40, 2.135, 3.30, 0.16, "astro-smart-attendence.web.app", size=8, color=MIST, align="c")
 # app header
 d.text(0.86, 2.52, 2.2, 0.20, "ASTRO  SMART  ATTENDANCE", size=8.5, bold=True, color=CYAN, spc=30)
-d.text(0.86, 2.72, 3.2, 0.20, "Grade 9-A  ·  Period 2  ·  Tue 24 Nov", size=9, color=MIST)
+d.text(0.86, 2.72, 3.2, 0.20, "Grade 9-A  ·  Period 2  ·  Tue 24 Nov", size=10.5, color=MIST)
 d.rect(6.30, 2.54, 1.62, 0.30, "#123B52", radius=0.06)
 d.oval(6.40, 2.635, 0.09, 0.09, GREEN)
 d.text(6.55, 2.585, 1.36, 0.20, "LIVE  ·  SYNCED", size=8, bold=True, color=GREEN, spc=40)
@@ -700,14 +702,14 @@ views = [("ADMIN", "Whole-school attendance, exports, correction history", CYAN_
          ("TEACHER", "Open session, review exceptions, confirm register", GOLD),
          ("STUDENT", "Personal attendance record and percentage", VIOLET),
          ("GUARDIAN", "Child's status and automatic email alerts", GREEN)]
-d.text(8.32, 2.02, 4.4, 0.22, "FOUR VIEWS, ONE DATABASE", size=10.5, bold=True, color=CYAN_D, caps=True, spc=100)
+d.text(8.32, 2.02, 4.4, 0.22, "FOUR VIEWS, ONE DATABASE", size=12, bold=True, color=CYAN_D, caps=True, spc=100)
 for i, (role, desc, col) in enumerate(views):
     y = 2.32 + i * 1.02
     d.rect(8.32, y, 4.40, 0.88, WHITE, line=BORDER, radius=0.08)
     d.rect(8.32, y, 0.05, 0.88, col)
-    d.text(8.56, y + 0.14, 3.9, 0.22, role, size=11, bold=True, color=col, caps=True, spc=110)
-    d.text(8.56, y + 0.40, 3.94, 0.40, desc, size=11.5, color=SLATE, ls=1.14)
-d.text(8.32, 6.42, 4.4, 0.22, "Open now: astro-smart-attendence.web.app", size=10.5, bold=True, color=INK)
+    d.text(8.56, y + 0.14, 3.9, 0.22, role, size=12.5, bold=True, color=col, caps=True, spc=110)
+    d.text(8.56, y + 0.38, 3.92, 0.46, desc, size=12.5, color=SLATE, ls=1.12)
+d.text(8.32, 6.42, 4.4, 0.22, "Open now: astro-smart-attendence.web.app", size=12, bold=True, color=INK)
 note(
     "SPEAKER NOTES — Slide 11 · Live demonstration · ~60 sec\n\n"
     "This is the dashboard itself, running on Firebase Hosting, and I am happy to open it on the projector.\n\n"
@@ -724,24 +726,24 @@ d.add_slide(PAPER)
 page_top("Economics", "₹1,500 is not a guess. It is a bill of materials.",
          "Costed part by part, and compared against what schools pay for the alternatives.", 12)
 
-d.text(0.62, 2.02, 6.0, 0.22, "COST TO BUILD ONE UNIT", size=10.5, bold=True, color=CYAN_D, caps=True, spc=100)
+d.text(0.62, 2.02, 6.0, 0.22, "COST TO BUILD ONE UNIT", size=12, bold=True, color=CYAN_D, caps=True, spc=100)
 bars = [("ESP32 DevKit V1", 420, CYAN_D), ("3D-printed enclosure", 260, CYAN_D), ("RC522 RFID reader", 180, GOLD),
         ("Power, wiring, PCB", 190, CYAN_D), ("LCD1602 I2C display", 150, CYAN_D), ("Cards + assembly", 300, GOLD)]
 maxv = float(max(v for _, v, _ in bars))
 for i, (part, v, col) in enumerate(bars):
     y = 2.34 + i * 0.44
-    d.text(0.62, y, 2.30, 0.22, part, size=11.5, bold=True, color=INK)
+    d.text(0.62, y, 2.30, 0.22, part, size=13, bold=True, color=INK)
     d.rect(2.96, y + 0.035, 3.94 * v / maxv, 0.17, col, radius=0.085)
-    d.text(7.06, y, 0.9, 0.22, "₹%d" % v, size=11.5, bold=True, color=SLATE, align="r")
+    d.text(7.06, y, 0.9, 0.22, "₹%d" % v, size=13, bold=True, color=SLATE, align="r")
 d.line(0.62, 4.94, 7.96, 4.94, INK, 1.2)
-d.text(0.62, 5.04, 2.9, 0.26, "Total per unit", size=12, bold=True, color=INK)
+d.text(0.62, 5.04, 2.9, 0.26, "Total per unit", size=13, bold=True, color=INK)
 d.text(5.68, 5.02, 2.28, 0.30, "₹1,500", size=17, bold=True, color=GREEN, align="r")
-d.text(0.62, 5.40, 7.4, 0.50, "At this cost, a school can equip a 30-student classroom for about ₹45,000 — "
+d.text(0.62, 5.38, 7.42, 0.62, "At this cost, a school can equip a 30-student classroom for about ₹45,000 — "
                               "less than most single-device commercial installations.",
-       size=12, color=GREY, ls=1.2)
+       size=12.5, color=GREY, ls=1.18)
 
 d.rect(8.36, 2.02, 4.36, 3.10, INK, radius=0.10)
-d.text(8.60, 2.20, 3.9, 0.22, "WHAT A SCHOOL PAYS TODAY", size=10, bold=True, color=GOLD, caps=True, spc=100)
+d.text(8.60, 2.20, 3.9, 0.22, "WHAT A SCHOOL PAYS TODAY", size=11.5, bold=True, color=GOLD, caps=True, spc=100)
 comps = [("Biometric lab setup", "₹40,000 +"), ("Face-recognition system", "₹60,000 +"),
          ("RFID terminal, commercial", "₹18,000 +"), ("Astro Smart Attendance", "₹1,500")]
 for i, (k, v) in enumerate(comps):
@@ -749,16 +751,16 @@ for i, (k, v) in enumerate(comps):
     last = i == 3
     if last:
         d.rect(8.60, y - 0.04, 3.88, 0.48, "#14345A", radius=0.06)
-    d.text(8.72, y + 0.06, 2.5, 0.24, k, size=11.5, bold=(last), color=WHITE if last else MIST)
-    d.text(11.10, y + 0.04, 1.32, 0.26, v, size=12 if last else 9.6, bold=True,
+    d.text(8.72, y + 0.06, 2.5, 0.24, k, size=13, bold=(last), color=WHITE if last else MIST)
+    d.text(11.10, y + 0.04, 1.32, 0.26, v, size=13 if last else 9.6, bold=True,
            color=GREEN if last else LGREY, align="r")
-d.text(8.60, 4.72, 3.9, 0.22, "Indicative market ranges, 2025–26.", size=9, italic=True, color="#8FA6C8")
+d.text(8.60, 4.72, 3.9, 0.22, "Indicative market ranges, 2025–26.", size=10.5, italic=True, color="#8FA6C8")
 
 d.rect(0.62, 5.92, 12.10, 0.82, WHITE, line=BORDER, radius=0.09)
-d.text(0.86, 6.06, 11.6, 0.26, "Where the money goes — and where it does not", size=11, bold=True, color=CYAN_D, caps=True, spc=90)
+d.text(0.86, 6.06, 11.6, 0.26, "Where the money goes — and where it does not", size=12.5, bold=True, color=CYAN_D, caps=True, spc=90)
 d.text(0.86, 6.32, 11.6, 0.28, "No cloud lock-in fees, no per-student licence, no proprietary camera hardware. Firebase's free tier "
                                "covers a single school; the terminal is the only real cost.",
-       size=11.5, color=SLATE)
+       size=13, color=SLATE)
 note(
     "SPEAKER NOTES — Slide 12 · Economics · ~45 sec\n\n"
     "1,500 rupees is often the first question, so here is the arithmetic behind it.\n\n"
@@ -777,10 +779,10 @@ d.oval(9.6, -1.9, 6.0, 6.0, "#17335F")
 d.oval(-1.8, 3.9, 4.6, 4.6, "#142C50")
 d.rect(0, 0, W, 0.05, CYAN)
 d.rect(0.62, 0.52, 0.055, 0.22, GOLD)
-d.text(0.80, 0.50, 8.6, 0.26, "The team", size=12, bold=True, color=CYAN, caps=True, spc=140)
+d.text(0.80, 0.50, 8.6, 0.26, "The team", size=13, bold=True, color=CYAN, caps=True, spc=140)
 d.text(0.62, 0.78, 10.4, 0.52, "Five people, one classroom problem.", size=31, bold=True, color=WHITE, ls=0.95)
 d.text(0.62, 1.42, 10.6, 0.34, "Every part of this build — firmware, circuit, enclosure, cloud, testing and this deck — was made by the team.",
-       size=13, color=MIST)
+       size=14, color=MIST)
 
 team = [("Shaurya Gupta", "Team captain", "Firmware and cloud", CYAN),
         ("Anant Tiwari", "Ideation lead", "User research and problem framing", GOLD),
@@ -793,27 +795,27 @@ for i, (name, role, what, col) in enumerate(team):
     d.rect(x, 2.20, 2.26, 0.05, col)
     d.oval(x + 0.22, 2.40, 0.44, 0.44, col)
     d.oval(x + 0.255, 2.435, 0.37, 0.37, "#0E2547")
-    d.text(x + 0.22, 2.505, 0.44, 0.24, (name.split()[0][0] + name.split()[-1][0]), size=12, bold=True,
+    d.text(x + 0.22, 2.505, 0.44, 0.24, (name.split()[0][0] + name.split()[-1][0]), size=13, bold=True,
            color=WHITE, align="c")
-    d.text(x + 0.22, 2.98, 1.96, 0.26, name, size=12.5, bold=True, color=WHITE)
-    d.text(x + 0.22, 3.26, 1.90, 0.22, role, size=9.5, bold=True, color=col, caps=True, spc=80)
-    d.text(x + 0.22, 3.54, 1.90, 0.92, what, size=11, color=MIST, ls=1.18)
+    d.text(x + 0.22, 2.98, 1.96, 0.26, name, size=13.5, bold=True, color=WHITE)
+    d.text(x + 0.22, 3.26, 1.90, 0.22, role, size=11, bold=True, color=col, caps=True, spc=80)
+    d.text(x + 0.22, 3.54, 1.90, 0.92, what, size=12.5, color=MIST, ls=1.18)
 
 d.rect(0.62, 4.56, 7.62, 1.34, "#17335F", line="#2C5388", lw=0.9, radius=0.10)
-d.text(0.88, 4.72, 6.9, 0.22, "MENTOR AND GUIDANCE", size=10, bold=True, color=GOLD, caps=True, spc=110)
-d.text(0.88, 4.98, 6.9, 0.30, "Dr. Jayesh Shinde", size=16, bold=True, color=WHITE)
-d.text(0.88, 5.34, 6.9, 0.46, "The Aditya Birla Public School, Renukoot — supervision, electrical safety and honest feedback "
-                             "at every stage.", size=11.5, color=MIST, ls=1.16)
+d.text(0.88, 4.72, 6.9, 0.22, "MENTOR AND GUIDANCE", size=11.5, bold=True, color=GOLD, caps=True, spc=110)
+d.text(0.88, 4.98, 6.9, 0.30, "Dr. Jayesh Shinde", size=17, bold=True, color=WHITE)
+d.text(0.88, 5.30, 7.00, 0.60, "The Aditya Birla Public School, Renukoot — supervision, electrical safety and honest feedback "
+                             "at every stage.", size=12.5, color=MIST, ls=1.14)
 
 d.rect(8.42, 4.56, 4.30, 1.34, "#17335F", line="#2C5388", lw=0.9, radius=0.10)
-d.text(8.66, 4.72, 3.8, 0.22, "WHERE WE ARE FROM", size=10, bold=True, color=CYAN, caps=True, spc=110)
-d.text(8.66, 4.98, 3.8, 0.30, "Renukoot, Sonbhadra", size=16, bold=True, color=WHITE)
-d.text(8.66, 5.34, 3.84, 0.46, "Uttar Pradesh, India — built for our own school first, and for every school like it.",
-       size=11.5, color=MIST, ls=1.16)
+d.text(8.66, 4.72, 3.8, 0.22, "WHERE WE ARE FROM", size=11.5, bold=True, color=CYAN, caps=True, spc=110)
+d.text(8.66, 4.98, 3.8, 0.30, "Renukoot, Sonbhadra", size=17, bold=True, color=WHITE)
+d.text(8.66, 5.30, 3.88, 0.62, "Uttar Pradesh, India — built for our own school first, and for every school like it.",
+       size=12.5, color=MIST, ls=1.14)
 
-d.text(0.62, 6.34, 8.4, 0.26, "TEAM SUN RISES INDIA  ·  ABPS RENUKOOT  ·  ABG STEM QUEST 2026–27", size=10,
+d.text(0.62, 6.34, 8.4, 0.26, "TEAM SUN RISES INDIA  ·  ABPS RENUKOOT  ·  ABG STEM QUEST 2026–27", size=11.5,
        bold=True, color=LGREY, spc=90)
-d.text(W - 3.5, 6.34, 2.9, 0.26, "13 / %d" % TOTAL, size=10, bold=True, color=LGREY, align="r", spc=90)
+d.text(W - 3.5, 6.34, 2.9, 0.26, "13 / %d" % TOTAL, size=11.5, bold=True, color=LGREY, align="r", spc=90)
 note(
     "SPEAKER NOTES — Slide 13 · The team · ~35 sec\n\n"
     "Five of us, and every part of the build was ours.\n\n"
@@ -830,29 +832,29 @@ full_bg(INK)
 d.oval(-2.4, -2.6, 7.2, 7.2, "#16325C")
 d.oval(9.4, 3.4, 6.4, 6.4, "#17345E")
 d.rect(0, 0, W, 0.05, GOLD)
-d.text(0.62, 0.86, 6.0, 0.24, "IN CLOSING", size=11, bold=True, color=CYAN, caps=True, spc=160)
+d.text(0.62, 0.86, 6.0, 0.24, "IN CLOSING", size=12.5, bold=True, color=CYAN, caps=True, spc=160)
 d.text(0.62, 1.16, 10.4, 1.86, "We did not describe a\nproduct. We built one.",
        size=42, bold=True, color=WHITE, ls=1.06)
 d.line(0.66, 3.14, 1.90, 3.14, CYAN, 2.2)
 d.text(0.66, 3.34, 8.9, 0.90,
        "A working terminal, a live cloud dashboard, an eleven-check AI layer and a test log that says 140 of 140 — "
        "built in Renukoot, by five students, for ₹1,500 a unit.",
-       size=14, color=MIST, ls=1.24)
+       size=15, color=MIST, ls=1.24)
 
 d.rect(0.62, 4.52, 4.60, 0.94, "#17345E", line="#2C5388", lw=0.9, radius=0.09)
-d.text(0.86, 4.64, 4.1, 0.22, "LIVE DEMO", size=9.5, bold=True, color=GOLD, caps=True, spc=110)
-d.text(0.86, 4.88, 4.14, 0.24, "astro-smart-attendence.web.app", size=12, bold=True, color=CYAN)
+d.text(0.86, 4.64, 4.1, 0.22, "LIVE DEMO", size=11, bold=True, color=GOLD, caps=True, spc=110)
+d.text(0.86, 4.88, 4.14, 0.24, "astro-smart-attendence.web.app", size=13, bold=True, color=CYAN)
 d.rect(5.38, 4.52, 3.68, 0.94, "#17345E", line="#2C5388", lw=0.9, radius=0.09)
-d.text(5.62, 4.64, 3.2, 0.22, "THE ASK", size=9.5, bold=True, color=GOLD, caps=True, spc=110)
-d.text(5.62, 4.88, 3.26, 0.44, "One class, one term, measured.", size=12, bold=True, color=WHITE)
+d.text(5.62, 4.64, 3.2, 0.22, "THE ASK", size=11, bold=True, color=GOLD, caps=True, spc=110)
+d.text(5.62, 4.88, 3.26, 0.44, "One class, one term, measured.", size=13, bold=True, color=WHITE)
 d.rect(9.22, 4.52, 3.50, 0.94, "#17345E", line="#2C5388", lw=0.9, radius=0.09)
-d.text(9.46, 4.64, 3.0, 0.22, "COST", size=9.5, bold=True, color=GOLD, caps=True, spc=110)
-d.text(9.46, 4.88, 3.04, 0.44, "₹1,500 per unit, billed once.", size=12, bold=True, color=WHITE)
+d.text(9.46, 4.64, 3.0, 0.22, "COST", size=11, bold=True, color=GOLD, caps=True, spc=110)
+d.text(9.46, 4.88, 3.04, 0.44, "₹1,500 per unit, billed once.", size=13, bold=True, color=WHITE)
 
 d.text(0.62, 5.66, 8.0, 0.74, "Thank you.", size=40, bold=True, color=WHITE, ls=0.95)
 d.text(0.66, 6.52, 8.6, 0.24, "QUESTIONS WELCOME  ·  TEAM SUN RISES INDIA  ·  MADE IN RENUKOOT, INDIA",
-       size=10, bold=True, color=LGREY, spc=110)
-d.text(W - 2.2, 6.52, 1.58, 0.24, "14 / %d" % TOTAL, size=10, bold=True, color=LGREY, align="r", spc=90)
+       size=11.5, bold=True, color=LGREY, spc=110)
+d.text(W - 2.2, 6.52, 1.58, 0.24, "14 / %d" % TOTAL, size=11.5, bold=True, color=LGREY, align="r", spc=90)
 note(
     "SPEAKER NOTES — Slide 14 · Close · ~35 sec\n\n"
     "I will end where we started, but with evidence rather than intent.\n\n"
