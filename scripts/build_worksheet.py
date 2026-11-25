@@ -111,7 +111,7 @@ def page1(c):
     draw_text(c, tx, top - 112, "AI  +  IoT  +  Cloud   smart school attendance system", "Pop6", 8.6, HexColor("#7DD3FC"))
 
     para(c, tx, top - 122, 300,
-         "A compact **ESP32-based RFID attendance terminal** with **Astro AI 2.0 self-healing diagnostics**, a **Firebase cloud dashboard** and **automatic parent email alerts** — offline-first, at **₹1,500 per classroom**.",
+         "A compact **ESP32 RFID attendance terminal** with **Astro AI 2.0 self-healing**, a **Firebase dashboard** and **automatic parent alerts** — offline-first, built from **low-cost local parts**.",
          size=8.2, color=HexColor("#D8E3F6"), bold_font="Int7", leading=12.2)
 
     c.setFillColor(SAFFRON)
@@ -143,7 +143,7 @@ def page1(c):
 
     # ---------------- proof strip
     y = hy - 28
-    stats = [("₹1,500", "COST PER UNIT", "battery"),
+    stats = [("≈ ₹1,500", "EST. COST PER UNIT", "battery"),
              ("< 2 sec", "PER STUDENT TAP", "clock"),
              ("OFFLINE", "SYNCS WHEN BACK", "wifi"),
              ("140 / 140", "FEATURE TESTS PASSING", "check")]
@@ -214,7 +214,7 @@ def page1(c):
     y -= 9
     nums = [("10–15 min", "lost every period, every class", SAFFRON),
             ("15+ lakh", "schools running on paper registers", TEAL),
-            ("₹1,500", "against ₹30,000+ for commercial kits", NAVY)]
+            ("≈95%", "cheaper than commercial systems", NAVY)]
     nw = (CW - 20) / 3
     for i, (v, lab, col) in enumerate(nums):
         nx = M + i * (nw + 10)
@@ -228,7 +228,7 @@ def page1(c):
     card(c, M, y - 42, CW, 42, fill=NAVY, stroke=None, r=10)
     glyph(c, "star", M + 19, y - 21, 8, GOLD, 1.0)
     para(c, M + 34, y - 10, CW - 50,
-         "**In one line:** a ₹1,500 RFID terminal that marks a class in under a minute, keeps recording when the internet drops, and tells parents the same minute — designed, built and measured by five Class 9 students.",
+         "**In one line:** a low-cost RFID terminal that marks a class in under a minute, keeps recording when the internet drops, and tells parents the same minute — designed, built and measured by five Class 9 students.",
          size=7.6, color=Color(1, 1, 1), leading=10.6)
     return
 
@@ -368,12 +368,12 @@ def page3(c):
     y = sec(c, y, 3, "Concept map",
             "One chain from the student at the door to a number the school can defend", TEAL)
 
-    stages = [("User / setting", "Student at the classroom door, teacher, timetable period", "people", BLUE_L, NAVY),
-              ("Problem trigger", "Paper register: slow, proxy-prone, easy to lose", "bolt", SAFFRON_L, SAFFRON),
+    stages = [("User / setting", "Student at the door; teacher and period fixed by the timetable", "people", BLUE_L, NAVY),
+              ("Problem trigger", "Paper register — slow, proxy-prone, easy to lose", "bolt", SAFFRON_L, SAFFRON),
               ("Sensor / input", "RC522 reads the card in under two seconds", "card", TEAL_L, TEAL),
               ("Process / decision", "ESP32 validates, de-duplicates, buffers offline", "chip", BLUE_L, NAVY),
               ("Output / action", "Firebase sync, dashboards, automatic parent email", "cloud", TEAL_L, TEAL),
-              ("Measurable benefit", "15 minutes saved per class, zero proxy, 95% cheaper", "chart", GREEN_L, GREEN)]
+              ("Measurable benefit", "15 minutes saved per class, zero proxy, ≈95% cheaper", "chart", GREEN_L, GREEN)]
     n = len(stages)
     gap = 9
     bw = (CW - gap * (n - 1)) / n
@@ -396,7 +396,7 @@ def page3(c):
     gradient(c, M, y - 58, CW, 58, 10, [NAVY, HexColor("#173A7A"), TEAL], [0, 0.6, 1])
     tracked(c, M + 16, y - 18, "PROPOSED DIRECTION", "Pop8", 6.1, GOLD, 1.3)
     draw_text(c, M + 16, y - 34, "Astro Smart Attendance", "Pop9", 14.5, Color(1, 1, 1))
-    draw_text(c, M + 16, y - 47, "Privacy-first  ·  Offline-first  ·  AI self-healing  ·  ₹1,500 per classroom", "Pop6", 7.3, HexColor("#BFDBFE"))
+    draw_text(c, M + 16, y - 47, "Privacy-first  ·  Offline-first  ·  AI self-healing  ·  low-cost by design", "Pop6", 7.3, HexColor("#BFDBFE"))
     cwid = tw("OUR CONCEPT", "Pop8", 7.0) + 34
     rrect(c, M + CW - cwid - 16, y - 37, cwid, 18, 9, fill=SAFFRON)
     draw_text(c, M + CW - cwid - 16 + 10, y - 31, "OUR CONCEPT", "Pop8", 7.0, Color(1, 1, 1))
@@ -567,7 +567,7 @@ def page4(c):
     y -= 9
     ev = [("Novelty 5", "No RFID terminal with on-device self-healing exists in our price band; teachers had not seen one."),
           ("Feasibility 5", "The prototype already reads cards, writes to Firebase and survives a Wi-Fi cut in the lab."),
-          ("Affordability 5", "The bill of materials came to ₹1,500 measured from actual purchases, not estimates."),
+          ("Affordability 5", "The bill of materials works out to roughly ₹1,500 per unit, costed from real parts, not retail guesses."),
           ("Impact 5", "Every teacher we spoke to placed attendance in their top two daily time losses."),
           ("Prototype 4", "The 3D-printed case and parent-email templates are still being refined.")]
     for i, (k, v) in enumerate(ev):
@@ -589,7 +589,7 @@ def page4(c):
 
     label(c, M, y, "How the ranking moved once evidence arrived", MUTED, 6.2)
     y -= 8
-    rows = [["**Astro Smart Attendance**", "21 → 24", "Bill of materials came in at ₹1,500, not the ₹2,300 we feared"],
+    rows = [["**Astro Smart Attendance**", "21 → 24", "Costed bill of materials landed near ₹1,500, well under the ₹2,300 we feared"],
             ["**QR rotating code**", "23 → 20", "A code shared on a group chat cannot be trusted for records"],
             ["**Simpler digital register**", "16 → 18", "Cheaper than expected, but still costs the teacher time"],
             ["**Face recognition**", "19 → 15", "Privacy and camera cost pulled it down after the product comparison"]]
@@ -630,19 +630,19 @@ def page5(c):
 
     whys = [("Addresses the real problem", "Saves 10–15 minutes every period, removes proxy entries and leaves a timestamped record.", "check", GREEN),
             ("Buildable by five students", "ESP32, RC522, LCD and a printed case — a working prototype, not a slide.", "gear", TEAL),
-            ("95% cheaper than the market", "₹1,500 per unit against ₹30,000+ commercial kits. Every school can afford one.", "chart", SAFFRON),
+            ("Around 95% cheaper", "An estimated ₹1,500 per unit against ₹30,000+ for commercial kits — within reach of any school.", "chart", SAFFRON),
             ("Measurable from day one", "Time per class, duplicate rejection, sync accuracy and teacher rating — all observable.", "clock", NAVY)]
     ww = (CW - 10) / 2
     for i, (h, d, ic, col) in enumerate(whys):
         col_i, row = i % 2, i // 2
         bx = M + col_i * (ww + 10)
-        by = y - (row + 1) * 42 - row * 6
-        card(c, bx, by, ww, 42, fill=Color(1, 1, 1), stroke=LINE)
-        rrect(c, bx + 9, by + 42 - 23, 16, 16, 4.8, fill=SOFT)
-        glyph(c, ic, bx + 17, by + 42 - 15, 8.8, col, 1.05)
-        draw_text(c, bx + 31, by + 42 - 13.5, h, "Pop7", 7.6, NAVY)
-        para(c, bx + 9, by + 42 - 19, ww - 18, d, size=6.6, leading=8.6)
-    y = y - 2 * 42 - 6 - 14
+        by = y - (row + 1) * 40 - row * 5
+        card(c, bx, by, ww, 40, fill=Color(1, 1, 1), stroke=LINE)
+        rrect(c, bx + 9, by + 40 - 22, 15, 15, 4.5, fill=SOFT)
+        glyph(c, ic, bx + 16.5, by + 40 - 14.5, 8.4, col, 1.05)
+        draw_text(c, bx + 29, by + 40 - 13, h, "Pop7", 7.5, NAVY)
+        para(c, bx + 9, by + 40 - 18, ww - 18, d, size=6.5, leading=8.4)
+    y = y - 2 * 40 - 5 - 12
 
     label(c, M, y, "How a student is marked — five steps, under two seconds", MUTED, 6.2)
     y -= 11
@@ -652,7 +652,7 @@ def page5(c):
              ("Cloud syncs", "Firebase updates dashboards; entries buffer if Wi-Fi is down.", "cloud"),
              ("Parent informed", "Automatic email for present, late or absent.", "mail")]
     sw = (CW - 4 * 8) / 5
-    sh_ = 72
+    sh_ = 64
     for i, (h, d, ic) in enumerate(steps):
         bx = M + i * (sw + 8)
         card(c, bx, y - sh_, sw, sh_, fill=SAFFRON_L if i % 2 == 0 else TEAL_L,
@@ -662,9 +662,9 @@ def page5(c):
         wn = tw(str(i + 1), "Pop9", 8.0)
         draw_text(c, bx + 15 - wn / 2, y - 17.9, str(i + 1), "Pop9", 8.0, Color(1, 1, 1))
         draw_text(c, bx + 27, y - 17.2, h, "Pop7", 6.8, NAVY)
-        glyph(c, ic, bx + sw / 2, y - 31, 11, NAVY if i % 2 == 0 else TEAL, 1.1)
-        para(c, bx + 6, y - 39, sw - 12, d, size=6.1, color=BODY, leading=7.8, align="center")
-    y = y - sh_ - 13
+        glyph(c, ic, bx + sw / 2, y - 28, 10, NAVY if i % 2 == 0 else TEAL, 1.1)
+        para(c, bx + 6, y - 35, sw - 12, d, size=6.0, color=BODY, leading=7.6, align="center")
+    y = y - sh_ - 11
 
     # system table
     label(c, M, y, "System at a glance", MUTED, 6.2)
@@ -675,9 +675,9 @@ def page5(c):
             ["**Cloud**", "Firebase Auth + Realtime Database + Hosting"],
             ["**Intelligence**", "Astro AI 2.0 — 11 self-healing diagnostic checks"],
             ["**Enclosure**", "3D-printed case, designed in Blender"]]
-    th_ = draw_table(c, M, y, [110, CW - 110], ["Part", "What it does"], rows, size=7.1, header_h=16,
-                     pad=4.2, min_row=14, align=["left", "left"], round_r=8)
-    y = y - th_ - 14
+    th_ = draw_table(c, M, y, [104, CW - 104], ["Part", "What it does"], rows, size=6.9, header_h=15,
+                     pad=3.4, min_row=12.6, align=["left", "left"], round_r=8)
+    y = y - th_ - 12
 
     # what we left out
     label(c, M, y, "What we deliberately left out — and why", MUTED, 6.2)
@@ -689,20 +689,15 @@ def page5(c):
     ow = (CW - 30) / 4
     for i, (h, d, tag) in enumerate(outs):
         bx = M + i * (ow + 10)
-        card(c, bx, y - 47, ow, 47, fill=Color(1, 1, 1), stroke=LINE)
-        draw_text(c, bx + 9, y - 13, h, "Pop7", 7.3, NAVY)
-        para(c, bx + 9, y - 16, ow - 18, d, size=6.3, leading=8.2)
-        tw_ = tw(tag, "Pop8", 4.7) + 9
-        rrect(c, bx + 9, y - 44.5, tw_, 9, 4.5, fill=SOFT)
-        draw_text(c, bx + 13, y - 42, tag, "Pop8", 4.7, MUTED)
-    y = y - 47 - 12
+        card(c, bx, y - 44, ow, 44, fill=Color(1, 1, 1), stroke=LINE)
+        draw_text(c, bx + 9, y - 12.5, h, "Pop7", 7.2, NAVY)
+        para(c, bx + 9, y - 15.5, ow - 18, d, size=6.2, leading=8.0)
+        tw_ = tw(tag, "Pop8", 4.6) + 9
+        rrect(c, bx + 9, y - 41.5, tw_, 8.8, 4.4, fill=SOFT)
+        draw_text(c, bx + 13, y - 39.2, tag, "Pop8", 4.6, MUTED)
+    y = y - 44 - 10
 
-    card(c, M, y - 30, CW, 30, fill=TEAL_L, stroke=TEAL_B, r=9)
-    glyph(c, "check", M + 18, y - 15, 9, TEAL, 1.1)
-    para(c, M + 33, y - 5.5, CW - 50,
-         "**Why this one:** it answers the registered problem, fits a prototype five students can carry into a classroom, and produces outcomes we can measure in one week.",
-         size=7.1, leading=9.6)
-    y = y - 30 - 16
+    y = y - 14 - 6
 
     label(c, M, y, "Who owns which part of the build", MUTED, 6.2)
     y -= 8
@@ -711,9 +706,26 @@ def page5(c):
              ["**Tejas Upadhyay**", "Hardware integration", "Reader wiring, power, enclosure fit", "Bench tests and fault finding"],
              ["**Diwakar Singh**", "Product design", "3D enclosure, mounting, finish", "Printable case for the door"],
              ["**Devansh Dhakad**", "Testing and docs", "Test log, stress runs, this worksheet", "Evidence for every claim"]]
-    draw_table(c, M, y, [96, 92, 150, CW - 338], ["Member", "Role", "Owns", "Deliverable"],
-               roles, size=6.8, header_h=16, pad=4.0, min_row=13.2,
-               align=["left", "left", "left", "left"], round_r=8)
+    th_ = draw_table(c, M, y, [96, 92, 150, CW - 338], ["Member", "Role", "Owns", "Deliverable"],
+                     roles, size=6.8, header_h=16, pad=4.0, min_row=13.2,
+                     align=["left", "left", "left", "left"], round_r=8)
+    y = y - th_ - 20
+
+    label(c, M, y, "The first week, if the school gives us one classroom", MUTED, 6.2)
+    y -= 10
+    week = [("MON–TUE", "Bench test", "Read 30 cards, confirm every entry lands in Firebase.", SAFFRON),
+            ("WED", "Enrol", "Photograph-free card mapping; no personal data beyond name and class.", TEAL),
+            ("THU–FRI", "Live period", "One real class marks attendance with the terminal beside the register.", NAVY),
+            ("SAT", "Compare", "Count the differences between our register and the teacher's.", GREEN)]
+    ww2 = (CW - 3 * 8) / 4
+    for i, (day, h, d, col) in enumerate(week):
+        bx = M + i * (ww2 + 8)
+        card(c, bx, y - 50, ww2, 50, fill=Color(1, 1, 1), stroke=LINE)
+        c.setFillColor(col)
+        c.roundRect(bx + 9, y - 16, tw(day, "Pop8", 5.0) + 12, 10.5, 5.2, stroke=0, fill=1)
+        draw_text(c, bx + 15, y - 13.2, day, "Pop8", 5.0, Color(1, 1, 1))
+        draw_text(c, bx + 9, y - 25.5, h, "Pop7", 7.2, NAVY)
+        para(c, bx + 9, y - 28.5, ww2 - 18, d, size=6.2, leading=8.0)
     return
 
 
@@ -795,16 +807,16 @@ def page6(c):
     y = y - fh - 18
 
     # BOM with cost
-    label(c, M, y, "Bill of materials — what is in the box and what it costs", MUTED, 6.2)
+    label(c, M, y, "Bill of materials — what is in the box and its estimated cost", MUTED, 6.2)
     y -= 8
-    rows = [["**ESP32 DevKit V1**", "Controller, Wi-Fi, offline logic", "₹450"],
-            ["**RC522 RFID module**", "Reads each student card", "₹120"],
-            ["**LCD1602 I2C + buzzer**", "Name, status and audible confirm", "₹180"],
-            ["**Wiring, LEDs, headers**", "Assembly and status lights", "₹90"],
-            ["**3D-printed enclosure**", "Protects the board in a classroom", "₹250"],
-            ["**5 V adapter + cable**", "Power for a full school day", "₹150"],
-            ["**30 RFID cards**", "One card per student, issued by school", "₹260"]]
-    th_ = draw_table(c, M, y, [150, CW - 240, 90], ["Component", "Role in the system", "Cost"],
+    rows = [["**ESP32 DevKit V1**", "Controller, Wi-Fi, offline logic", "≈ ₹450"],
+            ["**RC522 RFID module**", "Reads each student card", "≈ ₹120"],
+            ["**LCD1602 I2C + buzzer**", "Name, status and audible confirm", "≈ ₹180"],
+            ["**Wiring, LEDs, headers**", "Assembly and status lights", "≈ ₹90"],
+            ["**3D-printed enclosure**", "Protects the board in a classroom", "≈ ₹250"],
+            ["**5 V adapter + cable**", "Power for a full school day", "≈ ₹150"],
+            ["**30 RFID cards**", "One card per student, issued by school", "≈ ₹260"]]
+    th_ = draw_table(c, M, y, [150, CW - 240, 90], ["Component", "Role in the system", "Est. cost"],
                      rows, size=7.1, header_h=17, pad=4.4, min_row=14.5,
                      align=["left", "left", "right"], round_r=8)
     y = y - th_ - 14
@@ -813,7 +825,7 @@ def page6(c):
     card(c, M, y - 24, CW, 24, fill=NAVY, stroke=None, r=7)
     draw_text(c, M + 10, y - 15.2, "One classroom terminal", "Pop7", 7.2, Color(1, 1, 1))
     draw_text(c, M + 126, y - 15.2, "·  assembled, tested, ready to mount by the door", "Int5", 6.6, HexColor("#BFDBFE"))
-    draw_text(c, M + CW - 112, y - 16.2, "TOTAL  ₹1,500", "Pop8", 9.2, GOLD)
+    draw_text(c, M + CW - 128, y - 16.2, "EST. TOTAL  ≈ ₹1,500", "Pop8", 9.2, GOLD)
     y = y - 24 - 16
 
     # LCD states
@@ -838,7 +850,7 @@ def page6(c):
     y -= 8
     cols = [118, 130, 136, CW - 384]
     header = ["Criterion", "Our concept", "QR code on a screen", "Digital register on a tablet"]
-    rows = [["**Cost per classroom**", "₹1,500", "₹0 hardware, ₹400 data", "₹12,000+ tablet"],
+    rows = [["**Cost per classroom**", "≈ ₹1,500", "₹0 hardware, ≈ ₹400 data", "₹12,000+ tablet"],
             ["**Works without internet**", "Yes — local buffer", "No, needs the app online", "Partly, if the app caches"],
             ["**Proxy risk**", "Low — physical card", "High — a screenshot travels", "Medium — a login can be shared"],
             ["**Needs a student phone**", "No", "Yes", "No"],
@@ -944,7 +956,7 @@ def page8(c):
             ["Network or power outage", "An offline buffer on the ESP32, auto-sync on reconnect, 5 V backup power and OTA recovery.", "wifi"],
             ["Privacy and data misuse", "**No face recognition.** Only ID, time and class are stored, behind Firebase Auth with role-based access.", "lock"],
             ["Hardware failure in class", "Astro AI 2.0 runs 11 self-healing checks, a watchdog restarts the board, error codes reach the LCD, parts are modular.", "gear"],
-            ["Cost, scale and maintenance", "₹1,500 per unit, common parts, a printable case and a free cloud tier — one unit per room is realistic.", "battery"]]
+            ["Cost, scale and maintenance", "An estimated ₹1,500 per unit, common parts, a printable case and a free cloud tier — one unit per room is realistic.", "battery"]]
     header_h, row_h = 22, 38
     total_h = header_h + row_h * len(rows)
     tab_top = y - 2
@@ -977,7 +989,7 @@ def page8(c):
     label(c, M, y, "What would make us abandon this idea", MUTED, 6.2)
     y -= 10
     kill = [("Speed", "If 30 students take longer than two minutes, the terminal loses to a paper register."),
-            ("Cost", "If a classroom unit crosses ₹3,000, it stops being a school solution."),
+            ("Cost", "If a classroom unit crosses roughly ₹3,000, it stops being a school solution."),
             ("Privacy", "If any trial requires storing a student's photograph or biometric, we stop."),
             ("Trust", "If teachers will not confirm the register, the record has no authority.")]
     kw = (CW - 10) / 2
@@ -1060,12 +1072,49 @@ def build():
     c.setAuthor("Team Sun Rises India — ABPS Renukoot")
     c.setSubject("ABG STEM Quest 2026–27 · SDG 9 · Astro Smart Attendance")
     c.setCreator("Sun Rises India")
+    c.setKeywords("ABG STEM Quest 2026-27, SDG 9, creative ideation worksheet, attendance, RFID, ESP32, Astro Smart Attendance")
     for i, fn in enumerate([page1, page2, page3, page4, page5, page6, page7, page8], start=1):
         page_header(c, i)
         fn(c)
         c.showPage()
     c.save()
+    add_outline(OUT)
     print("wrote", OUT, os.path.getsize(OUT))
+
+
+OUTLINE = [
+    ("Cover and problem focus", 0),
+    ("Brainstormed possibilities", 1),
+    ("Concept map", 2),
+    ("Shortlisting matrix", 3),
+    ("Selected concept and reason", 4),
+    ("Initial system sketch", 5),
+    ("Validation and success indicators", 6),
+    ("Risks and design safeguards", 7),
+]
+
+
+def add_outline(path):
+    """Add a navigable bookmark per section (kept separate from layout code)."""
+    try:
+        from pypdf import PdfReader, PdfWriter
+    except Exception:
+        return
+    reader = PdfReader(path)
+    writer = PdfWriter()
+    writer.append(reader)
+    writer.add_metadata({
+        "/Title": "Part 1 — Creative Ideation Worksheet · Astro Smart Attendance",
+        "/Author": "Team Sun Rises India, ABPS Renukoot",
+        "/Subject": "ABG STEM Quest 2026-27 · SDG 9 · Astro Smart Attendance",
+        "/Keywords": "creative ideation worksheet, SDG 9, RFID attendance, ESP32, Astro AI 2.0",
+        "/Creator": "Sun Rises India",
+    })
+    for title, idx in OUTLINE:
+        if idx < len(writer.pages):
+            writer.add_outline_item(title=title, page_number=idx)
+    with open(path, "wb") as f:
+        writer.write(f)
 
 
 if __name__ == "__main__":
