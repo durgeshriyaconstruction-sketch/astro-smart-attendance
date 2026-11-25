@@ -519,3 +519,70 @@ def section(c, y, num, title, sub, accent=SAFFRON):
 
 def label(c, x, y, text, color=SAFFRON, size=6.8, font="Pop8", track=1.1):
     tracked(c, x, y, text.upper(), font, size, color, track)
+
+
+def draw_table(c, x, top, col_w, header, rows, size=7.9, header_h=20, pad=5.5,
+               align=None, min_row=None, row_fills=None, header_fill=None,
+               header_color=None, leading_k=1.42, round_r=8):
+    """Rounded, banded table with wrapped cells. Returns total height."""
+    header_fill = header_fill if header_fill is not None else NAVY
+    header_color = header_color if header_color is not None else Color(1, 1, 1)
+    total_w = sum(col_w)
+    leading = size * leading_k
+    align = align or ["left"] + ["center"] * (len(col_w) - 1)
+    heights = []
+    for row in rows:
+        mx = 1
+        for i, cell in enumerate(row):
+            mx = max(mx, len(wrap_rich(str(cell), col_w[i] - 2 * pad, size, "Int5", "Int7")))
+        heights.append(max(mx * leading + 2 * pad + 1.0, min_row or 0))
+    total_h = sum(heights) + header_h
+
+    c.saveState()
+    p = c.beginPath()
+    p.roundRect(x, top - total_h, total_w, total_h, round_r)
+    c.clipPath(p, stroke=0, fill=0)
+    c.setFillColor(header_fill)
+    c.rect(x, top - header_h, total_w, header_h, stroke=0, fill=1)
+    yy = top - header_h
+    for i, hh in enumerate(heights):
+        if row_fills and i < len(row_fills) and row_fills[i] is not None:
+            fill = row_fills[i]
+        else:
+            fill = SOFT if i % 2 == 1 else Color(1, 1, 1)
+        c.setFillColor(fill)
+        c.rect(x, yy - hh, total_w, hh, stroke=0, fill=1)
+        yy -= hh
+    c.setStrokeColor(LINE)
+    c.setLineWidth(0.6)
+    yy = top - header_h
+    for hh in heights:
+        c.line(x, yy, x + total_w, yy)
+        yy -= hh
+    c.restoreState()
+
+    xx = x
+    for i, htxt in enumerate(header):
+        wsum = tw(htxt, "Pop7", size - 0.6)
+        tx = xx + pad if align[i] == "left" else xx + (col_w[i] - wsum) / 2
+        draw_text(c, tx, top - header_h / 2 - (size - 0.6) / 2 + 1, htxt, "Pop7", size - 0.6, header_color)
+        xx += col_w[i]
+
+    yy = top - header_h
+    for i, row in enumerate(rows):
+        hh = heights[i]
+        xx = x
+        for j, cell in enumerate(row):
+            lines = wrap_rich(str(cell), col_w[j] - 2 * pad, size, "Int5", "Int7")
+            ty = yy - (hh - len(lines) * leading) / 2 - size * 0.86
+            for ln in lines:
+                wsum = sum(tw(t, "Int7" if b else "Int5", size) for t, b in ln)
+                tx = xx + pad if align[j] == "left" else xx + (col_w[j] - wsum) / 2
+                for t, b in ln:
+                    tx = draw_text(c, tx, ty, t, "Int7" if b else "Int5", size, NAVY if b else BODY)
+                ty -= leading
+            xx += col_w[j]
+        yy -= hh
+
+    rrect(c, x, top - total_h, total_w, total_h, round_r, fill=None, stroke=LINE, lw=1)
+    return total_h
