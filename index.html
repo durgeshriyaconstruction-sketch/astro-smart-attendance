@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Creative Ideation Worksheet — Astro Smart Attendance | Download</title>
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@600;700;800;900&family=Inter:wght@400;500;600;700&family=Caveat:wght@700&display=swap" rel="stylesheet">
+<style>
+  *{margin:0;padding:0;box-sizing:border-box}
+  :root{--navy:#0B1F4A;--navy2:#122B63;--saffron:#FF7A18;--teal:#0EA5A4;--gold:#FFB703;--ink:#1E293B;--muted:#64748B;--line:#E2E8F0}
+  body{font-family:'Inter',sans-serif;background:radial-gradient(1200px 600px at 50% -200px,#1E3A8A 0%,#0B1F4A 45%,#071429 100%);min-height:100vh;color:#fff;padding:26px 16px 60px}
+  .wrap{max-width:1040px;margin:0 auto}
+  .top{display:flex;align-items:center;justify-content:space-between;gap:14px;flex-wrap:wrap;margin-bottom:22px}
+  .brand{display:flex;align-items:center;gap:10px;font-family:'Poppins',sans-serif;font-weight:800;letter-spacing:.14em;font-size:12px}
+  .brand i{width:10px;height:10px;border-radius:50%;background:var(--gold);display:block}
+  .pill{font-family:'Poppins',sans-serif;font-weight:700;font-size:11px;letter-spacing:.12em;padding:7px 14px;border-radius:999px;border:1px solid rgba(255,255,255,.28);background:rgba(255,255,255,.1)}
+  .hero{background:linear-gradient(135deg,rgba(255,255,255,.10),rgba(255,255,255,.04));border:1px solid rgba(255,255,255,.16);border-radius:22px;padding:30px 32px;display:grid;grid-template-columns:1.35fr .8fr;gap:26px;align-items:center;box-shadow:0 30px 80px rgba(0,0,0,.35)}
+  .kicker{display:inline-flex;align-items:center;gap:8px;background:rgba(255,183,3,.16);border:1px solid rgba(255,183,3,.4);color:#FFD9A8;font-family:'Poppins',sans-serif;font-size:11px;font-weight:800;letter-spacing:.14em;padding:7px 13px;border-radius:999px}
+  h1{font-family:'Poppins',sans-serif;font-weight:900;font-size:38px;line-height:1.04;letter-spacing:-.02em;margin:14px 0 10px}
+  h1 em{font-style:normal;color:var(--gold)}
+  .lead{font-size:14px;line-height:1.65;color:#C7D5EC;max-width:520px}
+  .lead b{color:#fff}
+  .cta-row{display:flex;flex-wrap:wrap;gap:12px;margin-top:22px}
+  .btn{font-family:'Poppins',sans-serif;font-weight:800;font-size:14px;padding:15px 26px;border-radius:999px;text-decoration:none;display:inline-flex;align-items:center;gap:9px;transition:.2s;border:none;cursor:pointer}
+  .btn-main{background:linear-gradient(135deg,#FF9E3D,#FF6A00);color:#fff;box-shadow:0 12px 30px rgba(255,106,0,.4)}
+  .btn-main:hover{transform:translateY(-2px);box-shadow:0 16px 38px rgba(255,106,0,.55)}
+  .btn-ghost{background:rgba(255,255,255,.1);color:#fff;border:1px solid rgba(255,255,255,.3)}
+  .btn-ghost:hover{background:rgba(255,255,255,.18)}
+  .meta{font-size:12px;color:#93A7C7;margin-top:12px;letter-spacing:.02em}
+  .file-card{background:rgba(6,17,38,.65);border:1px solid rgba(255,255,255,.16);border-radius:16px;padding:18px}
+  .file-card h3{font-family:'Poppins',sans-serif;font-size:11px;letter-spacing:.14em;color:var(--gold);margin-bottom:10px}
+  .file-row{display:flex;justify-content:space-between;gap:10px;font-size:12.5px;padding:8px 0;border-bottom:1px dashed rgba(255,255,255,.14)}
+  .file-row:last-child{border:none}
+  .file-row span{color:#93A7C7}
+  .file-row b{font-weight:700}
+  .stats{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin:18px 0 22px}
+  .stat{background:rgba(255,255,255,.07);border:1px solid rgba(255,255,255,.14);border-radius:14px;padding:14px;text-align:center}
+  .stat .v{font-family:'Poppins',sans-serif;font-weight:800;font-size:17px;color:#fff}
+  .stat .l{font-size:9.5px;letter-spacing:.1em;font-weight:700;color:#8FA5C6;text-transform:uppercase;margin-top:4px}
+  .frame-wrap{background:#fff;border-radius:18px;overflow:hidden;box-shadow:0 30px 80px rgba(0,0,0,.4)}
+  .frame-head{display:flex;align-items:center;justify-content:space-between;padding:12px 18px;background:#F1F5F9;border-bottom:1px solid var(--line);font-family:'Poppins',sans-serif;font-size:12px;font-weight:700;color:var(--navy)}
+  .frame-head .dot{display:flex;gap:5px}
+  .frame-head .dot i{width:8px;height:8px;border-radius:50%;background:#CBD5E1;display:block}
+  iframe{width:100%;height:min(78vh,900px);border:0;display:block;background:#EEF2F7}
+  .fallback{padding:16px 18px;background:#fff;color:var(--muted);font-size:12.5px}
+  .fallback a{color:#1D4ED8;font-weight:700}
+  .section-note{margin-top:26px;display:grid;grid-template-columns:repeat(3,1fr);gap:12px}
+  .note{background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.13);border-radius:14px;padding:15px 16px}
+  .note h4{font-family:'Poppins',sans-serif;font-size:12.5px;margin-bottom:5px;color:#fff}
+  .note p{font-size:11.5px;line-height:1.6;color:#9FB2CE}
+  .hand{font-family:'Caveat',cursive;font-size:20px;color:#FFD9A8}
+  footer{text-align:center;margin-top:28px;font-size:11.5px;color:#7E92B1;letter-spacing:.04em}
+  @media(max-width:820px){.hero{grid-template-columns:1fr;padding:24px}h1{font-size:30px}.stats{grid-template-columns:1fr 1fr}.section-note{grid-template-columns:1fr}}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="top">
+    <div class="brand"><i></i>ABG STEM QUEST 2026–27</div>
+    <div class="pill">PART 1 · CREATIVE IDEATION WORKSHEET</div>
+  </div>
+
+  <div class="hero">
+    <div>
+      <span class="kicker">SUN RISES INDIA · GRADE 9 · ABPS RENUKOOT</span>
+      <h1>ASTRO <em>SMART</em><br>ATTENDANCE</h1>
+      <p class="lead">A compact <b>ESP32 RFID attendance terminal</b> with <b>Astro AI 2.0 self-healing</b>, a <b>Firebase dashboard</b> and <b>automatic parent alerts</b> — offline-first, built for <b>₹1,500 per classroom</b>.</p>
+      <div class="cta-row">
+        <a class="btn btn-main" href="Creative-Ideation-Worksheet-Astro-Smart-Attendance.pdf" download>⬇ One-click download · PDF</a>
+        <a class="btn btn-ghost" href="Creative-Ideation-Worksheet-Astro-Smart-Attendance.pdf" target="_blank" rel="noopener">Open in new tab</a>
+      </div>
+      <div class="meta">A4 · print-ready · 8 pages · all nine sections complete</div>
+      <p class="hand" style="margin-top:14px">“One tap. Attendance done. Parents informed.”</p>
+    </div>
+    <div class="file-card">
+      <h3>FILE DETAILS</h3>
+      <div class="file-row"><span>Document</span><b>Creative Ideation Worksheet</b></div>
+      <div class="file-row"><span>Programme</span><b>ABG STEM Quest 2026–27</b></div>
+      <div class="file-row"><span>Theme</span><b>SDG 9</b></div>
+      <div class="file-row"><span>Team</span><b>Sun Rises India</b></div>
+      <div class="file-row"><span>Pages</span><b>8 · A4 portrait</b></div>
+      <div class="file-row"><span>Live demo</span><b>astro-smart-attendence.web.app</b></div>
+    </div>
+  </div>
+
+  <div class="stats">
+    <div class="stat"><div class="v">₹1,500</div><div class="l">Cost / unit</div></div>
+    <div class="stat"><div class="v">&lt; 60 s</div><div class="l">Class of 30</div></div>
+    <div class="stat"><div class="v">100%</div><div class="l">Duplicate rejection</div></div>
+    <div class="stat"><div class="v">11</div><div class="l">Self-healing checks</div></div>
+  </div>
+
+  <div class="frame-wrap">
+    <div class="frame-head">
+      <span>Creative-Ideation-Worksheet-Astro-Smart-Attendance.pdf</span>
+      <span class="dot"><i></i><i></i><i></i></span>
+    </div>
+    <iframe src="Creative-Ideation-Worksheet-Astro-Smart-Attendance.pdf#view=FitH" title="Creative Ideation Worksheet preview"></iframe>
+    <div class="fallback">Preview blocked by your browser? <a href="Creative-Ideation-Worksheet-Astro-Smart-Attendance.pdf" download>Download the PDF directly</a>.</div>
+  </div>
+
+  <div class="section-note">
+    <div class="note"><h4>01–03 · Problem, ideas, map</h4><p>Problem focus with discovery questions, 10 brainstormed possibilities, and a six-stage concept map with the data pathway.</p></div>
+    <div class="note"><h4>04–06 · Scoring, concept, sketch</h4><p>A 1–5 shortlisting matrix with ranked totals, the selected concept and its rationale, and a labelled block diagram.</p></div>
+    <div class="note"><h4>07–09 · Validation, metrics, risks</h4><p>What to validate next, six measured success indicators with targets, and a risk-to-safeguard table with the team reflection.</p></div>
+  </div>
+
+  <footer>Team Sun Rises India · Aditya Birla Public School, Renukoot, Sonbhadra (U.P.) · Mentor: Dr. Jayesh Shinde</footer>
+</div>
+</body>
+</html>
