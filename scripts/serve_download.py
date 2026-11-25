@@ -5,6 +5,8 @@
 /download             -> PDF sent as attachment (one-click save)
 /view                 -> PDF rendered inline
 /worksheet.pdf        -> same as /download
+/check, /check.pdf    -> format compliance check, as attachment
+/view-check           -> compliance check, inline
 """
 import os
 import http.server
@@ -14,14 +16,18 @@ import urllib.parse
 PORT = int(os.environ.get("PORT", "8099"))
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 PDF = "Creative-Ideation-Worksheet-Astro-Smart-Attendance.pdf"
+CHECK = "Format-Compliance-Check.pdf"
+SERVED = {"/download": PDF, "/worksheet.pdf": PDF, "/" + PDF: PDF,
+          "/check": CHECK, "/check.pdf": CHECK, "/" + CHECK: CHECK,
+          "/view": PDF, "/view-check": CHECK}
 
 
 class Handler(http.server.SimpleHTTPRequestHandler):
     def __init__(self, *a, **kw):
         super().__init__(*a, directory=ROOT, **kw)
 
-    def _pdf(self, attachment):
-        path = os.path.join(ROOT, PDF)
+    def _pdf(self, attachment, name=PDF):
+        path = os.path.join(ROOT, name)
         if not os.path.exists(path):
             self.send_error(404)
             return
@@ -30,7 +36,7 @@ class Handler(http.server.SimpleHTTPRequestHandler):
         self.send_header("Content-Type", "application/pdf")
         self.send_header("Content-Length", str(size))
         disp = "attachment" if attachment else "inline"
-        self.send_header("Content-Disposition", f'{disp}; filename="{PDF}"')
+        self.send_header("Content-Disposition", f'{disp}; filename="{name}"')
         self.send_header("Cache-Control", "no-store")
         self.end_headers()
         with open(path, "rb") as f:
@@ -38,18 +44,17 @@ class Handler(http.server.SimpleHTTPRequestHandler):
 
     def do_GET(self):
         route = urllib.parse.urlparse(self.path).path
-        if route in ("/download", "/worksheet.pdf", "/" + PDF):
-            return self._pdf(True)
-        if route == "/view":
-            return self._pdf(False)
+        if route in SERVED:
+            attachment = route not in ("/view", "/view-check")
+            return self._pdf(attachment, SERVED[route])
         if route == "/":
             self.path = "/index.html"
         return super().do_GET()
 
     def do_HEAD(self):
         route = urllib.parse.urlparse(self.path).path
-        if route in ("/download", "/worksheet.pdf", "/" + PDF, "/view"):
-            size = os.path.getsize(os.path.join(ROOT, PDF))
+        if route in SERVED:
+            size = os.path.getsize(os.path.join(ROOT, SERVED[route]))
             self.send_response(200)
             self.send_header("Content-Type", "application/pdf")
             self.send_header("Content-Length", str(size))
