@@ -12,13 +12,15 @@ Over 15 Lakh schools in India face this problem daily. Records,
 parent alerts and reports remain disconnected.
 
 ## Our Solution
-A compact ESP32-based RFID attendance terminal with AI self-healing, 
-Firebase Cloud dashboard, and automatic parent email alerts. 
-Cost: Only 1,500 Rupees per unit.
+A compact ESP32-based RFID + fingerprint attendance terminal with AI self-healing, 
+Firebase Cloud dashboard, and automatic parent email alerts. A student taps a card and 
+presses a finger, so a borrowed card alone cannot mark attendance. 
+Cost: about 2,450 Rupees per unit, including the fingerprint sensor.
 
 ## Technologies Used
 - ESP32 DevKit V1
 - RC522 RFID Module
+- R307 Fingerprint Sensor (second factor)
 - LCD1602 I2C Display
 - Firebase (Auth + Realtime Database + Hosting)
 - Astro AI 2.0 (Self-healing diagnostics)
@@ -35,7 +37,7 @@ Cloud Dashboard: https://astro-smart-attendence.web.app
 - Working Prototype Ready
 
 ## Cost
-1,500 Rupees per unit (95% cheaper than commercial systems)
+2,450 Rupees per unit (about 90% cheaper than commercial systems)
 
 ## Key Features
 - Works OFFLINE and syncs when internet returns

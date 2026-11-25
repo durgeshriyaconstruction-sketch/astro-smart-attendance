@@ -17,8 +17,10 @@ PORT = int(os.environ.get("PORT", "8099"))
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 PDF = "Creative-Ideation-Worksheet-Astro-Smart-Attendance.pdf"
 CHECK = "Format-Compliance-Check.pdf"
+DOCX = "Creative-Ideation-Worksheet-Astro-Smart-Attendance.docx"
 SERVED = {"/download": PDF, "/worksheet.pdf": PDF, "/" + PDF: PDF,
           "/check": CHECK, "/check.pdf": CHECK, "/" + CHECK: CHECK,
+          "/docx": DOCX, "/word": DOCX, "/" + DOCX: DOCX,
           "/view": PDF, "/view-check": CHECK}
 
 
@@ -32,8 +34,10 @@ class Handler(http.server.SimpleHTTPRequestHandler):
             self.send_error(404)
             return
         size = os.path.getsize(path)
+        ctype = ("application/vnd.openxmlformats-officedocument.wordprocessingml.document"
+                 if name.endswith(".docx") else "application/pdf")
         self.send_response(200)
-        self.send_header("Content-Type", "application/pdf")
+        self.send_header("Content-Type", ctype)
         self.send_header("Content-Length", str(size))
         disp = "attachment" if attachment else "inline"
         self.send_header("Content-Disposition", f'{disp}; filename="{name}"')
@@ -54,9 +58,12 @@ class Handler(http.server.SimpleHTTPRequestHandler):
     def do_HEAD(self):
         route = urllib.parse.urlparse(self.path).path
         if route in SERVED:
-            size = os.path.getsize(os.path.join(ROOT, SERVED[route]))
+            name = SERVED[route]
+            size = os.path.getsize(os.path.join(ROOT, name))
+            ctype = ("application/vnd.openxmlformats-officedocument.wordprocessingml.document"
+                     if name.endswith(".docx") else "application/pdf")
             self.send_response(200)
-            self.send_header("Content-Type", "application/pdf")
+            self.send_header("Content-Type", ctype)
             self.send_header("Content-Length", str(size))
             self.end_headers()
             return
