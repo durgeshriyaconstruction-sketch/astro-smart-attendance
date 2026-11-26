@@ -2,7 +2,7 @@
 
 ### AI + IoT + Cloud Smart School Attendance System
 
-**Built by Team Sun Rises India | Class 9 | Renukoot, Uttar Pradesh, India**
+**Proposed by Team Sun Rises India | Class 9 | Renukoot, Uttar Pradesh, India**
 
 ---
 
@@ -11,11 +11,14 @@ Indian schools waste 10-15 minutes per class on manual attendance.
 Over 15 Lakh schools in India face this problem daily. Records, 
 parent alerts and reports remain disconnected.
 
-## Our Solution
-A compact ESP32-based RFID + fingerprint attendance terminal with AI self-healing, 
-Firebase Cloud dashboard, and automatic parent email alerts. A student taps a card and 
-presses a finger, so a borrowed card alone cannot mark attendance. 
-Cost: about 2,450 Rupees per unit, including the fingerprint sensor.
+## Our Proposed Solution
+A compact ESP32-based RFID + fingerprint attendance terminal with AI self-healing,
+a Firebase Cloud dashboard, and automatic parent email alerts. A student taps a card and
+presses a finger, so a borrowed card alone cannot mark attendance.
+Estimated cost: about 2,450 Rupees per unit, including the fingerprint sensor.
+
+**Status: proposal and build plan. Nothing has been assembled, tested or deployed yet —
+Part 1 is the ideation worksheet, and Part 2 is where the prototype is built.**
 
 ## Technologies Used
 - ESP32 DevKit V1
@@ -27,20 +30,22 @@ Cost: about 2,450 Rupees per unit, including the fingerprint sensor.
 - 3D Printed Enclosure (Blender)
 - Arduino C++ and HTML/CSS/JavaScript
 
-## Live Demo
-Cloud Dashboard: https://astro-smart-attendence.web.app
+## Validation Plan (targets, not results)
+Part 1 is written before any measurement exists, so every figure below is a target that
+the validation plan has to earn:
 
-## Validation
-- 140 out of 140 Feature Tests Passing
-- 10,000,000 Stress Test Cases Verified
-- 0 Warnings, 0 Errors
-- Working Prototype Ready
+- Time for a class of 30: target under 90 seconds
+- Duplicate and proxy attempts: target 100% rejected
+- Offline entries lost on sync: target 0
+- Teacher usability: target 4+ out of 5
+- Bench tests, stress runs and the live-period comparison: planned, not yet run
 
-## Cost
-2,450 Rupees per unit (about 90% cheaper than commercial systems)
+## Estimated Cost
+About 2,450 Rupees per unit (roughly 90% cheaper than commercial systems) — an estimate
+costed from real part prices, for a terminal that has not been built yet.
 
-## Key Features
-- Works OFFLINE and syncs when internet returns
+## Planned Features
+- Designed to work offline and sync when the internet returns
 - Astro AI 2.0 with 11 self-healing diagnostic checks
 - Daily and Period attendance tracking
 - Admin and Student dashboards

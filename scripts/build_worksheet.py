@@ -189,7 +189,7 @@ def page1(c):
               "Indian schools lose **10–15 minutes per class** to manual attendance. Across **15+ lakh schools**, paper registers are slow, easy to lose and open to **proxy attendance** — and the record never reaches the parent the same day.",
               size=8.1, color=BODY, leading=12.0)
     yy = para(c, M + 13, yy - 7, lw_ - 26,
-              "Our answer: an **RFID + fingerprint terminal** that verifies a student in **about three seconds**, keeps recording without internet, and alerts the parent automatically.",
+              "Our proposal: an **RFID + fingerprint terminal** intended to verify a student in **about three seconds**, keep recording without internet, and alert the parent automatically.",
               size=8.1, color=BODY, leading=12.0)
     ev_h = 46
     card(c, M + 13, yy - 10 - ev_h, lw_ - 26, ev_h, fill=Color(1, 1, 1, 0.55), stroke=AMBER_B, r=6, lw=0.8)
@@ -246,7 +246,7 @@ def page1(c):
     card(c, M, y - 42, CW, 42, fill=NAVY, stroke=None, r=10)
     glyph(c, "star", M + 19, y - 21, 8, GOLD, 1.0)
     para(c, M + 34, y - 10, CW - 50,
-         "**In one line:** a low-cost terminal that verifies a student by card and finger, marks a 30-student class in under two minutes, keeps recording when the internet drops, and tells parents the same period.",
+         "**In one line:** a low-cost terminal designed to verify a student by card and finger, mark a 30-student class in under two minutes, keep recording when the internet drops, and tell parents the same period.",
          size=7.6, color=Color(1, 1, 1), leading=10.6)
     return
 
@@ -268,7 +268,7 @@ def page2(c):
 
     ideas = [
         ("QR code attendance, rotating", "A code that changes each minute; students scan it.", "card",
-         "one screenshot defeats it", "TRIED & PARKED", HexColor("#92400E"), HexColor("#FEF3C7")),
+         "one screenshot defeats it", "FILTERED OUT", HexColor("#92400E"), HexColor("#FEF3C7")),
         ("RFID card tap-in", "A school-issued card tapped at the door.", "chip",
          "no phone, no battery needed", "SELECTED", HexColor("#166534"), HexColor("#DCFCE7")),
         ("Teacher-confirmed register", "Teacher clears exceptions, signs off.", "book",
@@ -678,7 +678,7 @@ def page5(c):
     tracked(c, M + 16, y - 18, "SELECTED CONCEPT", "Pop8", 6.1, GOLD, 1.3)
     draw_text(c, M + 16, y - 35, "Astro Smart Attendance", "Pop9", 17.5, Color(1, 1, 1))
     para(c, M + 16, y - 38, CW - 40,
-         "A privacy-first terminal to be built on **ESP32 + RC522 reader + R307 fingerprint + LCD1602**. The student taps a card and presses a finger; **time, class, period and a pseudonymous ID** are written in about three seconds, and both checks must agree first. **Astro AI 2.0** is specified to flag duplicates, late arrivals and proxy attempts, buffer offline and sync to **Firebase**. **Templates stay inside the sensor. No face recognition. No phone required.**",
+         "A privacy-first terminal **we propose to build** on **ESP32 + RC522 reader + R307 fingerprint + LCD1602**. The design: the student taps a card and presses a finger; **time, class, period and a pseudonymous ID** are written in about three seconds, and both checks must agree first. **Astro AI 2.0** is specified to flag duplicates, late arrivals and proxy attempts, buffer offline and sync to **Firebase**. **Templates stay inside the sensor. No face recognition. No phone required.**",
          size=7.7, color=HexColor("#DCE7F8"), leading=10.6)
     c.saveState()
     c.translate(M + CW - 74, y - 22)
@@ -688,7 +688,7 @@ def page5(c):
     c.restoreState()
     y = y - sh - 15
 
-    whys = [("Answers the registered problem", "Saves 10–15 minutes every period, removes proxy entries and leaves a timestamped record.", "check", GREEN),
+    whys = [("Answers the registered problem", "Aims to save 10–15 minutes every period, remove proxy entries and leave a timestamped record.", "check", GREEN),
             ("Buildable by five students", "ESP32, RC522, R307 fingerprint, LCD and a printed case — five parts, one week, no machining.", "gear", TEAL),
             ("Around 90% cheaper", "An estimated ₹2,450 per unit against ₹30,000+ for commercial kits — within reach of any school.", "chart", SAFFRON),
             ("Measurable from day one", "Time per class, duplicate rejection, sync accuracy and teacher rating — all observable.", "clock", NAVY)]
@@ -904,7 +904,7 @@ def page6(c):
     # total band
     card(c, M, y - 24, CW, 24, fill=NAVY, stroke=None, r=7)
     draw_text(c, M + 10, y - 15.2, "One classroom terminal", "Pop7", 7.2, Color(1, 1, 1))
-    draw_text(c, M + 126, y - 15.2, "·  assembled, tested, ready to mount by the door", "Int5", 6.6, HexColor("#BFDBFE"))
+    draw_text(c, M + 126, y - 15.2, "·  estimate only: parts costed, nothing built yet", "Int5", 6.6, HexColor("#BFDBFE"))
     draw_text(c, M + CW - 128, y - 16.2, "EST. TOTAL  ≈ ₹2,450", "Pop8", 9.2, GOLD)
     y = y - 24 - 16
 
@@ -931,7 +931,7 @@ def page6(c):
     cols = [118, 130, 136, CW - 384]
     header = ["Criterion", "Our concept", "QR code on a screen", "Digital register on a tablet"]
     rows = [["**Cost per classroom**", "≈ ₹2,450", "₹0 hardware, ≈ ₹400 data", "₹12,000+ tablet"],
-            ["**Works without internet**", "Yes — local buffer", "No, needs the app online", "Partly, if the app caches"],
+            ["**Works without internet**", "Planned: local buffer", "No, needs the app online", "Partly, if the app caches"],
             ["**Proxy risk**", "Low — physical card", "High — a screenshot travels", "Medium — a login can be shared"],
             ["**Needs a student phone**", "No", "Yes", "No"],
             ["**Teacher effort**", "Confirm exceptions only", "None until the report", "The whole period, typing"],
@@ -982,7 +982,7 @@ def page7(c):
     y = y - 6 * ih - 5 * 6 - 16
 
     y = sec(c, y, 8, "Prototype success indicators",
-            "How we will prove it works — measured numbers, not adjectives", TEAL)
+            "How the trial will prove it works — measured numbers, not adjectives", TEAL)
 
     inds = [("Time for a class of 30 (simulated)", "< 90 sec", "30 simulated students doing card then finger, clocked with a stopwatch.", "clock", SAFFRON),
             ("Duplicate scan rejection", "100%", "Same card twice in one period is refused, even with the right finger.", "flag", NAVY),
@@ -1117,7 +1117,7 @@ def page8(c):
     label(c, M, y, "Before submission — our own checklist", MUTED, 6.0)
     y -= 9
     checks = ["All nine sections answered", "Names, roles and mentor verified",
-              "Numbers marked measured or hypothesis", "Every part bench-tested before the pilot",
+              "Numbers marked measured or hypothesis", "Every part bench-tested in the pilot week",
               "Two products compared with sources", "Worksheet signed and dated"]
     cwid = (CW - 20) / 3
     for i, t in enumerate(checks):
