@@ -55,6 +55,15 @@ def para_height(p):
 
 def cell_height(cell, width_cm):
     h = 0.0
+    # inline pictures: their height contributes to the row
+    for blip in cell._tc.iter(qn("a:blip")):
+        pass
+    try:
+        from docx.shared import Emu
+        for ext in cell._tc.iter(qn("wp:extent")):
+            h += int(ext.get("cy")) / 360000 * CM_TO_PT
+    except Exception:
+        pass
     for p in cell.paragraphs:
         text = p.text
         size = 9.0

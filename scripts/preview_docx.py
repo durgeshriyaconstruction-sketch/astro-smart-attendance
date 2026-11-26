@@ -41,6 +41,7 @@ if not os.path.exists(BOLD_PATHS[0]):
     BOLD_PATHS[0] = (glob.glob("/usr/share/fonts/**/DejaVuSans-Bold.ttf", recursive=True) or ["/dev/null"])[0]
 
 _fonts = {}
+_DOC = [None]
 
 
 def font(size, bold=False):
@@ -134,7 +135,17 @@ def wrap(draw, runs, width):
     return lines
 
 
-def draw_cell(draw, cell, x, y, w, h):
+def cell_images(cell):
+    """Return (rId, width_em) for inline pictures in a cell."""
+    out = []
+    for blip in cell._tc.iter(qn("a:blip")):
+        rid = blip.get(qn("r:embed"))
+        if rid:
+            out.append(rid)
+    return out
+
+
+def draw_cell(draw, cell, x, y, w, h, doc=None, img=None):
     fill = tc_fill(cell._tc)
     border = tc_borders(cell._tc)
     left = tc_left(cell._tc)
@@ -147,8 +158,26 @@ def draw_cell(draw, cell, x, y, w, h):
     if left:
         draw.rectangle([x, y, x + 3, y + h], fill=norm_hex(left))
 
+    # inline pictures sit on their own line inside the cell
+    pic_h = 0
+    if doc is not None:
+        for rid in cell_images(cell):
+            try:
+                part = doc.part.related_parts[rid]
+                import io
+                im = Image.open(io.BytesIO(part.blob)).convert("RGBA")
+                maxw = int(w - 6)
+                if im.width > maxw:
+                    im = im.resize((maxw, int(im.height * maxw / im.width)), Image.LANCZOS)
+                px = int(x + (w - im.width) / 2)
+                if img is not None:
+                    img.paste(im, (px, int(y + 3)), im)
+                pic_h = max(pic_h, im.height)
+            except Exception:
+                pass
+
     pad = 5
-    ty = y + 4
+    ty = y + 4 + pic_h
     for p in cell.paragraphs:
         runs = para_runs(p)
         if not runs:
@@ -183,6 +212,8 @@ def table_size(table):
             probe = Image.new("RGB", (10, 10))
             d = ImageDraw.Draw(probe)
             hh = 8
+            for ext in cell._tc.iter(qn("wp:extent")):
+                hh += int(ext.get("cy")) / 360000 * CM
             for p in cell.paragraphs:
                 runs = para_runs(p)
                 if not runs:
@@ -203,6 +234,7 @@ def table_size(table):
 def main():
     os.makedirs(OUTDIR, exist_ok=True)
     doc = Document(DOCX)
+    _DOC[0] = doc
     pages, page, y = [], Image.new("RGB", (PAGE_W, PAGE_H), "white"), MARGIN_T
     draw = ImageDraw.Draw(page)
 
@@ -236,7 +268,7 @@ def main():
                 x = MARGIN_L
                 for ci, cell in enumerate(row.cells):
                     w = widths[ci] if ci < len(widths) else USABLE_W / len(row.cells)
-                    draw_cell(draw, cell, x, y, w, h)
+                    draw_cell(draw, cell, x, y, w, h, _DOC[0], page)
                     x += w
                 y += h
             y += 2

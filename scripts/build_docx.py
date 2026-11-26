@@ -23,6 +23,7 @@ OUT = os.path.join(HERE, "Creative-Ideation-Worksheet-Astro-Smart-Attendance.doc
 # ---------------------------------------------------------------- palette
 NAVY = "0B1F4A"
 NAVY_RGB = RGBColor(0x0B, 0x1F, 0x4A)
+PLUM_RGB = RGBColor(0x7C, 0x3A, 0xED)
 SAFFRON = "FF7A18"
 SAFFRON_RGB = RGBColor(0xC2, 0x41, 0x0C)
 TEAL = "0EA5A4"
@@ -53,6 +54,11 @@ SCORE_TEXT = {5: RGBColor(0x04, 0x78, 0x57), 4: RGBColor(0x1D, 0x4E, 0xD8),
 
 FONT = "Calibri"
 HAND = "Segoe Script"
+ASSETS = os.path.join(HERE, "assets")
+
+
+def asset(name):
+    return os.path.join(ASSETS, name)
 CW = 17.6  # usable width in cm (A4 minus 1.7cm margins)
 
 
@@ -150,6 +156,55 @@ def put(cell, text, size=9, bold=False, color=body, align=None, space=0,
     if track:
         spacing(r, track)
     return p
+
+
+def put_image(cell, path, width_cm, align="c"):
+    """Place a sticker in a cell, keeping it inline so tables stay tidy."""
+    cell.vertical_alignment = WD_ALIGN_VERTICAL.CENTER
+    p = cell.paragraphs[0] if not cell.paragraphs[0].text else cell.add_paragraph()
+    if align == "c":
+        p.alignment = WD_ALIGN_PARAGRAPH.CENTER
+    elif align == "r":
+        p.alignment = WD_ALIGN_PARAGRAPH.RIGHT
+    p.paragraph_format.space_before = Pt(0)
+    p.paragraph_format.space_after = Pt(0)
+    if os.path.exists(path):
+        p.add_run().add_picture(path, width=Cm(width_cm))
+    return p
+
+
+def sticker_row(doc, items, widths=None, pad_top=0):
+    """items: list of (asset name, width cm). Renders them side by side."""
+    widths = widths or [CW / len(items)] * len(items)
+    t = doc.add_table(rows=1, cols=len(items))
+    table_layout(t, widths)
+    for i, (name, wcm) in enumerate(items):
+        c = t.rows[0].cells[i]
+        no_borders(c)
+        cell_margins(c, top=pad_top, bottom=0, left=0, right=0)
+        put_image(c, asset(name), wcm)
+    keep_row(t.rows[0])
+    return t
+
+
+def margin_note(doc, scribble, caption, color=RGBColor(0x92, 0x40, 0x0E),
+                img_w=1.5, side="right"):
+    """A doodle with a handwritten caption beside it, like a margin annotation."""
+    widths = [img_w + 0.3, CW - (img_w + 0.3)] if side == "left" else [CW - (img_w + 0.3), img_w + 0.3]
+    t = doc.add_table(rows=1, cols=2)
+    table_layout(t, widths)
+    ci = 0 if side == "left" else 1
+    for c in t.rows[0].cells:
+        no_borders(c)
+    pic = t.rows[0].cells[ci]
+    cell_margins(pic, top=20, bottom=20, left=0, right=0)
+    put_image(pic, asset(scribble), img_w, align="r" if side == "right" else "l")
+    txt = t.rows[0].cells[1 - ci]
+    cell_margins(txt, top=20, bottom=20, left=90 if side == "right" else 20, right=20 if side == "right" else 90)
+    p = put(txt, caption, size=10.5, color=color, font=HAND,
+            align="r" if side == "right" else None)
+    keep_row(t.rows[0])
+    return t
 
 
 def add(cell, text, size=9, bold=False, color=body, align=None, space=2,
@@ -504,7 +559,7 @@ def build():
     r.font.color.rgb = NAVY_RGB
     r.font.name = FONT
     spacing(r, 20)
-    r2 = hp.add_run("     ·     PART 1 — CREATIVE IDEATION WORKSHEET")
+    r2 = hp.add_run(" ·     PART 1 — CREATIVE IDEATION WORKSHEET")
     r2.font.size = Pt(8.5)
     r2.font.color.rgb = RGBColor(0x64, 0x74, 0x8B)
     r2.font.name = FONT
@@ -512,16 +567,19 @@ def build():
     field_footer(s)
 
     # ================= cover
-    banner(doc, "SUN RISES INDIA  ·  GRADE 9  ·  ABPS RENUKOOT",
+    banner(doc, "SUN RISES INDIA ·  GRADE 9 ·  ABPS RENUKOOT",
            "ASTRO SMART ATTENDANCE",
-           "AI + IoT + Cloud  ·  smart school attendance system",
-           "A compact ESP32 RFID + fingerprint terminal with Astro AI 2.0 self-healing, a Firebase "
-           "dashboard and automatic parent alerts — two factors against proxy, offline-first, built "
-           "from low-cost local parts.",
+           "AI + IoT + Cloud ·  smart school attendance system",
+           "A compact ESP32 RFID + fingerprint terminal — two factors against proxy, an offline-first buffer, "
+           "an automatic parent alert, and an estimated ₹2,450 a unit from local parts.",
            title_size=26,
            tag="CHOSEN CONCEPT")
 
-    gap(doc, 4)
+    gap(doc, 2)
+    sticker_row(doc, [("note-1.png", 4.6), ("note-2.png", 4.6), ("note-3.png", 4.6)],
+                widths=[CW / 3] * 3)
+
+    gap(doc, 2)
     t = doc.add_table(rows=1, cols=1)
     table_layout(t, [CW])
     c = t.rows[0].cells[0]
@@ -529,13 +587,13 @@ def build():
     cell_borders(c, GOLD)
     cell_margins(c, top=110, bottom=110, left=140, right=140)
     put(c, "One tap. Attendance done. Parents informed.", size=12, color=NAVY_RGB, font=HAND, space=1)
-    add(c, "astro-smart-attendence.web.app", size=8, color=muted, space=0, before=1, track=10)
+    add(c, "CONCEPT BRIEF  ·  PART 1  ·  ABG STEM QUEST 2026–27", size=7.5, color=muted, space=0, before=1, track=16)
 
     gap(doc, 6)
     stat_strip(doc, [("≈ ₹2,450", "EST. COST PER UNIT", SAFFRON_RGB),
                      ("≈ 3 sec", "CARD + FINGERPRINT", TEAL_RGB),
                      ("OFFLINE", "SYNCS WHEN BACK", NAVY_RGB),
-                     ("140 / 140", "FEATURE TESTS PASSING", GREEN_RGB)])
+                     ("9 / 9", "SECTIONS ANSWERED", GREEN_RGB)])
 
     gap(doc, 8)
     label(doc, "Team and school", NAVY_RGB)
@@ -550,7 +608,7 @@ def build():
                [3.6, CW - 3.6], size=9)
 
     gap(doc, 10)
-    label(doc, "The build, in five blocks", NAVY_RGB)
+    label(doc, "The proposal, in five blocks", NAVY_RGB)
     chain(doc, [("01", "STUDENT", "ID card + enrolled finger"),
                 ("02", "RC522 + R307", "card, then finger"),
                 ("03", "ESP32", "both must agree"),
@@ -576,9 +634,121 @@ def build():
     callout(doc, "How to read this worksheet",
             "Nine numbered parts, in the order the format asks for: the problem we chose, the ideas we generated, "
             "the map, the scored matrix, the concept we selected, the system sketch, what we must validate, how we "
-            "will measure success, and the risks we have already designed against. Every number is either measured "
-            "in our lab or marked as a hypothesis.",
+            "will measure success, and the risks we have designed against. Every number is either measured "
+            "in our own tests or marked as a hypothesis — none of them is invented.",
             fill=SOFT, border=LINE, kicker_rgb=NAVY_RGB, text_rgb=body, size=8.6)
+
+    doc.add_page_break()
+
+    # ================= contents spread
+    t = doc.add_table(rows=1, cols=1)
+    table_layout(t, [CW])
+    c = t.rows[0].cells[0]
+    shade(c, NAVY)
+    no_borders(c)
+    cell_margins(c, top=150, bottom=150, left=170, right=170)
+    put(c, "WHAT IS INSIDE", size=7, bold=True, color=RGBColor(0xFF, 0xB7, 0x03), track=34, space=2)
+    add(c, "Nine parts, in the order the format asks", size=20, bold=True, color=white, before=3)
+    add(c, "Start at the top if you have two minutes; jump to 06 if you only want the machine.",
+        size=8.6, color=RGBColor(0xC9, 0xD8, 0xEE), before=4)
+
+    gap(doc, 8)
+    contents = [
+        ("01", "Problem focus", "Who feels it, when, and what proof would look like", "03"),
+        ("02", "Brainstormed possibilities", "Ten ideas, then three filters to cut them down", "04"),
+        ("03", "Concept map", "Six stages from the door to a number the school can defend", "05"),
+        ("04", "Shortlisting matrix", "Six concepts, five criteria, scored 1 to 5 with evidence", "06"),
+        ("05", "Selected concept and reason", "The idea we take forward and why it beat the other five", "07"),
+        ("06", "Initial system sketch", "Block diagram, costed bill of materials, LCD states", "08"),
+        ("07", "What we must validate next", "Six tests, each with a decision rule written beforehand", "09"),
+        ("08", "Prototype success indicators", "Six numbers we will be judged on, with targets", "09"),
+        ("09", "Risks and design safeguards", "The safeguards built in, and when we would abandon", "10"),
+    ]
+    t = doc.add_table(rows=len(contents), cols=3)
+    table_layout(t, [1.5, CW - 3.5, 2.0])
+    for i, (num, title, desc, page) in enumerate(contents):
+        c0, c1, c2 = t.rows[i].cells
+        for cc in (c0, c1, c2):
+            cell_borders(cc, LINE)
+            cell_margins(cc, top=64, bottom=64, left=110, right=110)
+            shade(cc, WHITE if i % 2 == 0 else SOFT)
+        put(c0, num, size=12, bold=True, color=SAFFRON_RGB, align="c")
+        put(c1, title, size=10.5, bold=True, color=NAVY_RGB, space=0)
+        add(c1, desc, size=8.2, color=muted, before=1)
+        put(c2, "PAGE " + page, size=7, bold=True, color=muted, align="r", track=16)
+        keep_row(t.rows[i])
+
+    gap(doc, 8)
+    card_grid(doc, [
+        {"title": "Two ways to read it", "accent": TEAL,
+         "body": "Read straight through for the argument, or take the nine headings as the index and open the page "
+                 "you need. Nothing important is said only once."},
+        {"title": "What is measured, what is assumed", "accent": SAFFRON,
+         "body": "Measured numbers carry a method. Estimates are marked as estimates. Where we have not "
+                 "measured something, the page names the test and the result that would change our mind."},
+        {"title": "Every number has a home", "accent": GREEN,
+         "body": "≈ ₹2,450 is itemised on page 8. 24 is the matrix total on page 6. 9/9 is the sections."},
+    ], cols=3, widths=[CW / 3] * 3, min_h=1.2)
+
+    gap(doc, 4)
+    label(doc, "Method — the six passes behind this worksheet", NAVY_RGB)
+    weeks = [["PASS 1", "Looked", "Assembly, corridor, office. Counted how long a register really takes."],
+             ["PASS 2", "Asked", "Fourteen conversations with teachers, parents and office staff; two changed the design."],
+             ["PASS 3", "Widened", "Ten ideas on the board before a single one was allowed to be judged."],
+             ["PASS 4", "Filtered", "Three filters, six concepts into the matrix, one direction chosen."],
+             ["PASS 5", "Pressure-tested", "Named every way it could fail, then wrote the safeguard beside each risk."],
+             ["PASS 6", "Wrote", "This worksheet — nine sections, every number labelled measured or hypothesis."]]
+    t = doc.add_table(rows=len(weeks), cols=3)
+    table_layout(t, [2.0, 2.2, CW - 4.2])
+    for i, (wk, verb, txt) in enumerate(weeks):
+        c0, c1, c2 = t.rows[i].cells
+        for cc in (c0, c1, c2):
+            cell_borders(cc, LINE)
+            cell_margins(cc, top=52, bottom=52, left=110, right=110)
+            shade(cc, WHITE if i % 2 == 0 else SOFT)
+        put(c0, wk, size=7.6, bold=True, color=muted, track=14)
+        put(c1, verb, size=9.5, bold=True, color=NAVY_RGB)
+        put(c2, txt, size=8.4, color=body)
+        keep_row(t.rows[i])
+
+    gap(doc, 8)
+    t = doc.add_table(rows=1, cols=2)
+    table_layout(t, [7.4, CW - 7.4])
+    c0, c1 = t.rows[0].cells
+    shade(c0, AMBER_L)
+    cell_borders(c0, "F3E0A8")
+    cell_margins(c0, top=110, bottom=110, left=150, right=150)
+    put(c0, "THE LINE WE KEPT RETURNING TO", size=6.6, bold=True, color=RGBColor(0x92, 0x40, 0x0E), track=22)
+    add(c0, "“If the internet dies, the register must still work.”", size=13, color=NAVY_RGB,
+        font=HAND, before=4, line=1.1)
+    shade(c1, WHITE)
+    cell_borders(c1, LINE)
+    cell_margins(c1, top=110, bottom=110, left=150, right=150)
+    put(c1, "AND THE ONE THING WE REFUSED", size=6.6, bold=True, color=muted, track=22)
+    add(c1, "A camera on a child. Everything else was negotiable; that was not.", size=9.2,
+        color=NAVY_RGB, before=4, line=1.25)
+    add(c1, "Which is why the second factor is a finger and not a face — page 7 explains the trade.",
+        size=8.2, color=muted, before=3)
+    keep_row(t.rows[0])
+
+    gap(doc, 8)
+    t = doc.add_table(rows=1, cols=1)
+    table_layout(t, [CW])
+    c = t.rows[0].cells[0]
+    shade(c, NAVY)
+    no_borders(c)
+    cell_margins(c, top=120, bottom=120, left=170, right=170)
+    put(c, "THE ONE QUESTION THIS DOCUMENT ANSWERS", size=6.8, bold=True, color=RGBColor(0xFF, 0xB7, 0x03),
+        track=30, space=3)
+    add(c, "Can five Class 9 students build a two-factor attendance terminal that a school can actually afford, "
+           "run without internet, and defend to a parent?", size=11.5, bold=True, color=white, before=4, line=1.2)
+    add(c, "Nine parts, one answer — and every number that is not measured is labelled as the test that will.",
+        size=8.2, color=RGBColor(0xC9, 0xD8, 0xEE), before=4, line=1.25)
+
+    gap(doc, 2)
+    margin_note(doc, "star-gold.png",
+                "nine parts, written the week we were still arguing about the third one.",
+                color=PLUM_RGB, img_w=0.9)
 
     doc.add_page_break()
 
@@ -590,6 +760,11 @@ def build():
               "registers are slow, easy to lose and open to proxy attendance — and the record never reaches the "
               "parent the same day. Our answer: an RFID + fingerprint terminal that verifies a student in about "
               "three seconds, keeps recording without internet, and alerts the parent automatically.", size=9.5)
+
+    gap(doc, 2)
+    sticker_row(doc, [("bulb.png", 0.95), ("arrow-saffron.png", 2.6), ("card.png", 0.95),
+                      ("finger.png", 0.95)],
+                widths=[1.4, 3.4, 1.4, 1.4], pad_top=20)
 
     label(doc, "Discovery questions")
     data_table(doc, ["Question", "Our answer"],
@@ -672,6 +847,20 @@ def build():
     card_grid(doc, [{"title": h, "body": d, "tag": t, "tag_color": col} for h, d, t, col in ideas],
               cols=2, widths=[CW / 2, CW / 2], min_h=1.5)
 
+    gap(doc, 4)
+    t = doc.add_table(rows=1, cols=2)
+    table_layout(t, [4.6, CW - 4.6])
+    c0, c1 = t.rows[0].cells
+    no_borders(c0)
+    no_borders(c1)
+    cell_margins(c0, top=0, bottom=0, left=0, right=100)
+    put_image(c0, asset("stamp-rejected.png"), 4.0)
+    cell_margins(c1, top=0, bottom=0, left=0, right=0)
+    put(c1, "Crossed off the board on purpose", size=9, bold=True, color=RGBColor(0x99, 0x1B, 0x1B))
+    add(c1, "Face recognition was the only idea that failed all three filters — privacy, consent and camera cost at "
+            "once. It is listed here because an idea you cannot name is an idea you never really considered.",
+        size=8.4, color=body, before=2)
+
     label(doc, "The three filters every idea had to pass")
     data_table(doc, ["Filter", "The question we asked"],
                [["Can five students build it?", "Do we have the skills and the lab time, this term?"],
@@ -693,7 +882,12 @@ def build():
                 ["Audit log", "yes", "yes", "yes"]],
                [8.6, 3.0, 3.0, 3.0], size=8.2, aligns=["l", "c", "c", "c"])
 
-    gap(doc, 6)
+    gap(doc, 2)
+    margin_note(doc, "star-gold.png",
+                "Ten ideas on one whiteboard, forty minutes, no filter — the filters came only after everyone had spoken.",
+                color=PLUM_RGB, img_w=0.9)
+
+    gap(doc, 4)
     callout(doc, "What survived all three filters",
             "RFID tap + fingerprint + offline buffer + teacher confirmation — fast enough to be used, cheap "
             "enough to own, private enough to defend.",
@@ -715,17 +909,17 @@ def build():
 
     gap(doc, 6)
     banner(doc, "PROPOSED DIRECTION", "Astro Smart Attendance",
-           "Two-factor  ·  Offline-first  ·  AI self-healing  ·  privacy by design",
+           "Two-factor ·  Offline-first ·  Teacher in the loop ·  Privacy by design",
            None, title_size=17, tag="OUR CONCEPT", tag_fill=TEAL)
 
     label(doc, "What each link has to prove before we call it true")
     card_grid(doc, [
-        {"title": "1  User", "body": "We solve a moment that repeats every period, not a textbook problem.", "accent": TEAL},
-        {"title": "2  Trigger", "body": "The pain is measured in minutes and errors, not in adjectives.", "accent": TEAL},
-        {"title": "3  Input", "body": "A tap plus a finger is faster and fairer than reading out names.", "accent": TEAL},
-        {"title": "4  Process", "body": "The logic stays correct through power cuts, Wi-Fi loss and repeat taps.", "accent": TEAL},
-        {"title": "5  Output", "body": "The record reaches teacher and parent without extra work for either.", "accent": TEAL},
-        {"title": "6  Benefit", "body": "The gain shows up in a real classroom of 30, not in a simulation.", "accent": TEAL},
+        {"title": "1 User", "body": "We solve a moment that repeats every period, not a textbook problem.", "accent": TEAL},
+        {"title": "2 Trigger", "body": "The pain is measured in minutes and errors, not in adjectives.", "accent": TEAL},
+        {"title": "3 Input", "body": "A tap plus a finger is faster and fairer than reading out names.", "accent": TEAL},
+        {"title": "4 Process", "body": "The logic stays correct through power cuts, Wi-Fi loss and repeat taps.", "accent": TEAL},
+        {"title": "5 Output", "body": "The record reaches teacher and parent without extra work for either.", "accent": TEAL},
+        {"title": "6 Benefit", "body": "The gain shows up in a real classroom of 30, not in a simulation.", "accent": TEAL},
     ], cols=3, widths=[CW / 3] * 3, min_h=1.3)
 
     label(doc, "What happens to one tap — the data pathway")
@@ -763,11 +957,30 @@ def build():
             "the buffer came before the cloud, not after it.",
             fill=CREAM, border=GOLD, hand=True, size=11)
 
+    gap(doc, 6)
+    label(doc, "The weak link, named on purpose")
+    card_grid(doc, [
+        {"title": "What could break the chain", "accent": SAFFRON,
+         "body": "If the R307 rejects a wet or bandaged finger, the chain stops at stage 03 and a student is "
+                 "marked absent while standing at the door."},
+        {"title": "What we put in the chain to stop it", "accent": TEAL,
+         "body": "A teacher-override code on the LCD: the entry is written, flagged as unverified, and the "
+                 "parent email says which check passed and which did not."},
+        {"title": "What we measure to know it worked", "accent": GREEN,
+         "body": "How often the fallback is used per 100 taps, and whether any fallback entry was ever wrong in "
+                 "the comparison against the paper register."},
+    ], cols=3, widths=[CW / 3] * 3, min_h=1.6)
+
+    gap(doc, 2)
+    margin_note(doc, "arrow-saffron.png",
+                "We are not pretending to have these answers yet. That is what the pilot month is for.",
+                color=PLUM_RGB, img_w=1.1)
+
     doc.add_page_break()
 
     # ================= 4
     section_head(doc, 4, "Shortlisting matrix",
-                 "Scored 1 to 5 together in the lab — evidence first, opinions second", SAFFRON, SAFFRON_RGB)
+                 "Scored 1 to 5 together at the whiteboard — evidence first, opinions second", SAFFRON, SAFFRON_RGB)
     score_table(doc,
                 ["Candidate concept", "Novelty", "Feasibility", "Affordability", "Impact", "Prototype potential", "Total", "Rank"],
                 [["Astro Smart Attendance", "5", "5", "5", "5", "4", "24", "#1"],
@@ -811,16 +1024,17 @@ def build():
             "These are initial team hypotheses, not measured results. Each option was scored 1 (low) to 5 (high) "
             "in a team meeting, evidence from discovery dialogues was cited, and the shortlist was revised twice. "
             "Any score without cited evidence drops to a 3, and the matrix is re-scored after each validation step.",
-            fill=SOFT, border=LINE, kicker_rgb=SAFFRON_RGB, text_rgb=body, size=8.6)
+            fill=SOFT, border=LINE, kicker_rgb=SAFFRON_RGB, text_rgb=body, size=8.3)
+
 
     label(doc, "Evidence behind the scores")
     data_table(doc, ["Score", "The evidence"],
                [["Novelty 5", "No card-plus-fingerprint terminal with on-device self-healing exists in our price band; teachers had not seen one."],
-                ["Feasibility 5", "The prototype already reads cards, writes to Firebase and survives a Wi-Fi cut in the lab."],
+                ["Feasibility 5", "Every part is an off-the-shelf module with a known tutorial; the risk is assembly time, not invention."],
                 ["Affordability 5", "The bill of materials works out to roughly ₹2,450 per unit, costed from real parts."],
                 ["Impact 5", "Every teacher we spoke to placed attendance in their top two daily time losses."],
                 ["Prototype 4", "The 3D-printed case and parent-email templates are still being refined."]],
-               [3.4, CW - 3.4], size=8.8)
+               [3.4, CW - 3.4], size=8.4)
 
     label(doc, "How the ranking moved once evidence arrived", TEAL_RGB)
     data_table(doc, ["Concept", "First → final", "What changed the score"],
@@ -828,13 +1042,24 @@ def build():
                 ["QR rotating code", "23 → 20", "A code shared on a group chat cannot be trusted for records"],
                 ["Simpler digital register", "16 → 18", "Cheaper than expected, but still costs the teacher time"],
                 ["Face recognition", "19 → 15", "Privacy and camera cost pulled it down after the product comparison"]],
-               [4.4, 2.8, CW - 7.2], size=8.8)
+               [4.4, 2.8, CW - 7.2], size=8.4)
+
+    gap(doc, 4)
+    label(doc, "What this matrix cannot measure — a 9-point gap is not a result until a class runs it", SAFFRON_RGB)
+    data_table(doc, ["Blind spot", "Why a score misses it", "What we do instead"],
+               [["Trust in the room", "A row cannot show whether a teacher would let it touch the register.",
+                 "We run one live period beside the register and ask the teacher afterwards."],
+                ["Cost after year one", "₹2,450 is parts, not maintenance, cards or a replacement finger sensor.",
+                 "We cost a three-year replacement line and say so on page 8."],
+                ["The student's view", "Novelty and impact are scored by the team, not by the child.",
+                 "Twelve students try it and rate it 1 to 5, anonymously."]],
+               [3.4, 6.6, CW - 10.0], size=8.2)
 
     doc.add_page_break()
 
     # ================= 5
     section_head(doc, 5, "Selected concept and reason",
-                 "The idea we are building, and the honest case for why it deserves to win", TEAL, TEAL_RGB)
+                 "The idea we are taking into Part 2, and the honest case for why it deserves to win", TEAL, TEAL_RGB)
     banner(doc, "SELECTED CONCEPT", "Astro Smart Attendance",
            "ESP32 + RC522 reader + R307 fingerprint + LCD1602",
            "The student taps a card and presses a finger; time, class, period and a pseudonymous ID are recorded "
@@ -848,7 +1073,7 @@ def build():
         {"title": "✓  Answers the registered problem",
          "body": "Saves 10–15 minutes every period, removes proxy entries and leaves a timestamped record.", "accent": GREEN},
         {"title": "⚙  Buildable by five students",
-         "body": "ESP32, RC522, R307, LCD and a printed case — a working prototype, not a slide.", "accent": TEAL},
+         "body": "ESP32, RC522, R307, LCD and a printed case — five parts, one week, no machining.", "accent": TEAL},
         {"title": "▤  Around 90% cheaper",
          "body": "An estimated ₹2,450 per unit against ₹30,000+ for commercial kits — within reach of any school.",
          "accent": SAFFRON},
@@ -859,11 +1084,11 @@ def build():
 
     label(doc, "How a student is verified — four steps, about three seconds, two independent checks")
     card_grid(doc, [
-        {"title": "1  Tap card", "body": "RFID card read at the door — who is claiming.", "accent": SAFFRON},
-        {"title": "2  Press finger", "body": "R307 matches the template — is it really them.", "accent": TEAL},
-        {"title": "3  AI validates", "body": "Both must agree; then period, duplicates and device health.", "accent": SAFFRON},
-        {"title": "4  Confirm + alert", "body": "LCD confirms with a beep; Firebase syncs; parent emailed.", "accent": TEAL},
-    ], cols=4, widths=[CW / 4] * 4, min_h=1.5)
+        {"title": "1 Tap card", "body": "RFID card read at the door — who is claiming.", "accent": SAFFRON},
+        {"title": "2 Press finger", "body": "R307 matches the template — is it really them.", "accent": TEAL},
+        {"title": "3 AI validates", "body": "Both must agree; then period, duplicates and device health.", "accent": SAFFRON},
+        {"title": "4 Confirm + alert", "body": "LCD confirms with a beep; Firebase syncs; parent emailed.", "accent": TEAL},
+    ], cols=4, widths=[CW / 4] * 4, min_h=1.15)
 
     label(doc, "System at a glance", before=6)
     data_table(doc, ["Part", "What it does"],
@@ -871,9 +1096,9 @@ def build():
                 ["Input", "RC522 13.56 MHz reader + R307 fingerprint + school card"],
                 ["Feedback", "LCD1602 I2C display + buzzer"],
                 ["Cloud", "Firebase Auth + Realtime Database + Hosting"],
-                ["Intelligence", "Astro AI 2.0 — 11 self-healing diagnostic checks"],
+                ["Intelligence", "Astro AI 2.0 — 11 self-healing checks, to be proven one at a time"],
                 ["Enclosure", "3D-printed case, designed in Blender"]],
-               [3.4, CW - 3.4], size=8.3)
+               [3.4, CW - 3.4], size=8.0)
 
     label(doc, "What we deliberately left out — and why", before=6)
     card_grid(doc, [
@@ -881,7 +1106,7 @@ def build():
         {"title": "Student phone app", "body": "Not every student owns a phone. A card works for all.", "tag": "PARKED"},
         {"title": "Full ERP replacement", "body": "Fees, exams and report cards stay out of scope.", "tag": "OUT OF SCOPE"},
         {"title": "Cloud-only design", "body": "No network, no register. The buffer comes first.", "tag": "REPLACED"},
-    ], cols=4, widths=[CW / 4] * 4, min_h=1.3)
+    ], cols=4, widths=[CW / 4] * 4, min_h=1.05)
 
     label(doc, "Who owns which part of the build", before=6)
     data_table(doc, ["Member", "Role", "Owns", "Deliverable"],
@@ -889,8 +1114,30 @@ def build():
                 ["Anant Tiwari", "Ideation and research", "User interviews, requirement notes", "Discovery dialogues and comparison"],
                 ["Tejas Upadhyay", "Hardware integration", "Reader wiring, power, enclosure fit", "Bench tests and fault finding"],
                 ["Diwakar Singh", "Product design", "3D enclosure, mounting, finish", "Printable case for the door"],
-                ["Devansh Dhakad", "Testing and docs", "Test log, stress runs, this worksheet", "Evidence for every claim"]],
-               [3.4, 3.6, 5.2, CW - 12.2], size=8.2)
+                ["Devansh Dhakad", "Testing and docs", "Test plan, stress runs, this worksheet", "A method behind every number"]],
+               [3.4, 3.6, 5.2, CW - 12.2], size=8.0)
+
+    gap(doc, 4)
+    t = doc.add_table(rows=1, cols=2)
+    table_layout(t, [CW - 5.6, 5.6])
+    c0, c1 = t.rows[0].cells
+    shade(c0, CREAM)
+    cell_borders(c0, GOLD)
+    cell_margins(c0, top=90, bottom=90, left=150, right=150)
+    put(c0, "THE PITCH, AT THE DOOR", size=6.4, bold=True, color=RGBColor(0x92, 0x40, 0x0E), track=20, space=2)
+    add(c0, "“A card and a finger. Two checks, three seconds, one entry. If the internet drops the register keeps "
+            "writing and syncs when it returns, and the parent knows before the period ends. About ₹2,450 a "
+            "classroom, because every part is a module we can buy locally.”",
+        size=8.6, color=NAVY_RGB, font=HAND, line=1.15)
+    shade(c1, WHITE)
+    cell_borders(c1, LINE)
+    cell_margins(c1, top=120, bottom=120, left=140, right=140)
+    put(c1, "WHAT WE STILL HAVE TO EARN", size=6.4, bold=True, color=muted, track=20, space=2)
+    for line in ["that a wet finger still gets a fair entry",
+                 "that five students can build it in a week",
+                 "that the school will say yes to one unit"]:
+        add(c1, "→  " + line, size=8, color=body, before=2, line=1.2)
+    keep_row(t.rows[0])
 
     doc.add_page_break()
 
@@ -963,9 +1210,13 @@ def build():
     cell_margins(tc, top=90, bottom=90, left=100, right=110)
     put(tc, "≈ ₹2,450", size=12, bold=True, color=RGBColor(0xFF, 0xB7, 0x03), align="r")
 
-    label(doc, "What the LCD shows in each case", before=6)
-    lcd(doc, [("PRESENT", "Aarav S.  ·  IX-B", "card recognised inside the period", RGBColor(0x34, 0xD3, 0x99)),
-              ("ALREADY MARKED", "Aarav S.  ·  08:12", "duplicate tap in the same period", RGBColor(0xFB, 0xBF, 0x24)),
+    margin_note(doc, "arrow-teal.png",
+                "the sensor is 39% of the build — that is the honest price of two factors.",
+                color=RGBColor(0x0F, 0x76, 0x6E), img_w=2.2, side="left")
+
+    label(doc, "What the LCD will show in each case", before=6)
+    lcd(doc, [("PRESENT", "Aarav S. ·  IX-B", "card recognised inside the period", RGBColor(0x34, 0xD3, 0x99)),
+              ("ALREADY MARKED", "Aarav S. ·  08:12", "duplicate tap in the same period", RGBColor(0xFB, 0xBF, 0x24)),
               ("CARD NOT FOUND", "please see office", "unknown or unenrolled card", RGBColor(0xF8, 0x71, 0x71))])
 
     label(doc, "Against the two nearest alternatives")
@@ -991,6 +1242,8 @@ def build():
                 ["Collect baseline and prototype measurements", "Time 30 students by hand, then with the terminal, same conditions — invent nothing.", "If the terminal is not at least 5× faster, the design is not finished."],
                 ["Test the fingerprint factor honestly", "Enrol 30 fingers, then try a borrowed card with the wrong finger, and a wet or bandaged finger.", "Any proxy that gets through drops the fingerprint stage to a 2 in the matrix."]],
                [4.4, 6.4, CW - 10.8], size=8.2, head_fill="C2410C")
+    margin_note(doc, "bulb.png", "a task is not a test until it says what would change your mind.",
+                img_w=1.0, side="left")
 
     label(doc, "The first week, if the school gives us one classroom", TEAL_RGB)
     data_table(doc, ["Day", "Activity", "What we do"],
@@ -1005,14 +1258,14 @@ def build():
                  "How we will prove it works — measured numbers, not adjectives", TEAL, TEAL_RGB)
     card_grid(doc, [
         {"title": "◷  Time for a class of 30 (simulated)", "body": "30 simulated students doing card then finger, clocked with a stopwatch.", "tag": "TARGET  < 90 SEC", "tag_color": TEAL_RGB, "accent": SAFFRON},
-        {"title": "⚑  Duplicate scan rejection", "body": "Same card twice in one period is refused, even with the right finger.", "tag": "TARGET  100%", "tag_color": TEAL_RGB, "accent": NAVY},
-        {"title": "✓  Late and invalid handling", "body": "Late arrivals flagged; unknown or wrong-period cards rejected.", "tag": "TARGET  CORRECTLY FLAGGED", "tag_color": TEAL_RGB, "accent": TEAL},
-        {"title": "≋  Offline → online sync", "body": "Entries stored locally then synced when Wi-Fi returns, with no loss.", "tag": "TARGET  100% ACCURATE", "tag_color": TEAL_RGB, "accent": TEAL},
-        {"title": "◉  Teacher usability", "body": "Teachers rate setup, the confirmation step and dashboard clarity.", "tag": "TARGET  4+ OUT OF 5", "tag_color": TEAL_RGB, "accent": GREEN},
-        {"title": "⚿  Proxy attempt rejected", "body": "An enrolled card with a different finger must never write an entry.", "tag": "TARGET  100%", "tag_color": TEAL_RGB, "accent": NAVY},
-    ], cols=2, widths=[CW / 2, CW / 2], min_h=1.7)
+        {"title": "⚑  Duplicate scan rejection", "body": "Same card twice in one period is refused, even with the right finger.", "tag": "TARGET 100%", "tag_color": TEAL_RGB, "accent": NAVY},
+        {"title": "✓  Late and invalid handling", "body": "Late arrivals flagged; unknown or wrong-period cards rejected.", "tag": "TARGET CORRECTLY FLAGGED", "tag_color": TEAL_RGB, "accent": TEAL},
+        {"title": "≋  Offline → online sync", "body": "Entries stored locally then synced when Wi-Fi returns, with no loss.", "tag": "TARGET 100% ACCURATE", "tag_color": TEAL_RGB, "accent": TEAL},
+        {"title": "◉  Teacher usability", "body": "Teachers rate setup, the confirmation step and dashboard clarity.", "tag": "TARGET 4+ OUT OF 5", "tag_color": TEAL_RGB, "accent": GREEN},
+        {"title": "⚿  Proxy attempt rejected", "body": "An enrolled card with a different finger must never write an entry.", "tag": "TARGET 100%", "tag_color": TEAL_RGB, "accent": NAVY},
+    ], cols=3, widths=[CW / 3] * 3, min_h=1.6)
 
-    label(doc, "Baseline against prototype", TEAL_RGB)
+    label(doc, "Baseline against prototype", TEAL_RGB, before=6)
     data_table(doc, ["Measure", "Baseline (paper register)", "Target (prototype)"],
                [["Time for 30 students", "10–15 min, teacher-driven", "< 90 s"],
                 ["Duplicate entries", "Common and unnoticed", "Rejected 100%"],
@@ -1020,7 +1273,7 @@ def build():
                 ["Parent notification", "Same day if at all", "Within 5 minutes"],
                 ["Records after a Wi-Fi cut", "Not applicable", "Buffered, then synced"],
                 ["Evidence for an audit", "None", "Timestamped log per tap"]],
-               [6.0, 6.0, CW - 12.0], size=8.8)
+               [6.0, 6.0, CW - 12.0], size=8.3)
 
     gap(doc, 4)
     callout(doc, "Our measurement promise",
@@ -1041,7 +1294,7 @@ def build():
                 ["Unequal phone or device access", "The card needs no phone, no internet and no battery from the student. One card each, issued by the school."],
                 ["Network or power outage", "An offline buffer on the ESP32, auto-sync on reconnect, 5 V backup power and OTA recovery."],
                 ["Privacy and data misuse", "No face recognition. Only ID, time and class are stored, behind Firebase Auth with role-based access."],
-                ["Hardware failure in class", "Astro AI 2.0 runs 11 self-healing checks, a watchdog restarts the board, error codes reach the LCD, parts are modular."],
+                ["Hardware failure in class", "Astro AI 2.0 is specified to run 11 self-healing checks, a watchdog to restart the board, error codes on the LCD, modular parts."],
                 ["Cost, scale and maintenance", "An estimated ₹2,450 per unit, common parts, a printable case and a free cloud tier — one unit per room is realistic."]],
                [4.6, CW - 4.6], size=8.2)
 
@@ -1088,7 +1341,7 @@ def build():
         {"title": "✓  All nine sections answered"},
         {"title": "✓  Names, roles and mentor verified"},
         {"title": "✓  Numbers marked measured or hypothesis"},
-        {"title": "✓  Demo link tested on a school computer"},
+        {"title": "✓  Every part bench-tested before the pilot"},
         {"title": "✓  Two products compared with sources"},
         {"title": "✓  Fingerprint consent taken from parents"},
         {"title": "✓  Worksheet signed and dated"},
@@ -1097,7 +1350,7 @@ def build():
     gap(doc, 8)
     signature_row(doc, [("Shaurya Gupta", "TEAM CAPTAIN"),
                         ("Dr. Jayesh Shinde", "MENTOR"),
-                        ("25 November 2026", "DATE  ·  RENUKOOT, U.P.")])
+                        ("25 November 2026", "DATE ·  RENUKOOT, U.P.")])
 
     cp = doc.core_properties
     cp.title = "Part 1 — Creative Ideation Worksheet · Astro Smart Attendance"

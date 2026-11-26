@@ -463,7 +463,7 @@ def page_header(c, page_no):
     tracked(c, M, PAGE_H - 20.5, "ABG STEM QUEST", "Pop8", 8.4, Color(1, 1, 1), 1.55)
     x0 = M + tracked_width("ABG STEM QUEST", "Pop8", 8.4, 1.55)
     tracked(c, x0 + 4, PAGE_H - 20.5, "2026–27", "Pop8", 8.4, GOLD, 1.55)
-    lab = "PART 1  ·  CREATIVE IDEATION WORKSHEET"
+    lab = "PART 1 ·  CREATIVE IDEATION WORKSHEET"
     w = tracked_width(lab, "Pop7", 6.4, 1.0) + 16
     rrect(c, PAGE_W - M - w, PAGE_H - 23.5, w, 16, 8, fill=Color(1, 1, 1, 0.13),
           stroke=Color(1, 1, 1, 0.35), lw=0.7)
@@ -498,7 +498,7 @@ class NumberedCanvas(pdfcanvas.Canvas):
         self.line(M, y + 12, PAGE_W - M, y + 12)
         tracked(self, M, y, "ASTRO SMART ATTENDANCE", "Pop8", 6.6, NAVY, 1.2)
         x = M + tracked_width("ASTRO SMART ATTENDANCE", "Pop8", 6.6, 1.2) + 6
-        draw_text(self, x, y, "·  Sun Rises India  ·  ABPS Renukoot  ·  SDG 9", "Int5", 6.6, MUTED)
+        draw_text(self, x, y, "·  Sun Rises India ·  ABPS Renukoot ·  SDG 9", "Int5", 6.6, MUTED)
         draw_text(self, PAGE_W - M - 40, y, "Page %d of %d" % (i, n), "Pop7", 6.6, NAVY)
 
 

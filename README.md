@@ -52,15 +52,47 @@ Cloud Dashboard: https://astro-smart-attendence.web.app
 ## Team Sun Rises India
 1. Shaurya Gupta - Team Lead, Firmware and Cloud Developer
 2. Anant Tiwari - Ideation and User Research Lead
-3. Tejash Upadhyaye - Hardware Integration and Circuit Testing
+3. Tejas Upadhyay - Hardware Integration and Circuit Testing
 4. Diwakar Singh - Product Design and 3D Enclosure
-5. Devansh Dakard - Testing, Documentation and Presentation
+5. Devansh Dhakad - Testing, Documentation and Presentation
 
 ## Mentor
 Dr. Jayesh Shinde - The Aditya Birla Public School, Renukoot
 
 ## Contact
 Location: Renukoot, Sonbhadra, Uttar Pradesh, India
+
+---
+
+## Part 1 — Creative Ideation Worksheet
+
+The ideation worksheet for ABG STEM Quest 2026-27 is published in two matching editions,
+built from the same design system (navy, saffron, teal, gold, hand script, sticker doodles):
+
+| Edition | File |
+| --- | --- |
+| Print edition (8 pages, PDF) | `Creative-Ideation-Worksheet-Astro-Smart-Attendance.pdf` |
+| Editable edition (10 pages, Word) | `Creative-Ideation-Worksheet-Astro-Smart-Attendance.docx` |
+| Format audit (36 checks, both files) | `Format-Compliance-Check.pdf` |
+
+It follows the nine-part format exactly — problem focus, brainstormed possibilities, concept
+map, shortlisting matrix, selected concept and reason, initial system sketch, validation plan,
+success indicators, risks and safeguards — plus the team reflection prompts.
+
+Everything in it is a **proposal**: costs are estimates, indicator targets are targets, and
+every number is labelled as measured or as a hypothesis. No part of it claims the build is done.
+
+### Rebuilding
+
+```
+python3 -m venv .venv && .venv/bin/pip install reportlab pypdf pypdfium2 python-docx pillow fonttools brotli
+.venv/bin/python scripts/make_stickers.py      # regenerate the hand-drawn accent PNGs
+.venv/bin/python scripts/build_worksheet.py    # -> PDF
+.venv/bin/python scripts/build_docx.py         # -> DOCX
+.venv/bin/python scripts/estimate_docx.py      # page-fit check, exits 1 on overflow
+.venv/bin/python scripts/verify_format.py      # 36-requirement audit of both files
+.venv/bin/python scripts/build_format_check.py # -> Format-Compliance-Check.pdf
+```
 
 ---
 Made in Renukoot, India
