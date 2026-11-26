@@ -26,11 +26,16 @@ PAGE_W = int(21.0 * CM)
 PAGE_H = int(29.7 * CM)
 USABLE_W = PAGE_W - MARGIN_L - MARGIN_R
 
+# Carlito is metric-compatible with Calibri, so the preview wraps text the way Word
+# will. (Previews drawn with Poppins/Inter wrap early and make pages look emptier
+# than they really are.)
 FONT_PATHS = [
+    "/home/user/fonts/Carlito-Regular.ttf",
     "/home/user/fonts/Inter-Regular.ttf",
     "/usr/share/fonts/truetype/dejavu/DejaVuSans.ttf",
 ]
 BOLD_PATHS = [
+    "/home/user/fonts/Carlito-Bold.ttf",
     "/home/user/fonts/Poppins-Bold.ttf",
     "/usr/share/fonts/truetype/dejavu/DejaVuSans-Bold.ttf",
 ]
@@ -45,11 +50,13 @@ _DOC = [None]
 
 
 def font(size, bold=False):
-    key = (round(size), bold)
+    """size is in points; the canvas is 96 dpi, so scale it to pixels."""
+    key = (round(size, 1), bold)
     if key not in _fonts:
         path = BOLD_PATHS[0] if bold else FONT_PATHS[0]
+        px = max(6, int(round(size * DPI / 72.0)))
         try:
-            _fonts[key] = ImageFont.truetype(path, max(6, int(round(size))))
+            _fonts[key] = ImageFont.truetype(path, px)
         except Exception:
             _fonts[key] = ImageFont.load_default()
     return _fonts[key]
@@ -192,7 +199,7 @@ def draw_cell(draw, cell, x, y, w, h, doc=None, img=None):
             for t, s, b, c in ln:
                 draw.text((lx, ty), t, font=font(s, b), fill=c or "#334155")
                 lx += draw.textlength(t, font=font(s, b))
-            ty += size * 1.28
+            ty += size * DPI / 72.0 * 1.22
         ty += 1
     return ty
 
@@ -220,7 +227,7 @@ def table_size(table):
                     hh += 4
                     continue
                 size = runs[0][1]
-                hh += len(wrap(d, runs, w - 12)) * size * 1.28 + 1
+                hh += len(wrap(d, runs, w - 12)) * size * DPI / 72.0 * 1.22 + 1
             h = max(h, hh)
         trPr = row._tr.find(qn("w:trPr"))
         if trPr is not None:
@@ -256,9 +263,9 @@ def main():
             for ln in lines:
                 lx = MARGIN_L
                 for t, s, b, c in ln:
-                    draw.text((lx, y), t, font=font(s * 1.05, b), fill=c or "#334155")
-                    lx += draw.textlength(t, font=font(s * 1.05, b))
-                y += size * 1.34
+                    draw.text((lx, y), t, font=font(s, b), fill=c or "#334155")
+                    lx += draw.textlength(t, font=font(s, b))
+                y += size * DPI / 72.0 * 1.24
             y += 3
         elif block.tag == qn("w:tbl"):
             table = Table(block, doc)
@@ -272,11 +279,10 @@ def main():
                     x += w
                 y += h
             y += 2
+            # Pagination comes from the explicit page breaks in the document;
+            # rolling over here would invent a blank page the Word file does not have.
             if y > PAGE_H - MARGIN_B:
-                pages.append(page)
-                page = Image.new("RGB", (PAGE_W, PAGE_H), "white")
-                draw = ImageDraw.Draw(page)
-                y = MARGIN_T
+                print(f"  warning: content runs past the bottom margin ({y:.0f} > {PAGE_H - MARGIN_B:.0f})")
     pages.append(page)
 
     for i, im in enumerate(pages, 1):
