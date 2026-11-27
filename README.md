@@ -16,6 +16,16 @@ A compact ESP32-based RFID attendance terminal with AI self-healing,
 Firebase Cloud dashboard, and automatic parent email alerts. 
 Cost: Only 1,500 Rupees per unit.
 
+# Supabase + Firebase bridge
+
+The ESP32 terminal and the web dashboard read Firebase RTDB; Supabase holds the
+system of record. A Postgres trigger posts to the `astro-firebase-sync` edge
+function, which mirrors students, attendance, devices, notices, holidays and
+school settings into Firebase using a service account.
+
+- Function source: `supabase/functions/astro-firebase-sync/index.ts`
+- Runbook, deploy steps and failure codes: [`docs/firebase_sync.md`](docs/firebase_sync.md)
+
 ## Technologies Used
 - ESP32 DevKit V1
 - RC522 RFID Module
